@@ -5,6 +5,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  TextInput,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import {
   multiply,
@@ -16,6 +20,7 @@ import {
 
 export default function App() {
   const [results, setResults] = useState<string[]>([]);
+  const [appKey, setAppKey] = useState<string>('');
 
   const addResult = (message: string) => {
     setResults((prev) => [
@@ -51,8 +56,6 @@ export default function App() {
 
   const handleStartJourney = async () => {
     try {
-      const appKey =
-        'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjZXJ0aWZhY2UiLCJ1c2VyIjoiRDFEOTY0NzFGOEJGOEZCRkUwODMzMUUzQUVFRDg2NUJFQXxtb2JpbGUuZGVtby5hcHAiLCJlbXBDb2QiOiIwMDAwMDAwNzQyIiwiZmlsQ29kIjoiMDAwMDAwMjk2OCIsImNwZiI6IjYyNzE3NDIzMDAxIiwibm9tZSI6IkFFNTE2NTMzOTdCMjk2RkVFQUVEOUZEMUJEMEM5NDQ2OUMzRkUzMDZBRTQ3MTIwRkZEQjRCRTBBMjFEMUU5NjE1QzdDQ0YxMTI0MTc1RDIwMDlBQ0UxMUE5MDYxQjZFNUFGREUwNUJFM0MyNzNCQUM4ODM5MEZEQTNFODZDNUY0NHxURVNURSBNT0JJTEUgSE9NT0xPRyIsIm5hc2NpbWVudG8iOiIwMS8wMS8yMDAwIiwiZWFzeS1pbmRleCI6IkFBQUFFaW1wT0xyQmhVM3RCUGZVdWZHRWZ0aGNHamhLN1Y0VTNYT3pVTXNOZnpaR1h1S3VrY3NqNjN0OElBPT0iLCJrZXkiOiJTbkV3SEdNd2VSQXhYVmV3SEdBaWRuRGhlblV6SEZtYWQ3MXZIQ1hrTUJBR1BtTD0iLCJleHAiOjE3NTM3ODc1MzYsImlhdCI6MTc1Mzc4NzIzNn0.hCM6kZ7uon_exIiQNRbWW9CFiXOXv_MizcUVIc8B9_I';
       const result = await startJourney(appKey);
       addResult(`Start Journey result: ${result}`);
     } catch (error) {
@@ -65,69 +68,99 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>RnSdk Example</Text>
-
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleMultiply}>
-          <Text style={styles.buttonText}>Test Multiply</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.button} onPress={handleCheckPermission}>
-          <Text style={styles.buttonText}>Check Camera Permission</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleRequestPermission}
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidingView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.buttonText}>Request Camera Permission</Text>
-        </TouchableOpacity>
+          <Text style={styles.title}>RN OitiSDK Example</Text>
 
-        <TouchableOpacity style={styles.button} onPress={handleStartJourney}>
-          <Text style={styles.buttonText}>Start Journey</Text>
-        </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleCheckPermission}
+            >
+              <Text style={styles.buttonText}>Check Camera Permission</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity style={styles.clearButton} onPress={clearResults}>
-          <Text style={styles.buttonText}>Clear Results</Text>
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleRequestPermission}
+            >
+              <Text style={styles.buttonText}>Request Camera Permission</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.clearButton}
-          onPress={() => testString('test')}
-        >
-          <Text style={styles.buttonText}>Test</Text>
-        </TouchableOpacity>
-      </View>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleStartJourney}
+            >
+              <Text style={styles.buttonText}>Start Journey</Text>
+            </TouchableOpacity>
 
-      <View style={styles.resultsContainer}>
-        <Text style={styles.resultsTitle}>Results:</Text>
-        <ScrollView style={styles.resultsScroll}>
-          {results.length === 0 ? (
-            <Text style={styles.noResults}>
-              No results yet. Try the buttons above!
-            </Text>
-          ) : (
-            results.map((result, index) => (
-              <Text key={index} style={styles.resultText}>
-                {result}
-              </Text>
-            ))
-          )}
+            <TouchableOpacity style={styles.clearButton} onPress={clearResults}>
+              <Text style={styles.buttonText}>Clear Results</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.resultsContainer}>
+            <Text style={styles.resultsTitle}>Results:</Text>
+            <ScrollView style={styles.resultsScroll}>
+              {results.length === 0 ? (
+                <Text style={styles.noResults}>
+                  Sem resultados, tente utilizar os botões!
+                </Text>
+              ) : (
+                results.map((result, index) => (
+                  <Text key={index} style={styles.resultText}>
+                    {result}
+                  </Text>
+                ))
+              )}
+            </ScrollView>
+          </View>
+
+          <View style={styles.appKeyContainer}>
+            <Text style={styles.appKeyLabel}>App Key:</Text>
+            <TextInput
+              style={styles.appKeyInput}
+              value={appKey}
+              onChangeText={setAppKey}
+              placeholder="Cole a chave da aplicação aqui!"
+              multiline
+              numberOfLines={3}
+            />
+          </View>
         </ScrollView>
-      </View>
-    </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#f5f5f5',
   },
+  keyboardAvoidingView: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 40,
+  },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 20,
@@ -156,10 +189,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   resultsContainer: {
-    flex: 1,
+    minHeight: 200,
     backgroundColor: 'white',
     borderRadius: 8,
     padding: 15,
+    marginBottom: 20,
   },
   resultsTitle: {
     fontSize: 18,
@@ -182,5 +216,26 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     textAlign: 'center',
     marginTop: 20,
+  },
+  appKeyContainer: {
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 15,
+  },
+  appKeyLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#333',
+  },
+  appKeyInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 6,
+    padding: 12,
+    fontSize: 14,
+    color: '#333',
+    backgroundColor: '#f9f9f9',
+    textAlignVertical: 'top',
   },
 });

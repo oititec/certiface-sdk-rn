@@ -7,10 +7,10 @@ import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.Callback
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.module.annotations.ReactModule
 import br.com.oititec.rn.sdk.NativeRnSdkSpec
-import br.com.oititec.rn.sdk.executor.LivenessExecutor
+//import br.com.oititec.rn.sdk.executor.LivenessExecutor
+import br.com.oititec.rn.sdk.model.Features
 
 @ReactModule(name = RnSdkModule.NAME)
 class RnSdkModule(reactContext: ReactApplicationContext) :
@@ -50,6 +50,8 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
     onSuccess: Callback?,
     onError: Callback?
   ) {
+    val features = Features.entries
+    var selectedFeature = features.first()
     val isCustomEnabled = false
     // val theme: Map<String, Any>? = call.argument("theme")
 
@@ -58,22 +60,22 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
       return
     }
 
-    val activity = currentActivity ?: run {
+    val activity = reactApplicationContext ?: run {
       onError?.invoke("NO_ACTIVITY")
       return
     }
 
-    LivenessExecutor(appKey).executeLiveness(
-      context = activity,
-      execOnSuccess = { livenessResult ->
-        onSuccess?.invoke(livenessResult)
-      },
-      execOnError = { error ->
-        onError?.invoke(error)
-      },
-      isCustomEnabled = isCustomEnabled
-      // , theme = theme
-    )
+//    LivenessExecutor(appKey, selectedFeature).executeLiveness(
+//      context = activity,
+//      execOnSuccess = { livenessResult ->
+//        onSuccess?.invoke(livenessResult)
+//      },
+//      execOnError = { error ->
+//        onError?.invoke(error)
+//      },
+//      isCustomEnabled = isCustomEnabled
+//      // , theme = theme
+//    )
   }
 
   override fun testString(appKey: String?): String {
