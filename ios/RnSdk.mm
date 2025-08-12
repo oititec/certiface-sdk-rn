@@ -47,23 +47,29 @@ RCT_EXPORT_MODULE()
                            }];
 }
 
-- (void)startJourney:(NSString*)appKey
-             onSuccess:(nonnull RCTResponseSenderBlock)onSuccess
-             onError:(nonnull RCTResponseSenderBlock)onError {
+- (void)startJourney:(NSString *)appKey
+           onSuccess:(nonnull RCTResponseSenderBlock)onSuccess
+             onError:(nonnull RCTResponseSenderBlock)onError
+     isCustomEnabled:(NSNumber *)isCustomEnabled
+               theme:(NSDictionary *)theme {
+  BOOL customEnabled = isCustomEnabled ? [isCustomEnabled boolValue] : NO;
   [moduleImpl startJourneyWithAppKey:appKey
-                            onSuccess:^(NSString * _Nonnull result) {
-      onSuccess(@[ result ]);
-    }
-                              onError:^(NSString * _Nonnull error) {
-      onError(@[ error ]);
-    }];
+      isCustomEnabled:customEnabled
+      theme:theme
+      onSuccess:^(NSString *_Nonnull result) {
+        onSuccess(@[ result ]);
+      }
+      onError:^(NSString *_Nonnull error) {
+        onError(@[ error ]);
+      }];
 }
 
 - (void)testString:(NSString *)appKey {
   [moduleImpl testStringWithString:appKey];
 }
 
-- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
+    (const facebook::react::ObjCTurboModule::InitParams &)params {
   return std::make_shared<facebook::react::NativeRnSdkSpecJSI>(params);
 }
 

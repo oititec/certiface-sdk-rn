@@ -8,7 +8,9 @@ export interface Spec extends TurboModule {
   startJourney(
     appKey: string,
     onSuccess: (data: string) => void,
-    onError: (error: string) => void
+    onError: (error: string) => void,
+    isCustomEnabled?: boolean,
+    theme?: Object
   ): void;
   testString(appKey: string): string;
 }

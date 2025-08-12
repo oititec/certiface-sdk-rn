@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
 
   s.frameworks = "AVFoundation"
   
-  s.dependency 'OitiSDK', '0.3.0'
+  s.dependency 'OitiSDK', '0.5.0'
 
   install_modules_dependencies(s)
 end

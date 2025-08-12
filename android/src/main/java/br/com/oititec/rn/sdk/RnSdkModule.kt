@@ -7,9 +7,9 @@ import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.Callback
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.module.annotations.ReactModule
-import br.com.oititec.rn.sdk.NativeRnSdkSpec
-//import br.com.oititec.rn.sdk.executor.LivenessExecutor
+import br.com.oititec.rn.sdk.executor.LivenessExecutor
 import br.com.oititec.rn.sdk.model.Features
 
 @ReactModule(name = RnSdkModule.NAME)
@@ -48,12 +48,13 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
   override fun startJourney(
     appKey: String?,
     onSuccess: Callback?,
-    onError: Callback?
+    onError: Callback?,
+    isCustomEnabled: Boolean?,
+    theme: ReadableMap?
   ) {
     val features = Features.entries
     var selectedFeature = features.first()
-    val isCustomEnabled = false
-    // val theme: Map<String, Any>? = call.argument("theme")
+    val customEnabled = isCustomEnabled ?: false
 
     if (appKey.isNullOrEmpty()) {
       onError?.invoke("APP_KEY_NULO")
@@ -65,17 +66,17 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
       return
     }
 
-//    LivenessExecutor(appKey, selectedFeature).executeLiveness(
-//      context = activity,
-//      execOnSuccess = { livenessResult ->
-//        onSuccess?.invoke(livenessResult)
-//      },
-//      execOnError = { error ->
-//        onError?.invoke(error)
-//      },
-//      isCustomEnabled = isCustomEnabled
-//      // , theme = theme
-//    )
+    LivenessExecutor(appKey, selectedFeature).executeLiveness(
+      context = activity,
+      execOnSuccess = { livenessResult ->
+        onSuccess?.invoke(livenessResult)
+      },
+      execOnError = { error ->
+        onError?.invoke(error)
+      },
+      isCustomEnabled = customEnabled,
+      theme = theme
+    )
   }
 
   override fun testString(appKey: String?): String {
