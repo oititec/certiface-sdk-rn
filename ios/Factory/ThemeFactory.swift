@@ -2,7 +2,7 @@
 //  ThemeFactory.swift
 //  RnSdk
 //
-//  Created by Gabriel Catelli Goulart on 12/08/25.
+//  Created by Gabriel Catelli Goulart on 01/08/25.
 //
 
 import Foundation

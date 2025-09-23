@@ -27,14 +27,24 @@ const HomeScreen = () => {
   const customTheme: OitiTheme = {
     provider: LivenessProvider.FACETEC,
     facetec: {
+      assets: {
+        overlayBrandingImage: require('../assets/shell.png'),
+        cancelButtonCustomImage: require('../assets/shell.png'),
+        resultScreenCustomActivityIndicatorImage: require('../assets/shell.png'),
+      },
       colors: {
         guidanceBackgroundColors: '#2E2E2E',
         guidanceForegroundColor: '#FFFFFF',
         guidanceReadyScreenHeaderTextColor: '#FFFFFF',
         guidanceReadyScreenSubtextTextColor: '#CCCCCC',
+        guidanceReadyScreenTextBackgroundColor: '#444444',
         guidanceButtonBackgroundHighlightColor: '#FF6B35',
         guidanceButtonTextHighlightColor: '#FFFFFF',
         guidanceButtonBorderColor: '#FF6B35',
+        guidanceButtonBackgroundDisabledColor: '#666666',
+        guidanceButtonTextDisabledColor: '#AAAAAA',
+        guidanceButtonBackgroundNormalColor: '#FF6B35',
+        guidanceButtonTextNormalColor: '#FFFFFF',
         guidanceReadyScreenOvalFillColor: '#FF6B35',
         resultScreenForegroundColor: '#FF6B35',
         resultScreenBackgroundColors: '#F0F8FF',
@@ -83,6 +93,10 @@ const HomeScreen = () => {
       },
     },
     iproov: {
+      assets: {
+        logo: require('../assets/shell.png'),
+        closeButton: require('../assets/shell.png'),
+      },
       colors: {
         titleColor: '#FFFFFF',
         headerBackgroundColor: '#2E2E2E',
@@ -135,6 +149,9 @@ const HomeScreen = () => {
         documentTipsInstructionText: 'Mantenha o documento bem iluminado',
         documentTypesInstructionText: 'Use um documento oficial com foto',
         continueButtonText: 'Continuar',
+      },
+      assets: {
+        logo: require('../assets/shell.png'),
       },
     },
     permission: {

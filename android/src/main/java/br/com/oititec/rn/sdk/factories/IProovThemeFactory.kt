@@ -1,5 +1,6 @@
 package br.com.oititec.rn.sdk.factories
 
+import android.content.Context
 import androidx.core.graphics.toColorInt
 import br.com.oiti.designsystem.R
 import br.com.oiti.domain.model.iproov.CameraSelection
@@ -10,24 +11,40 @@ import br.com.oiti.manager.exports.IProovFontsKey
 import br.com.oiti.manager.exports.IProovTheme
 import br.com.oiti.manager.exports.NaturalStyle
 import br.com.oititec.rn.sdk.theme.IProovFonts
+import br.com.oititec.rn.sdk.managers.AssetManager
 import com.facebook.react.bridge.ReadableMap
 
 object IProovThemeFactory {
-  fun create(isCustom: Boolean, theme: ReadableMap? = null): IProovTheme =
-    if (isCustom) buildCustom(theme) else buildDefault()
+  fun create(isCustom: Boolean, theme: ReadableMap? = null, context: Context? = null): IProovTheme =
+    if (isCustom) buildCustom(theme, context) else buildDefault()
 
   private fun buildDefault() = IProovTheme.build {
     setIsEnabledScreenShots(true)
   }
 
-  private fun buildCustom(theme: ReadableMap? = null) = IProovTheme.build {
+  private fun buildCustom(theme: ReadableMap? = null, context: Context? = null) = IProovTheme.build {
 
     val iproovTheme = theme?.getMap("iproov")
     val colors = iproovTheme?.getMap("colors")
     val texts = iproovTheme?.getMap("texts")
     val iproovFontsMap = iproovTheme?.getMap("fonts")
-    
-    val iProovFonts = IProovFonts(iproovFontsMap).apply()
+
+    val iProovFonts = if (iproovFontsMap != null) {
+      IProovFonts(iproovFontsMap).apply()
+    } else {
+      mapOf(
+        IProovFontsKey.INSTRUCTIONS_TITLE_FONT to R.font.ubuntu_regular,
+        IProovFontsKey.INSTRUCTIONS_CAPTION_FONT to R.font.ubuntu_regular,
+        IProovFontsKey.INSTRUCTIONS_DOCUMENT_TYPES_INSTRUCTIONS_FONT to R.font.ubuntu_regular,
+        IProovFontsKey.INSTRUCTIONS_DOCUMENT_TIPS_INSTRUCTIONS_FONT to R.font.ubuntu_regular,
+        IProovFontsKey.INSTRUCTIONS_BUTTON_FONT to R.font.ubuntu_regular,
+        IProovFontsKey.PERMISSION_TITLE_FONT to R.font.ubuntu_regular,
+        IProovFontsKey.PERMISSION_CAPTION_FONT to R.font.ubuntu_regular,
+        IProovFontsKey.PERMISSION_BUTTON_FONT to R.font.ubuntu_regular,
+        IProovFontsKey.RESULT_MESSAGE_FONT to R.font.ubuntu_regular,
+        IProovFontsKey.RESULT_RETRY_BUTTON_FONT to R.font.ubuntu_regular,
+      )
+    }
 
     setTitle(texts?.getString("title") ?: "Verificação Facial")
     setTitleColor(colors?.getString("titleColor") ?: "#FFFFFF")
@@ -38,7 +55,6 @@ object IProovThemeFactory {
     setFontResource(R.font.ubuntu_regular)
     setIsEnabledScreenShots(true)
     setDisableExteriorEffects(false)
-//            setDisableExteriorEffects(true)
     setTimeoutSecs(60)
     setPromptRoundedCorners(true)
     setFontsKey(iProovFonts)
@@ -60,6 +76,26 @@ object IProovThemeFactory {
     val instructionsTheme = theme?.getMap("instructions")
     val instructionsColors = instructionsTheme?.getMap("colors")
     val instructionsTexts = instructionsTheme?.getMap("texts")
+
+    context?.let { ctx ->
+      AssetManager.initialize(ctx, theme)
+    }
+
+    val logoResourceId = AssetManager.getProcessedAsset("iproov_logo") 
+      ?: AssetManager.getProcessedAsset("instructions_logo")
+    val closeButtonResourceId = AssetManager.getProcessedAsset("iproov_close_button")
+    
+    logoResourceId?.let {
+      setLogo(it)
+    } ?: run {
+      setLogo(R.drawable.error_icon)
+    }
+    
+    closeButtonResourceId?.let {
+      setCloseButton(it)
+    } ?: run {
+      setCloseButton(br.com.oiti.designsystem.R.drawable.close_icon)
+    }
 
     setInstructionsTheme {
       setTitleText(instructionsTexts?.getString("titleText") ?: texts?.getString("instructionsTitleText") ?: "Teste title")

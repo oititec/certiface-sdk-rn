@@ -41,7 +41,6 @@ export interface FacetecTexts {
   readyMessage2?: string;
   readyButton?: string;
 
-  // Retry Screen
   retryHeader?: string;
   retrySubheader?: string;
   retryMessageSmile?: string;
@@ -51,11 +50,9 @@ export interface FacetecTexts {
   retryIdealPicture?: string;
   retryButton?: string;
 
-  // Result Screen
   resultUploadMessage?: string;
   resultSuccessMessage?: string;
 
-  // Feedback Messages
   feedbackLookStraightInOval?: string;
   feedbackCenterFace?: string;
   feedbackFaceNotFound?: string;
@@ -96,10 +93,17 @@ export interface FacetecFonts {
   feedbackCustomizationTextFont?: string;
 }
 
+export interface FacetecAssets {
+  overlayBrandingImage?: any;
+  cancelButtonCustomImage?: any;
+  resultScreenCustomActivityIndicatorImage?: any;
+}
+
 export interface FacetecTheme {
   colors?: FacetecColors;
   texts?: FacetecTexts;
   fonts?: FacetecFonts;
+  assets?: FacetecAssets;
 }
 
 export interface IProovColors {
@@ -141,10 +145,16 @@ export interface IProovFonts {
   resultRetryButtonFont?: string;
 }
 
+export interface IProovAssets {
+  logo?: any;
+  closeButton?: any;
+}
+
 export interface IProovTheme {
   colors?: IProovColors;
   texts?: IProovTexts;
   fonts?: IProovFonts;
+  assets?: IProovAssets;
 }
 
 export interface InstructionsThemeColors {
@@ -165,9 +175,14 @@ export interface InstructionsThemeTexts {
   continueButtonText?: string;
 }
 
+export interface InstructionsThemeAssets {
+  logo?: any; // require() path or base64 string
+}
+
 export interface InstructionsTheme {
   colors?: InstructionsThemeColors;
   texts?: InstructionsThemeTexts;
+  assets?: InstructionsThemeAssets;
 }
 
 export interface PermissionThemeColors {

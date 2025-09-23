@@ -1,25 +1,58 @@
 package br.com.oititec.rn.sdk.factories
 
+import android.content.Context
 import br.com.oiti.designsystem.R
 import br.com.oiti.domain.model.facetec.FacetecButtonLocation
 import br.com.oiti.domain.model.facetec.FacetecExitAnimationStyle
 import br.com.oiti.domain.model.facetec.FacetecTheme
+import br.com.oiti.manager.exports.FacetecFontsKey
 import br.com.oiti.manager.exports.FacetecTextKey
 import br.com.oititec.rn.sdk.theme.FacetecFonts
+import br.com.oititec.rn.sdk.managers.AssetManager
 import com.facebook.react.bridge.ReadableMap
 
 object FacetecThemeFactory {
 
   fun buildDefault(): FacetecTheme = FacetecTheme.build {}
 
-  fun buildCustom(theme: ReadableMap? = null): FacetecTheme = FacetecTheme.build {
+  fun buildCustom(theme: ReadableMap? = null, context: Context? = null): FacetecTheme = FacetecTheme.build {
 
     val facetecTheme = theme?.getMap("facetec")
     val facetecColors = facetecTheme?.getMap("colors")
     val facetecTexts = facetecTheme?.getMap("texts")
     val facetecFontsMap = facetecTheme?.getMap("fonts")
 
-    val facetecFonts = FacetecFonts(facetecFontsMap).apply()
+    val facetecFonts = if (facetecFontsMap != null) {
+      FacetecFonts(facetecFontsMap).apply()
+    } else {
+      hashMapOf(
+        FacetecFontsKey.INSTRUCTIONS_TITLE_FONT to R.font.ubuntu_regular,
+        FacetecFontsKey.INSTRUCTIONS_CAPTION_FONT to R.font.ubuntu_regular,
+        FacetecFontsKey.INSTRUCTIONS_DOCUMENT_TYPES_INSTRUCTIONS_FONT to R.font.ubuntu_regular,
+        FacetecFontsKey.INSTRUCTIONS_DOCUMENT_TIPS_INSTRUCTIONS_FONT to R.font.ubuntu_regular,
+        FacetecFontsKey.INSTRUCTIONS_BUTTON_FONT to R.font.ubuntu_regular,
+        FacetecFontsKey.PERMISSION_TITLE_FONT to R.font.ubuntu_regular,
+        FacetecFontsKey.PERMISSION_CAPTION_FONT to R.font.ubuntu_regular,
+        FacetecFontsKey.PERMISSION_BUTTON_FONT to R.font.ubuntu_regular,
+        FacetecFontsKey.GUIDANCE_CUSTOMIZATION_HEADER_FONT to R.font.ubuntu_regular,
+        FacetecFontsKey.GUIDANCE_CUSTOMIZATION_SUBTEXT_FONT to R.font.ubuntu_regular,
+        FacetecFontsKey.GUIDANCE_CUSTOMIZATION_BUTTON_FONT to R.font.ubuntu_regular,
+        FacetecFontsKey.GUIDANCE_CUSTOMIZATION_READY_SCREEN_HEADER_FONT to R.font.ubuntu_regular,
+        FacetecFontsKey.GUIDANCE_CUSTOMIZATION_READY_SCREEN_SUBTEXT_FONT to R.font.ubuntu_regular,
+        FacetecFontsKey.GUIDANCE_CUSTOMIZATION_RETRY_SCREEN_HEADER_FONT to R.font.ubuntu_regular,
+        FacetecFontsKey.GUIDANCE_CUSTOMIZATION_RETRY_SCREEN_SUBTEXT_FONT to R.font.ubuntu_regular,
+        FacetecFontsKey.RESULT_SCREEN_CUSTOMIZATION_MESSAGE_FONT to R.font.ubuntu_regular,
+        FacetecFontsKey.FEEDBACK_CUSTOMIZATION_TEXT_FONT to R.font.ubuntu_regular
+      )
+    }
+
+    context?.let { ctx ->
+      AssetManager.initialize(ctx, theme)
+    }
+
+    val overlayBrandingImageId = AssetManager.getProcessedAsset("facetec_overlay_branding")
+    val cancelButtonImageId = AssetManager.getProcessedAsset("facetec_cancel_button")
+    val activityIndicatorImageId = AssetManager.getProcessedAsset("facetec_activity_indicator")
 
     val customFacetecTexts = hashMapOf<FacetecTextKey, String>()
 
@@ -64,9 +97,15 @@ object FacetecThemeFactory {
     guidanceForegroundColor(facetecColors?.getString("guidanceForegroundColor") ?: "#FFFFFF")
     guidanceReadyScreenHeaderTextColor(facetecColors?.getString("guidanceReadyScreenHeaderTextColor") ?: "#FFFFFF")
     guidanceReadyScreenSubtextTextColor(facetecColors?.getString("guidanceReadyScreenSubtextTextColor") ?: "#BBBBBB")
+    guidanceReadyScreenTextBackgroundColor(facetecColors?.getString("guidanceReadyScreenTextBackgroundColor") ?: "#BBBBBB")
+    guidanceReadyScreenTextBackgroundCornerRadius(12)
     guidanceButtonBackgroundHighlightColor(facetecColors?.getString("guidanceButtonBackgroundHighlightColor") ?: "#0F9D58")
     guidanceButtonTextHighlightColor(facetecColors?.getString("guidanceButtonTextHighlightColor") ?: "#000000")
     guidanceButtonBorderColor(facetecColors?.getString("guidanceButtonBorderColor") ?: "#0F9D58")
+    guidanceButtonBackgroundDisabledColor(facetecColors?.getString("guidanceButtonBackgroundDisabledColor") ?: "#ff0000")
+    guidanceButtonTextDisabledColor(facetecColors?.getString("guidanceButtonTextDisabledColor") ?: "#000000")
+    guidanceButtonBackgroundNormalColor(facetecColors?.getString("guidanceButtonBackgroundNormalColor") ?: "#00ff00")
+    guidanceButtonTextNormalColor(facetecColors?.getString("guidanceButtonTextNormalColor") ?: "#3d100c")
     guidanceButtonBorderWidth(2)
     guidanceButtonCornerRadius(12)
     guidanceReadyScreenOvalFillColor(facetecColors?.getString("guidanceReadyScreenOvalFillColor") ?: "#00FF00")
@@ -76,15 +115,30 @@ object FacetecThemeFactory {
     guidanceRetryScreenImageBorderColor(facetecColors?.getString("guidanceRetryScreenImageBorderColor") ?: "#417FB2")
     guidanceRetryScreenImageBorderWidth(3)
     guidanceRetryScreenOvalStrokeColor(facetecColors?.getString("guidanceRetryScreenOvalStrokeColor") ?: "#FFFFFF")
+    guidanceRetryScreenImageCornerRadius(12)
 
     resultScreenForegroundColor(facetecColors?.getString("resultScreenForegroundColor") ?: "#0F9D58")
     resultScreenBackgroundColors(facetecColors?.getString("resultScreenBackgroundColors") ?: "#DFFFD6")
+    resultScreenAnimationRelativeScale(1f)
     resultScreenActivityIndicatorColor(facetecColors?.getString("resultScreenActivityIndicatorColor") ?: "#0F9D58")
     resultScreenUploadProgressFillColor(facetecColors?.getString("resultScreenUploadProgressFillColor") ?: "#0F9D58")
+    resultScreenShowUploadProgressBar(true)
+    resultScreenCustomActivityIndicatorAnimation(br.com.oiti.facetecsdk.R.drawable.animated_activity_indicator)
+    resultScreenCustomActivityIndicatorRotationInterval(1000)
     resultScreenUploadProgressTrackColor(facetecColors?.getString("resultScreenUploadProgressTrackColor") ?: "#66000000")
     resultScreenResultAnimationBackgroundColor(facetecColors?.getString("resultScreenResultAnimationBackgroundColor") ?: "#417FB2")
     resultScreenResultAnimationForegroundColor(facetecColors?.getString("resultScreenResultAnimationForegroundColor") ?: "#FFFFFF")
-    resultScreenCustomActivityIndicatorImage(R.drawable.success_icon)
+    activityIndicatorImageId?.let {
+      resultScreenCustomActivityIndicatorImage(it)
+    } ?: run {
+      resultScreenCustomActivityIndicatorImage(R.drawable.success_icon)
+    }
+    resultScreenCustomStaticResultAnimationUnSuccess(R.drawable.error_icon)
+    resultScreenCustomStaticResultAnimationSuccess(R.drawable.success_icon)
+    resultScreenCustomResultAnimationUnSuccess(R.drawable.error_icon)
+    resultScreenCustomResultAnimationSuccess(R.drawable.success_icon)
+    resultScreenResultAnimationUnSuccessBackgroundImage(R.drawable.error_icon)
+    resultScreenResultAnimationSuccessBackgroundImage(R.drawable.success_icon)
 
     ovalCustomizationStrokeWidth(4)
     ovalCustomizationStrokeColor(facetecColors?.getString("ovalCustomizationStrokeColor") ?: "#00FF00")
@@ -97,23 +151,32 @@ object FacetecThemeFactory {
     frameBorderColor(facetecColors?.getString("frameBorderColor") ?: "#FFFFFF")
     frameCornerRadius(8)
     frameBackgroundColor(facetecColors?.getString("frameBackgroundColor") ?: "#121212")
+    frameElevation(5)
 
     overlayBackgroundColor(facetecColors?.getString("overlayBackgroundColor") ?: "#80000000")
-    overlayBrandingImage(R.drawable.neutral_face)
+    overlayBrandingImageId?.let {
+      overlayBrandingImage(it)
+    } ?: run {
+      overlayBrandingImage(R.drawable.neutral_face)
+    }
+    overlayShowBrandingImage(true)
 
+    feedbackCornerRadius(12)
     feedbackBackgroundColors(facetecColors?.getString("feedbackBackgroundColors") ?: "#FFFDE7")
     feedbackTextColor(facetecColors?.getString("feedbackTextColor") ?: "#000000")
     feedbackEnablePulsatingText(true)
     feedbackElevation(8)
 
-    cancelButtonCustomImage(R.drawable.close_icon)
+    cancelButtonImageId?.let {
+      cancelButtonCustomImage(it)
+    } ?: run {
+      cancelButtonCustomImage(R.drawable.close_icon)
+    }
     cancelButtonLocation(FacetecButtonLocation.TOP_RIGHT)
     exitAnimationStyle(FacetecExitAnimationStyle.RIPPLE_IN)
 
     setFacetecFontsMap(facetecFonts)
-    if (customFacetecTexts.isNotEmpty()) {
-      setFacetecTextMap(customFacetecTexts)
-    }
+    setFacetecTextMap(customFacetecTexts)
 
     resultScreenOverrideSuccessMessage("Toque para reiniciar")
 
@@ -156,6 +219,6 @@ object FacetecThemeFactory {
     }
   }
 
-  fun create(isCustom: Boolean, theme: ReadableMap? = null): FacetecTheme =
-    if (isCustom) buildCustom(theme) else buildDefault()
+  fun create(isCustom: Boolean, theme: ReadableMap? = null, context: Context? = null): FacetecTheme =
+    if (isCustom) buildCustom(theme, context) else buildDefault()
 }
