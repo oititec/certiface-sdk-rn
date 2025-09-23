@@ -69,9 +69,10 @@ export class AssetProcessor {
     }
 
     if (assets.resultScreenCustomActivityIndicatorImage) {
-      processedAssets.resultScreenCustomActivityIndicatorImage = await this.convertAssetToBase64(
-        assets.resultScreenCustomActivityIndicatorImage
-      );
+      processedAssets.resultScreenCustomActivityIndicatorImage =
+        await this.convertAssetToBase64(
+          assets.resultScreenCustomActivityIndicatorImage
+        );
     }
 
     return processedAssets;
