@@ -36,7 +36,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
     const urlencoded = new URLSearchParams();
     urlencoded.append('user', 'mobile.demo.app');
-    urlencoded.append('pass', 'f2b9c75dc5d721aa65ec652e98e6d35e');
+    urlencoded.append('pass', 'ddc0ba9a6a5ab1681108a7e34c914207');
 
     const requestOptions = {
       method: 'POST',

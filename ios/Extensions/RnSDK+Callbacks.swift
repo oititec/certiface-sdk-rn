@@ -5,7 +5,7 @@
 //  Created by Gabriel Catelli Goulart on 21/07/25.
 //
 
-import OitiSDK
+import CertifaceSDK
 
 extension RnSdkImpl: LivenessCallback {
   public func onSuccess(_ resultData: LivenessResult) {
@@ -49,16 +49,12 @@ extension RnSdkImpl: LivenessCallback {
   }
 
   func getRootViewController() -> UIViewController? {
-    if #available(iOS 13.0, *) {
-      let windowScene = UIApplication.shared.connectedScenes
-        .compactMap { $0 as? UIWindowScene }
-        .first { $0.activationState == .foregroundActive }
+    let windowScene = UIApplication.shared.connectedScenes
+      .compactMap { $0 as? UIWindowScene }
+      .first { $0.activationState == .foregroundActive }
 
-      let keyWindow = windowScene?.windows.first { $0.isKeyWindow }
+    let keyWindow = windowScene?.windows.first { $0.isKeyWindow }
 
-      return keyWindow?.rootViewController
-    } else {
-      return UIApplication.shared.keyWindow?.rootViewController
-    }
+    return keyWindow?.rootViewController
   }
 }

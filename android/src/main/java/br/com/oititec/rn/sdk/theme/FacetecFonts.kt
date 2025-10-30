@@ -3,80 +3,93 @@ package br.com.oititec.rn.sdk.theme
 import br.com.oiti.manager.exports.FacetecFontsKey
 import com.facebook.react.bridge.ReadableMap
 
-class FacetecFonts(private val fontsBuilder: ReadableMap?) {
-    
+ readyScreenHeader?: string;
+  readyScreenSubtext?: string;
+  resultScreenMessage?: string;
+  retryScreenHeader?: string;
+  retryScreenSubtext?: string;
+  feedbackMessage?: string;
+  guidanceHeader?: string;
+  guidanceSubtext?: string;
+  guidanceButton?: string;
+
+class FacetecFonts(
+    private val instructionsFonts: ReadableMap?,
+    private val permissionFonts: ReadableMap?,
+    private val facetecFonts: ReadableMap?
+) {
     private val instructionsTitleFont: String = 
-        "fonts/" + (fontsBuilder?.getString("instructionsTitleFont")?.lowercase() ?: "ubuntu_regular") + ".ttf"
+        "fonts/" + (instructionsFonts?.getString("title")?.lowercase() ?: "ubuntu_regular") + ".ttf"
     
     private val instructionsCaptionFont: String = 
-        "fonts/" + (fontsBuilder?.getString("instructionsCaptionFont")?.lowercase() ?: "ubuntu_regular") + ".ttf"
+        "fonts/" + (instructionsFonts?.getString("caption")?.lowercase() ?: "ubuntu_regular") + ".ttf"
     
-    private val instructionsDocumentTypesInstructionsFont: String = 
-        "fonts/" + (fontsBuilder?.getString("instructionsDocumentTypesInstructionsFont")?.lowercase() ?: "ubuntu_regular") + ".ttf"
+    private val instructionsFirstInstructionTitleFont: String = 
+        "fonts/" + (instructionsFonts?.getString("firstInstructionTitle")?.lowercase() ?: "ubuntu_regular") + ".ttf"
     
-    private val instructionsDocumentTipsInstructionsFont: String = 
-        "fonts/" + (fontsBuilder?.getString("instructionsDocumentTipsInstructionsFont")?.lowercase() ?: "ubuntu_regular") + ".ttf"
+    private val instructionsSecondInstructionTitleFont: String = 
+        "fonts/" + (instructionsFonts?.getString("secondInstructionTitle")?.lowercase() ?: "ubuntu_regular") + ".ttf"
     
-    private val instructionsButtonFont: String = 
-        "fonts/" + (fontsBuilder?.getString("instructionsButtonFont")?.lowercase() ?: "ubuntu_regular") + ".ttf"
+    private val instructionsContinueButtonFont: String = 
+        "fonts/" + (instructionsFonts?.getString("continueButton")?.lowercase() ?: "ubuntu_regular") + ".ttf"
     
     private val permissionTitleFont: String = 
-        "fonts/" + (fontsBuilder?.getString("permissionTitleFont")?.lowercase() ?: "ubuntu_regular") + ".ttf"
+        "fonts/" + (permissionFonts?.getString("title")?.lowercase() ?: "ubuntu_regular") + ".ttf"
     
     private val permissionCaptionFont: String = 
-        "fonts/" + (fontsBuilder?.getString("permissionCaptionFont")?.lowercase() ?: "ubuntu_regular") + ".ttf"
+        "fonts/" + (permissionFonts?.getString("caption")?.lowercase() ?: "ubuntu_regular") + ".ttf"
     
     private val permissionButtonFont: String = 
-        "fonts/" + (fontsBuilder?.getString("permissionButtonFont")?.lowercase() ?: "ubuntu_regular") + ".ttf"
+        "fonts/" + (permissionFonts?.getString("checkPermissionButton")?.lowercase() ?: "ubuntu_regular") + ".ttf"
     
-    private val guidanceCustomizationHeaderFont: String = 
-        "fonts/" + (fontsBuilder?.getString("guidanceCustomizationHeaderFont")?.lowercase() ?: "ubuntu_regular") + ".ttf"
+    private val guidanceHeaderFont: String = 
+        "fonts/" + (facetecFonts?.getString("guidanceHeader")?.lowercase() ?: "ubuntu_regular") + ".ttf"
     
-    private val guidanceCustomizationSubtextFont: String = 
-        "fonts/" + (fontsBuilder?.getString("guidanceCustomizationSubtextFont")?.lowercase() ?: "ubuntu_regular") + ".ttf"
+    private val guidanceSubtextFont: String = 
+        "fonts/" + (facetecFonts?.getString("guidanceSubtext")?.lowercase() ?: "ubuntu_regular") + ".ttf"
     
-    private val guidanceCustomizationButtonFont: String = 
-        "fonts/" + (fontsBuilder?.getString("guidanceCustomizationButtonFont")?.lowercase() ?: "ubuntu_regular") + ".ttf"
+    private val guidanceButtonFont: String = 
+        "fonts/" + (facetecFonts?.getString("guidanceButton")?.lowercase() ?: "ubuntu_regular") + ".ttf"
     
-    private val guidanceCustomizationReadyScreenHeaderFont: String = 
-        "fonts/" + (fontsBuilder?.getString("guidanceCustomizationReadyScreenHeaderFont")?.lowercase() ?: "ubuntu_regular") + ".ttf"
+    private val readyScreenHeaderFont: String = 
+        "fonts/" + (facetecFonts?.getString("readyScreenHeader")?.lowercase() ?: "ubuntu_regular") + ".ttf"
     
-    private val guidanceCustomizationReadyScreenSubtextFont: String = 
-        "fonts/" + (fontsBuilder?.getString("guidanceCustomizationReadyScreenSubtextFont")?.lowercase() ?: "ubuntu_regular") + ".ttf"
+    private val readyScreenSubtextFont: String = 
+        "fonts/" + (facetecFonts?.getString("readyScreenSubtext")?.lowercase() ?: "ubuntu_regular") + ".ttf"
     
-    private val guidanceCustomizationRetryScreenHeaderFont: String = 
-        "fonts/" + (fontsBuilder?.getString("guidanceCustomizationRetryScreenHeaderFont")?.lowercase() ?: "ubuntu_regular") + ".ttf"
+    private val retryScreenHeaderFont: String = 
+        "fonts/" + (facetecFonts?.getString("retryScreenHeader")?.lowercase() ?: "ubuntu_regular") + ".ttf"
     
-    private val guidanceCustomizationRetryScreenSubtextFont: String = 
-        "fonts/" + (fontsBuilder?.getString("guidanceCustomizationRetryScreenSubtextFont")?.lowercase() ?: "ubuntu_regular") + ".ttf"
+    private val retryScreenSubtextFont: String = 
+        "fonts/" + (facetecFonts?.getString("retryScreenSubtext")?.lowercase() ?: "ubuntu_regular") + ".ttf"
     
-    private val resultScreenCustomizationMessageFont: String = 
-        "fonts/" + (fontsBuilder?.getString("resultScreenCustomizationMessageFont")?.lowercase() ?: "ubuntu_regular") + ".ttf"
+    private val resultScreenMessageFont: String = 
+        "fonts/" + (facetecFonts?.getString("resultScreenMessage")?.lowercase() ?: "ubuntu_regular") + ".ttf"
     
-    private val feedbackCustomizationTextFont: String = 
-        "fonts/" + (fontsBuilder?.getString("feedbackCustomizationTextFont")?.lowercase() ?: "ubuntu_regular") + ".ttf"
+    private val feedbackMessageFont: String = 
+        "fonts/" + (facetecFonts?.getString("feedbackMessage")?.lowercase() ?: "ubuntu_regular") + ".ttf"
 
     fun apply(): HashMap<FacetecFontsKey, String> {
         return hashMapOf(
             FacetecFontsKey.INSTRUCTIONS_TITLE_FONT to instructionsTitleFont,
             FacetecFontsKey.INSTRUCTIONS_CAPTION_FONT to instructionsCaptionFont,
-            FacetecFontsKey.INSTRUCTIONS_DOCUMENT_TYPES_INSTRUCTIONS_FONT to instructionsDocumentTypesInstructionsFont,
-            FacetecFontsKey.INSTRUCTIONS_DOCUMENT_TIPS_INSTRUCTIONS_FONT to instructionsDocumentTipsInstructionsFont,
+            FacetecFontsKey.INSTRUCTIONS_DOCUMENT_TYPES_INSTRUCTIONS_FONT to instructionsFirstInstructionTitleFont,
+            FacetecFontsKey.INSTRUCTIONS_DOCUMENT_TIPS_INSTRUCTIONS_FONT to instructionsSecondInstructionTitleFont,
             FacetecFontsKey.INSTRUCTIONS_BUTTON_FONT to instructionsButtonFont,
             
             FacetecFontsKey.PERMISSION_TITLE_FONT to permissionTitleFont,
             FacetecFontsKey.PERMISSION_CAPTION_FONT to permissionCaptionFont,
             FacetecFontsKey.PERMISSION_BUTTON_FONT to permissionButtonFont,
             
-            FacetecFontsKey.GUIDANCE_CUSTOMIZATION_HEADER_FONT to guidanceCustomizationHeaderFont,
-            FacetecFontsKey.GUIDANCE_CUSTOMIZATION_SUBTEXT_FONT to guidanceCustomizationSubtextFont,
-            FacetecFontsKey.GUIDANCE_CUSTOMIZATION_BUTTON_FONT to guidanceCustomizationButtonFont,
-            FacetecFontsKey.GUIDANCE_CUSTOMIZATION_READY_SCREEN_HEADER_FONT to guidanceCustomizationReadyScreenHeaderFont,
-            FacetecFontsKey.GUIDANCE_CUSTOMIZATION_READY_SCREEN_SUBTEXT_FONT to guidanceCustomizationReadyScreenSubtextFont,
-            FacetecFontsKey.GUIDANCE_CUSTOMIZATION_RETRY_SCREEN_HEADER_FONT to guidanceCustomizationRetryScreenHeaderFont,
-            FacetecFontsKey.GUIDANCE_CUSTOMIZATION_RETRY_SCREEN_SUBTEXT_FONT to guidanceCustomizationRetryScreenSubtextFont,
-            FacetecFontsKey.RESULT_SCREEN_CUSTOMIZATION_MESSAGE_FONT to resultScreenCustomizationMessageFont,
-            FacetecFontsKey.FEEDBACK_CUSTOMIZATION_TEXT_FONT to feedbackCustomizationTextFont,
+            FacetecFontsKey.GUIDANCE_CUSTOMIZATION_HEADER_FONT to guidanceHeaderFont,
+            FacetecFontsKey.GUIDANCE_CUSTOMIZATION_SUBTEXT_FONT to guidanceSubtextFont,
+            FacetecFontsKey.GUIDANCE_CUSTOMIZATION_BUTTON_FONT to guidanceButtonFont,
+            FacetecFontsKey.GUIDANCE_CUSTOMIZATION_READY_SCREEN_HEADER_FONT to readyScreenHeaderFont,
+            FacetecFontsKey.GUIDANCE_CUSTOMIZATION_READY_SCREEN_SUBTEXT_FONT to readyScreenSubtextFont,
+            FacetecFontsKey.GUIDANCE_CUSTOMIZATION_RETRY_SCREEN_HEADER_FONT to retryScreenHeaderFont,
+            FacetecFontsKey.GUIDANCE_CUSTOMIZATION_RETRY_SCREEN_SUBTEXT_FONT to retryScreenSubtextFont,
+            FacetecFontsKey.RESULT_SCREEN_CUSTOMIZATION_MESSAGE_FONT to resultScreenMessageFont,
+            FacetecFontsKey.FEEDBACK_CUSTOMIZATION_TEXT_FONT to feedbackMessageFont,
         )
     }
 }

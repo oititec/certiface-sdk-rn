@@ -3,34 +3,44 @@ export enum LivenessProvider {
   IPROOV = 'IPROOV',
 }
 
+/**
+ * Facetec Theme
+ */
+
 export interface FacetecColors {
-  guidanceBackgroundColors?: string;
-  guidanceForegroundColor?: string;
-  guidanceReadyScreenHeaderTextColor?: string;
-  guidanceReadyScreenSubtextTextColor?: string;
-  guidanceButtonBackgroundHighlightColor?: string;
-  guidanceButtonTextHighlightColor?: string;
-  guidanceButtonBorderColor?: string;
-  guidanceReadyScreenOvalFillColor?: string;
-  guidanceRetryScreenHeaderTextColor?: string;
-  guidanceRetryScreenSubtextTextColor?: string;
-  guidanceRetryScreenImageBorderColor?: string;
-  guidanceRetryScreenOvalStrokeColor?: string;
-  resultScreenForegroundColor?: string;
-  resultScreenBackgroundColors?: string;
-  resultScreenActivityIndicatorColor?: string;
-  resultScreenUploadProgressFillColor?: string;
-  resultScreenUploadProgressTrackColor?: string;
-  resultScreenResultAnimationBackgroundColor?: string;
-  resultScreenResultAnimationForegroundColor?: string;
-  ovalCustomizationStrokeColor?: string;
-  ovalCustomizationProgressColor1?: string;
-  ovalCustomizationProgressColor2?: string;
-  frameBorderColor?: string;
-  frameBackgroundColor?: string;
-  overlayBackgroundColor?: string;
-  feedbackBackgroundColors?: string;
-  feedbackTextColor?: string;
+  readyScreenHeader?: string;
+  readyScreenSubtext?: string;
+  readyScreenTextBackground?: string;
+  readyScreenOvalFill?: string;
+  resultScreenMessage?: string;
+  resultScreenUploadProgressBarFill?: string;
+  resultScreenUploadProgressBarTrack?: string;
+  resultScreenForeground?: string;
+  resultScreenBackground?: string;
+  resultScreenActivityIndicator?: string;
+  resultScreenResultAnimationBackground?: string;
+  resultScreenResultAnimationForeground?: string;
+  retryScreenHeader?: string;
+  retryScreenSubtext?: string;
+  retryScreenImageBorder?: string;
+  retryScreenOvalStroke?: string;
+  feedbackMessage?: string;
+  feedbackBarBackground?: string;
+  guidanceButtonTextNormal?: string;
+  guidanceButtonTextHighlight?: string;
+  guidanceButtonTextDisabled?: string;
+  guidanceButtonBackgroundNormal?: string;
+  guidanceButtonBackgroundHighlight?: string;
+  guidanceButtonBackgroundDisabled?: string;
+  guidanceButtonBorder?: string;
+  guidanceForeground?: string;
+  guidanceBackground?: string;
+  frameBackground?: string;
+  frameBorder?: string;
+  ovalStroke?: string;
+  ovalProgressFirst?: string;
+  ovalProgressSecond?: string;
+  overlayBackground?: string;
 }
 
 export interface FacetecTexts {
@@ -74,29 +84,21 @@ export interface FacetecTexts {
 }
 
 export interface FacetecFonts {
-  instructionsTitleFont?: string;
-  instructionsCaptionFont?: string;
-  instructionsDocumentTypesInstructionsFont?: string;
-  instructionsDocumentTipsInstructionsFont?: string;
-  instructionsButtonFont?: string;
-  permissionTitleFont?: string;
-  permissionCaptionFont?: string;
-  permissionButtonFont?: string;
-  guidanceCustomizationHeaderFont?: string;
-  guidanceCustomizationSubtextFont?: string;
-  guidanceCustomizationButtonFont?: string;
-  guidanceCustomizationReadyScreenHeaderFont?: string;
-  guidanceCustomizationReadyScreenSubtextFont?: string;
-  guidanceCustomizationRetryScreenHeaderFont?: string;
-  guidanceCustomizationRetryScreenSubtextFont?: string;
-  resultScreenCustomizationMessageFont?: string;
-  feedbackCustomizationTextFont?: string;
+  readyScreenHeader?: string;
+  readyScreenSubtext?: string;
+  resultScreenMessage?: string;
+  retryScreenHeader?: string;
+  retryScreenSubtext?: string;
+  feedbackMessage?: string;
+  guidanceHeader?: string;
+  guidanceSubtext?: string;
+  guidanceButton?: string;
 }
 
 export interface FacetecAssets {
-  overlayBrandingImage?: any;
-  cancelButtonCustomImage?: any;
-  resultScreenCustomActivityIndicatorImage?: any;
+  overlayBrandImage?: string;
+  cancelButtonIcon?: string;
+  resultScreenCustomActivityIndicatorImage?: string;
 }
 
 export interface FacetecTheme {
@@ -106,30 +108,32 @@ export interface FacetecTheme {
   assets?: FacetecAssets;
 }
 
+/**
+ * IProov Theme
+ */
+
 export interface IProovColors {
-  titleColor?: string;
-  headerBackgroundColor?: string;
-  promptTextColor?: string;
-  promptBackgroundColor?: string;
-  surroundColor?: string;
-  ovalReadyColor?: string;
-  ovalNotReadyColor?: string;
-  ovalStrokeColor?: string;
-  ovalCompletedColor?: string;
+  closeButtonIcon?: string;
+  title?: string;
+  titleBackground?: string;
+  promptText?: string;
+  promptBackground?: string;
+  background?: string;
+  ovalReady?: string;
+  ovalNotReady?: string;
+  ovalCapturing?: string;
+  ovalCompleted?: string;
+  filterLineDrawingForeground?: string;
+  filterLineDrawingBackground?: string;
 }
 
 export interface IProovTexts {
   title?: string;
-  instructionsTitleText?: string;
-  instructionsCaptionText?: string;
-  documentTipsInstructionText?: string;
-  documentTypesInstructionText?: string;
-  continueButtonText?: string;
-  permissionTitle?: string;
-  checkPermissionButtonText?: string;
-  successText?: string;
-  errorText?: string;
-  retryButtonText?: string;
+}
+
+export interface IProovAssets {
+  closeButtonIcon?: string;
+  logoImage?: string;
 }
 
 export interface IProovFonts {
@@ -145,95 +149,181 @@ export interface IProovFonts {
   resultRetryButtonFont?: string;
 }
 
-export interface IProovAssets {
-  logo?: any;
-  closeButton?: any;
-}
-
 export interface IProovTheme {
   colors?: IProovColors;
   texts?: IProovTexts;
-  fonts?: IProovFonts;
   assets?: IProovAssets;
+  fonts?: IProovFonts;
 }
 
+/**
+ * Instructions Theme
+ */
+
 export interface InstructionsThemeColors {
-  titleColor?: string;
-  captionColor?: string;
-  backgroundColor?: string;
-  statusBarColor?: string;
-  bottomSheetColor?: string;
-  continueButtonColor?: string;
-  continueButtonTextColor?: string;
+  statusBar?: string;
+  background?: string;
+  backButtonIcon?: string;
+  backButtonBackground?: string;
+  backButtonBorder?: string;
+  bottomSheet?: string;
+  title?: string;
+  caption?: string;
+  firstInstructionTitle?: string;
+  secondInstructionTitle?: string;
+  continueButtonText?: string;
+  continueButtonBackground?: string;
+  continueButtonBorder?: string;
 }
 
 export interface InstructionsThemeTexts {
-  titleText?: string;
-  captionText?: string;
-  documentTipsInstructionText?: string;
-  documentTypesInstructionText?: string;
-  continueButtonText?: string;
+  title?: string;
+  caption?: string;
+  firstInstruction?: string;
+  secondInstruction?: string;
+  continueButton?: string;
 }
 
 export interface InstructionsThemeAssets {
-  logo?: any; // require() path or base64 string
+  backButtonIcon?: string;
+  contextImage?: string;
+  firstInstructionIcon?: string;
+  secondInstructionIcon?: string;
+}
+
+export interface InstructionsThemeFonts {
+  title?: string;
+  caption?: string;
+  firstInstructionTitle?: string;
+  secondInstructionTitle?: string;
+  continueButton?: string;
 }
 
 export interface InstructionsTheme {
   colors?: InstructionsThemeColors;
   texts?: InstructionsThemeTexts;
   assets?: InstructionsThemeAssets;
+  fonts?: InstructionsThemeFonts;
 }
 
+/**
+ * Permission Theme
+ */
+
 export interface PermissionThemeColors {
-  titleColor?: string;
-  backgroundColor?: string;
-  statusBarColor?: string;
-  checkPermissionButtonColor?: string;
-  checkPermissionButtonTextColor?: string;
+  statusBar?: string;
+  background?: string;
+  backButtonIcon?: string;
+  backButtonBackground?: string;
+  backButtonBorder?: string;
+  cameraImage?: string;
+  title?: string;
+  caption?: string;
+  checkPermissionButtonText?: string;
+  checkPermissionButtonBackground?: string;
+  checkPermissionButtonBorder?: string;
+  bottomSheet?: string;
+  bottomSheetTitle?: string;
+  bottomSheetCaption?: string;
+  openSettingsButtonText?: string;
+  openSettingsButtonBackground?: string;
+  openSettingsButtonBorder?: string;
+  closeButtonText?: string;
+  closeButtonBackground?: string;
+  closeButtonBorder?: string;
 }
 
 export interface PermissionThemeTexts {
   title?: string;
-  checkPermissionButtonText?: string;
+  caption?: string;
+  checkPermissionButton?: string;
+  bottomSheetTitle?: string;
+  bottomSheetCaption?: string;
+  openSettingsButton?: string;
+  closeButton?: string;
+}
+
+export interface PermissionThemeAssets {
+  backButtonIcon?: string;
+  cameraImage?: string;
+}
+
+export interface PermissionThemeFonts {
+  title?: string;
+  caption?: string;
+  checkPermissionButton?: string;
+  bottomSheetTitle?: string;
+  bottomSheetCaption?: string;
+  opentSettingsButton?: string;
+  closeButton?: string;
 }
 
 export interface PermissionTheme {
   colors?: PermissionThemeColors;
   texts?: PermissionThemeTexts;
+  assets?: PermissionThemeAssets;
+  fonts?: PermissionThemeFonts;
 }
 
+/**
+ * Processing Theme
+ */
+
 export interface ProcessingThemeColors {
-  backgroundColor?: string;
-  loadingDialogColor?: string;
-  statusBarColor?: string;
+  statusBar?: string;
+  background?: string;
+  loading?: string;
 }
 
 export interface ProcessingTheme {
   colors?: ProcessingThemeColors;
 }
 
+/**
+ * Result Theme
+ */
+
 export interface ResultThemeColors {
-  successBackgroundColor?: string;
-  successTextColor?: string;
-  errorBackgroundColor?: string;
-  errorTextColor?: string;
-  statusBarSuccessColor?: string;
-  statusBarErrorColor?: string;
-  retryButtonColor?: string;
-  retryButtonTextColor?: string;
+  successStatusBar?: string;
+  successBackground?: string;
+  successText?: string;
+  errorStatusBar?: string;
+  errorBackground?: string;
+  errorText?: string;
+  retryBackground?: string;
+  retryText?: string;
+  retryButtonText?: string;
+  retryButtonBackground?: string;
+  retryButtonBorder?: string;
 }
 
 export interface ResultThemeTexts {
-  successText?: string;
-  errorText?: string;
-  retryButtonText?: string;
+  success?: string;
+  error?: string;
+  retryButton?: string;
+}
+
+export interface ResultThemeAssets {
+  successImage?: string;
+  errorImage?: string;
+  retryImage?: string;
+}
+
+export interface ResultThemeFonts {
+  text?: string;
+  retryButton?: string;
 }
 
 export interface ResultTheme {
   colors?: ResultThemeColors;
   texts?: ResultThemeTexts;
+  assets?: ResultThemeAssets;
+  fonts?: ResultThemeFonts;
 }
+
+/**
+ * Oiti Theme
+ */
 
 export interface OitiTheme {
   provider: LivenessProvider;

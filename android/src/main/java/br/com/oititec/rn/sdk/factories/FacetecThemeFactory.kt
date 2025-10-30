@@ -16,6 +16,15 @@ object FacetecThemeFactory {
   fun buildDefault(): FacetecTheme = FacetecTheme.build {}
 
   fun buildCustom(theme: ReadableMap? = null, context: Context? = null): FacetecTheme = FacetecTheme.build {
+    val instructionsTheme = theme?.getMap("instructions")
+    val instructionsColors = instructionsTheme?.getMap("colors")
+    val instructionsTexts = instructionsTheme?.getMap("texts")
+    val instructionsFonts = instructionsTheme?.getMap("fonts")
+
+    val permissionTheme = theme?.getMap("permission")
+    val permissionColors = permissionTheme?.getMap("colors")
+    val permissionTexts = permissionTheme?.getMap("texts")
+    val permissionFonts = permissionTheme?.getMap("fonts")
 
     val facetecTheme = theme?.getMap("facetec")
     val facetecColors = facetecTheme?.getMap("colors")
@@ -23,7 +32,7 @@ object FacetecThemeFactory {
     val facetecFontsMap = facetecTheme?.getMap("fonts")
 
     val facetecFonts = if (facetecFontsMap != null) {
-      FacetecFonts(facetecFontsMap).apply()
+      FacetecFonts(instructionsFonts, permissionFonts, facetecFontsMap).apply()
     } else {
       hashMapOf(
         FacetecFontsKey.INSTRUCTIONS_TITLE_FONT to R.font.ubuntu_regular,
@@ -93,41 +102,46 @@ object FacetecThemeFactory {
     facetecTexts?.getString("feedbackConditionsTooBright")?.let { customFacetecTexts[FacetecTextKey.FEEDBACK_CONDITIONS_TOO_BRIGHT] = it }
     facetecTexts?.getString("feedbackBrightenYourEnvironment")?.let { customFacetecTexts[FacetecTextKey.FEEDBACK_BRIGHTEN_YOUR_ENVIRONMENT] = it }
 
-    guidanceBackgroundColors(facetecColors?.getString("guidanceBackgroundColors") ?: "#1F1F1F")
-    guidanceForegroundColor(facetecColors?.getString("guidanceForegroundColor") ?: "#FFFFFF")
-    guidanceReadyScreenHeaderTextColor(facetecColors?.getString("guidanceReadyScreenHeaderTextColor") ?: "#FFFFFF")
-    guidanceReadyScreenSubtextTextColor(facetecColors?.getString("guidanceReadyScreenSubtextTextColor") ?: "#BBBBBB")
-    guidanceReadyScreenTextBackgroundColor(facetecColors?.getString("guidanceReadyScreenTextBackgroundColor") ?: "#BBBBBB")
+    // Ready Screen
+    guidanceReadyScreenHeaderTextColor(facetecColors?.getString("readyScreenHeader") ?: "#FFFFFF")
+    guidanceReadyScreenSubtextTextColor(facetecColors?.getString("readyScreenSubtext") ?: "#BBBBBB")
+    guidanceReadyScreenTextBackgroundColor(facetecColors?.getString("readyScreenTextBackground") ?: "#BBBBBB")
+    guidanceReadyScreenOvalFillColor(facetecColors?.getString("readyScreenOvalFill") ?: "#00FF00")
     guidanceReadyScreenTextBackgroundCornerRadius(12)
-    guidanceButtonBackgroundHighlightColor(facetecColors?.getString("guidanceButtonBackgroundHighlightColor") ?: "#0F9D58")
-    guidanceButtonTextHighlightColor(facetecColors?.getString("guidanceButtonTextHighlightColor") ?: "#000000")
-    guidanceButtonBorderColor(facetecColors?.getString("guidanceButtonBorderColor") ?: "#0F9D58")
-    guidanceButtonBackgroundDisabledColor(facetecColors?.getString("guidanceButtonBackgroundDisabledColor") ?: "#ff0000")
-    guidanceButtonTextDisabledColor(facetecColors?.getString("guidanceButtonTextDisabledColor") ?: "#000000")
-    guidanceButtonBackgroundNormalColor(facetecColors?.getString("guidanceButtonBackgroundNormalColor") ?: "#00ff00")
-    guidanceButtonTextNormalColor(facetecColors?.getString("guidanceButtonTextNormalColor") ?: "#3d100c")
+
+    // Guidance
+    guidanceForegroundColor(facetecColors?.getString("guidanceForeground") ?: "#FFFFFF")
+    guidanceBackgroundColors(facetecColors?.getString("guidanceBackground") ?: "#1F1F1F")
+    guidanceButtonTextNormalColor(facetecColors?.getString("guidanceButtonTextNormal") ?: "#3d100c")
+    guidanceButtonTextHighlightColor(facetecColors?.getString("guidanceButtonTextHighlight") ?: "#000000")
+    guidanceButtonTextDisabledColor(facetecColors?.getString("guidanceButtonTextDisabled") ?: "#000000")
+    guidanceButtonBackgroundNormalColor(facetecColors?.getString("guidanceButtonBackgroundNormal") ?: "#00ff00")
+    guidanceButtonBackgroundHighlightColor(facetecColors?.getString("guidanceButtonBackgroundHighlight") ?: "#0F9D58")
+    guidanceButtonBackgroundDisabledColor(facetecColors?.getString("guidanceButtonBackgroundDisabled") ?: "#ff0000")
+    guidanceButtonBorderColor(facetecColors?.getString("guidanceButtonBorder") ?: "#0F9D58")
     guidanceButtonBorderWidth(2)
     guidanceButtonCornerRadius(12)
-    guidanceReadyScreenOvalFillColor(facetecColors?.getString("guidanceReadyScreenOvalFillColor") ?: "#00FF00")
 
-    guidanceRetryScreenHeaderTextColor(facetecColors?.getString("guidanceRetryScreenHeaderTextColor") ?: "#FF5252")
-    guidanceRetryScreenSubtextTextColor(facetecColors?.getString("guidanceRetryScreenSubtextTextColor") ?: "#DD3333")
-    guidanceRetryScreenImageBorderColor(facetecColors?.getString("guidanceRetryScreenImageBorderColor") ?: "#417FB2")
+    // Retry Screen
+    guidanceRetryScreenHeaderTextColor(facetecColors?.getString("retryScreenHeader") ?: "#FF5252")
+    guidanceRetryScreenSubtextTextColor(facetecColors?.getString("retryScreenSubtext") ?: "#DD3333")
+    guidanceRetryScreenOvalStrokeColor(facetecColors?.getString("retryScreenOvalStroke") ?: "#FFFFFF")
+    guidanceRetryScreenImageBorderColor(facetecColors?.getString("retryScreenImageBorder") ?: "#417FB2")
     guidanceRetryScreenImageBorderWidth(3)
-    guidanceRetryScreenOvalStrokeColor(facetecColors?.getString("guidanceRetryScreenOvalStrokeColor") ?: "#FFFFFF")
     guidanceRetryScreenImageCornerRadius(12)
 
-    resultScreenForegroundColor(facetecColors?.getString("resultScreenForegroundColor") ?: "#0F9D58")
-    resultScreenBackgroundColors(facetecColors?.getString("resultScreenBackgroundColors") ?: "#DFFFD6")
-    resultScreenAnimationRelativeScale(1f)
-    resultScreenActivityIndicatorColor(facetecColors?.getString("resultScreenActivityIndicatorColor") ?: "#0F9D58")
-    resultScreenUploadProgressFillColor(facetecColors?.getString("resultScreenUploadProgressFillColor") ?: "#0F9D58")
-    resultScreenShowUploadProgressBar(true)
+    // Result Screen
+    resultScreenForegroundColor(facetecColors?.getString("resultScreenForeground") ?: "#0F9D58")
+    resultScreenBackgroundColors(facetecColors?.getString("resultScreenBackground") ?: "#DFFFD6")
+    resultScreenUploadProgressFillColor(facetecColors?.getString("resultScreenUploadProgressFill") ?: "#0F9D58")
+    resultScreenUploadProgressTrackColor(facetecColors?.getString("resultScreenUploadProgressTrack") ?: "#66000000")
+    resultScreenActivityIndicatorColor(facetecColors?.getString("resultScreenActivityIndicator") ?: "#0F9D58")
+    resultScreenResultAnimationBackgroundColor(facetecColors?.getString("resultScreenResultAnimationBackground") ?: "#417FB2")
+    resultScreenResultAnimationForegroundColor(facetecColors?.getString("resultScreenResultAnimationForeground") ?: "#FFFFFF")
     resultScreenCustomActivityIndicatorAnimation(br.com.oiti.facetecsdk.R.drawable.animated_activity_indicator)
     resultScreenCustomActivityIndicatorRotationInterval(1000)
-    resultScreenUploadProgressTrackColor(facetecColors?.getString("resultScreenUploadProgressTrackColor") ?: "#66000000")
-    resultScreenResultAnimationBackgroundColor(facetecColors?.getString("resultScreenResultAnimationBackgroundColor") ?: "#417FB2")
-    resultScreenResultAnimationForegroundColor(facetecColors?.getString("resultScreenResultAnimationForegroundColor") ?: "#FFFFFF")
+    resultScreenAnimationRelativeScale(1f)
+    resultScreenShowUploadProgressBar(true)
     activityIndicatorImageId?.let {
       resultScreenCustomActivityIndicatorImage(it)
     } ?: run {
@@ -139,34 +153,40 @@ object FacetecThemeFactory {
     resultScreenCustomResultAnimationSuccess(R.drawable.success_icon)
     resultScreenResultAnimationUnSuccessBackgroundImage(R.drawable.error_icon)
     resultScreenResultAnimationSuccessBackgroundImage(R.drawable.success_icon)
+    resultScreenOverrideSuccessMessage("Toque para reiniciar")
 
+    // Oval
     ovalCustomizationStrokeWidth(4)
-    ovalCustomizationStrokeColor(facetecColors?.getString("ovalCustomizationStrokeColor") ?: "#00FF00")
+    ovalCustomizationStrokeColor(facetecColors?.getString("ovalStroke") ?: "#00FF00")
     ovalCustomizationProgressStrokeWidth(6)
-    ovalCustomizationProgressColor1(facetecColors?.getString("ovalCustomizationProgressColor1") ?: "#00FF00")
-    ovalCustomizationProgressColor2(facetecColors?.getString("ovalCustomizationProgressColor2") ?: "#FF0000")
+    ovalCustomizationProgressColor1(facetecColors?.getString("ovalProgressFirst") ?: "#00FF00")
+    ovalCustomizationProgressColor2(facetecColors?.getString("ovalProgressSecond") ?: "#FF0000")
     ovalCustomizationProgressRadialOffset(8)
-
+    
+    // Frame
+    frameBackgroundColor(facetecColors?.getString("frameBackground") ?: "#121212")
+    frameBorderColor(facetecColors?.getString("frameBorder") ?: "#FFFFFF")
     frameBorderWidth(2)
-    frameBorderColor(facetecColors?.getString("frameBorderColor") ?: "#FFFFFF")
     frameCornerRadius(8)
-    frameBackgroundColor(facetecColors?.getString("frameBackgroundColor") ?: "#121212")
     frameElevation(5)
 
-    overlayBackgroundColor(facetecColors?.getString("overlayBackgroundColor") ?: "#80000000")
+    // Overlay
+    overlayBackgroundColor(facetecColors?.getString("overlayBackground") ?: "#80000000")
     overlayBrandingImageId?.let {
       overlayBrandingImage(it)
     } ?: run {
       overlayBrandingImage(R.drawable.neutral_face)
     }
     overlayShowBrandingImage(true)
-
+    
+    // Feedback
+    feedbackBackgroundColors(facetecColors?.getString("feedbackBarBackground") ?: "#FFFDE7")
+    feedbackTextColor(facetecColors?.getString("feedbackMessage") ?: "#000000")
     feedbackCornerRadius(12)
-    feedbackBackgroundColors(facetecColors?.getString("feedbackBackgroundColors") ?: "#FFFDE7")
-    feedbackTextColor(facetecColors?.getString("feedbackTextColor") ?: "#000000")
-    feedbackEnablePulsatingText(true)
     feedbackElevation(8)
+    feedbackEnablePulsatingText(true)
 
+    // Cancel Button
     cancelButtonImageId?.let {
       cancelButtonCustomImage(it)
     } ?: run {
@@ -178,42 +198,35 @@ object FacetecThemeFactory {
     setFacetecFontsMap(facetecFonts)
     setFacetecTextMap(customFacetecTexts)
 
-    resultScreenOverrideSuccessMessage("Toque para reiniciar")
-
-    val instructionsTheme = theme?.getMap("instructions")
-    val instructionsColors = instructionsTheme?.getMap("colors")
-    val instructionsTexts = instructionsTheme?.getMap("texts")
-
+    // Instructions Screen
     setInstructionsTheme {
-      setTitleText(instructionsTexts?.getString("titleText") ?: "Centralize seu rosto")
-      setCaptionText(instructionsTexts?.getString("captionText") ?: "Mantenha-se dentro do círculo")
-      setStatusBarColor(instructionsColors?.getString("statusBarColor") ?: "#121212")
+      setTitleText(instructionsTexts?.getString("title") ?: "Centralize seu rosto")
+      setCaptionText(instructionsTexts?.getString("caption") ?: "Mantenha-se dentro do círculo")
+      setStatusBarColor(instructionsColors?.getString("statusBar") ?: "#121212")
       setStatusBarIsDarkIcons(false)
-      setBackgroundColor(instructionsColors?.getString("backgroundColor") ?: "#121212")
+      setBackgroundColor(instructionsColors?.getString("background") ?: "#121212")
       setContinueButtonText(instructionsTexts?.getString("continueButtonText") ?: "Começar")
-      setContinueButtonColor(instructionsColors?.getString("continueButtonColor") ?: "#0F9D58")
+      setContinueButtonColor(instructionsColors?.getString("continueButtonBackground") ?: "#0F9D58")
     }
 
-    val permissionTheme = theme?.getMap("permission")
-    val permissionColors = permissionTheme?.getMap("colors")
-    val permissionTexts = permissionTheme?.getMap("texts")
-
+    // Permission Screen
     setPermissionTheme {
       setTitle(permissionTexts?.getString("title") ?: "Permissão de Câmera")
-      setBackgroundColor(permissionColors?.getString("backgroundColor") ?: "#1F1F1F")
-      setStatusBarColor(permissionColors?.getString("statusBarColor") ?: "#1F1F1F")
+      setBackgroundColor(permissionColors?.getString("background") ?: "#1F1F1F")
+      setStatusBarColor(permissionColors?.getString("statusBar") ?: "#1F1F1F")
       setStatusBarIsDarkIcons(false)
       setCheckPermissionButtonText(permissionTexts?.getString("checkPermissionButtonText") ?: "Permitir")
-      setCheckPermissionButtonStyle(permissionColors?.getString("checkPermissionButtonColor") ?: "#0F9D58")
+      setCheckPermissionButtonStyle(permissionColors?.getString("checkPermissionButtonBackground") ?: "#0F9D58")
     }
-
+    
+    // Processing Screen
     val processingTheme = theme?.getMap("processing")
     val processingColors = processingTheme?.getMap("colors")
 
     setProcessingTheme {
-      setBackgroundColor(processingColors?.getString("backgroundColor") ?: "#000000")
-      setLoadingDialogColor(processingColors?.getString("loadingDialogColor") ?: "#FFFFFF")
-      setStatusBarColor(processingColors?.getString("statusBarColor") ?: "#000000")
+      setBackgroundColor(processingColors?.getString("background") ?: "#000000")
+      setLoadingDialogColor(processingColors?.getString("loading") ?: "#FFFFFF")
+      setStatusBarColor(processingColors?.getString("statusBar") ?: "#000000")
       setStatusBarIsDarkIcons(false)
       setLoadingIndicatorSize(80)
     }

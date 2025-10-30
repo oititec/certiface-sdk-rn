@@ -1,6 +1,6 @@
 ENV['RCT_NEW_ARCH_ENABLED'] = '1'
 
-source 'https://github.com/oititec/ios-artifactory-beta.git'
+source 'https://github.com/oititec/ios-artifactory.git'
 source 'https://github.com/CocoaPods/Specs.git'
 
 # Resolve react_native_pods.rb with node to allow for hoisting

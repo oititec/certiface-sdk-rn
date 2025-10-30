@@ -5,21 +5,12 @@
 //  Created by Gabriel Catelli Goulart on 21/07/25.
 //
 
-import Foundation
-import OIComponents
-import OitiSDK
+import CertifaceSDK
 import UIKit
 
 @objc public class RnSdkImpl: NSObject {
-
   var onSuccessCallback: ((String) -> Void)?
   var onErrorCallback: ((String) -> Void)?
-
-  @objc public func testString(
-    string: String
-  ) {
-    print(string)
-  }
 
   @objc public func startJourney(
     appKey: String,
@@ -36,26 +27,27 @@ import UIKit
     self.onSuccessCallback = onSuccess
     self.onErrorCallback = onError
 
-    guard let viewController = getRootViewController() else {
-      onError("Cannot get rootViewController")
-      return
-    }
-
-    let builder =
-      LivenessManagerOptions
-      .builder(appKey: appKey, environment: .hml)
-
+    let customization: IProovCustomization
     if isCustomEnabled {
-      let customization = ThemeFactory.createIProovCustomization(from: theme)
-      builder.setIProovCustomization(customization)
+      customization = ThemeFactory.createIProovCustomization(from: theme)
+    } else {
+      customization = IProovCustomization.builder().build()
     }
 
-    let options = builder.build()
+    let options = LivenessManagerOptions
+      .builder(appKey: appKey, environment: .hml)
+      .setIProovCustomization(customization)
+      .build()
 
-    let manager = OitiSDKFactory.createLivenessManager(for: .iproov)
-    DispatchQueue.main.async {
+    let manager = CertifaceSDKFactory.createLivenessManager(for: .iproov)
+
+    DispatchQueue.main.async { [weak self] in
+      guard let self, let viewController = getRootViewController() else {
+        onError("Cannot get rootViewController")
+        return
+      }
+
       manager.start(at: viewController, options: options, callback: self)
     }
   }
-
 }
