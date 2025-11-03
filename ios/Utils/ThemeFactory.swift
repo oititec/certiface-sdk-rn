@@ -272,13 +272,46 @@ final class ThemeFactory {
     }
 
     let colors = livenessTheme["colors"] as? [String: String] ?? [:]
-//    setColor(colors["titleColor"], with: builder.setTitleTextColor(_:))
-
-    let texts = livenessTheme["texts"] as? [String: String] ?? [:]
-//    setText(texts["title"], with: builder.setTitle(_:))
+    setColor(colors["readyScreenHeader"], with: builder.setReadyScreenHeaderColor(_:))
+    setColor(colors["readyScreenSubtext"], with: builder.setReadyScreenMessageColor(_:))
+    setColor(colors["readyScreenTextBackground"], with: builder.setReadyScreenTextBackgroundColor(_:))
+    setColor(colors["resultScreenMessage"], with: builder.setResultScreenMessageColor(_:))
+    setColor(colors["resultScreenUploadProgressBarFill"], with: builder.setResultScreenUploadProgressBarFillColor(_:))
+    setColor(colors["resultScreenUploadProgressBarTrack"], with: builder.setResultScreenUploadProgressBarTrackColor(_:))
+    builder.setResultScreenAnimationStyle(.blob(appearance: getResultStyleApperance(from: colors)))
+    setColor(colors["retryScreenHeader"], with: builder.setRetryScreenHeaderColor(_:))
+    setColor(colors["retryScreenSubtext"], with: builder.setRetryScreenCaptionColor(_:))
+    setColor(colors["retryScreenImageBorder"], with: builder.setRetryScreenImageBorderColor(_:))
+    setColor(colors["feedbackMessage"], with: builder.setFeedbackMessageColor(_:))
+    setColor(colors["feedbackBarBackground"], with: builder.setFeedbackBarBackgroundColor(_:))
+    setColor(colors["guidanceButtonTextNormal"], with: builder.setGuidanceButtonTextNormalColor(_:))
+    setColor(colors["guidanceButtonTextHighlight"], with: builder.setGuidanceButtonTextHighlightColor(_:))
+    setColor(colors["guidanceButtonTextDisabled"], with: builder.setGuidanceButtonTextDisabledColor(_:))
+    setColor(colors["guidanceButtonBackgroundNormal"], with: builder.setGuidanceButtonBackgroundNormalColor(_:))
+    setColor(colors["guidanceButtonBackgroundHighlight"], with: builder.setGuidanceButtonBackgroundHighlightColor(_:))
+    setColor(colors["guidanceButtonBackgroundDisabled"], with: builder.setGuidanceButtonBackgroundDisabledColor(_:))
+    setColor(colors["guidanceButtonBorder"], with: builder.setGuidanceButtonBorderColor(_:))
+    setColor(colors["frameBorder"], with: builder.setFrameBorderColor(_:))
+    setColor(colors["frameBackground"], with: builder.setFrameBackgroundColor(_:))
+    setColor(colors["ovalStroke"], with: builder.setOvalStrokeColor(_:))
+    setColor(colors["ovalProgressFirst"], with: builder.setOvalProgressFirstColor(_:))
+    setColor(colors["ovalProgressSecond"], with: builder.setOvalProgressSecondColor(_:))
+    setColor(colors["overlayBackground"], with: builder.setOverlayBackgroundColor(_:))
 
     let assets = livenessTheme["assets"] as? [String: String] ?? [:]
-//    setImage(assets["logo"], with: builder.setLogoImage(_:))
+    setImage(assets["overlayBrandImage"], with: builder.setOverlayBrandImage(_:))
+    setImage(assets["cancelButtonIcon"], with: builder.setCancelButtonIcon(_:))
+
+    let fonts = livenessTheme["fonts"] as? [String: String] ?? [:]
+    setFont(fonts["readyScreenHeader"], with: builder.setReadyScreenHeaderFont(_:), size: 0)
+    setFont(fonts["readyScreenSubtext"], with: builder.setReadyScreenMessageFont(_:), size: 0)
+    setFont(fonts["resultScreenMessage"], with: builder.setResultScreenMessageFont(_:), size: 0)
+    setFont(fonts["retryScreenHeader"], with: builder.setRetryScreenHeaderFont(_:), size: 0)
+    setFont(fonts["retryScreenSubtext"], with: builder.setRetryScreenCaptionFont(_:), size: 0)
+    setFont(fonts["feedbackMessage"], with: builder.setFeedbackMessageFont(_:), size: 0)
+    setFont(fonts["guidanceHeader"], with: builder.setGuidanceHeaderFont(_:), size: 0)
+    setFont(fonts["guidanceSubtext"], with: builder.setGuidanceSubtextFont(_:), size: 0)
+    setFont(fonts["guidanceButton"], with: builder.setGuidanceButtonFont(_:), size: 0)
 
     return builder
   }
@@ -360,5 +393,32 @@ final class ThemeFactory {
     if let fontName, let font = UIFont(name: fontName, size: size) {
       _ = builder(font)
     }
+  }
+
+  private static func getResultStyleApperance(from colors: [String: String]) -> BlobAnimationAppearance {
+    func getColor(from colorHex: String?, defaultColor: UIColor) -> UIColor {
+      guard let colorHex, let color = UIColor(hex: colorHex) else {
+        return defaultColor
+      }
+      return color
+    }
+
+    let blobColor = getColor(
+      from: colors["resultScreenActivityIndicator"],
+      defaultColor: .black
+    )
+    let checkmarkForegroundColor = getColor(
+      from: colors["resultScreenResultAnimationForeground"],
+      defaultColor: .black
+    )
+    let checkmarkBackgroundColor = getColor(
+      from: colors["resultScreenResultAnimationBackground"],
+      defaultColor: .black
+    )
+    return BlobAnimationAppearance(
+      blobColor: blobColor,
+      checkmarkForegroundColor: checkmarkForegroundColor,
+      checkmarkBackgroundColor: checkmarkBackgroundColor
+    )
   }
 }
