@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "506835227883",
+    "project_id": "rn-certiface-sdk",
+    "storage_bucket": "rn-certiface-sdk.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:506835227883:android:d174ede2854db1d04c1aae",
+        "android_client_info": {
+          "package_name": "br.com.oititec.rn.sdk.example"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDS01APrj7XAKtb7YQ5I3o-mEUTRAXn_30"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
