@@ -1,6 +1,8 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
+apply plugin: "com.google.gms.google-services"
+apply plugin: "com.google.firebase.appdistribution"
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -96,6 +98,11 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            firebaseAppDistribution {
+                artifactType = "APK"
+                releaseNotes = "Debug build for testing"
+                groups = "testers"
+            }
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
@@ -103,6 +110,11 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            firebaseAppDistribution {
+                artifactType = "APK"
+                releaseNotes = "Release build for testing"
+                groups = "testers"
+            }
         }
     }
 }

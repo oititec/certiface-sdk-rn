@@ -1,20 +1,24 @@
 package br.com.oititec.rn.sdk.factories
 
 import android.content.Context
+import android.util.Log
 import androidx.core.graphics.toColorInt
 import br.com.oiti.designsystem.R
 import br.com.oiti.domain.model.iproov.CameraSelection
 import br.com.oiti.domain.model.iproov.OrientationGPA
 import br.com.oiti.domain.model.iproov.OrientationLA
 import br.com.oiti.manager.exports.FilterTheme
+import br.com.oiti.manager.exports.IProovDrawablesKey
 import br.com.oiti.manager.exports.IProovFontsKey
 import br.com.oiti.manager.exports.IProovTheme
 import br.com.oiti.manager.exports.NaturalStyle
 import br.com.oititec.rn.sdk.theme.IProovFonts
-import br.com.oititec.rn.sdk.managers.AssetManager
+import br.com.oititec.rn.sdk.processors.AssetProcessor
 import com.facebook.react.bridge.ReadableMap
 
 object IProovThemeFactory {
+  private const val TAG = "IProovThemeFactory"
+
   fun create(isCustom: Boolean, theme: ReadableMap? = null, context: Context? = null): IProovTheme =
     if (isCustom) buildCustom(theme, context) else buildDefault()
 
@@ -77,24 +81,20 @@ object IProovThemeFactory {
     val instructionsColors = instructionsTheme?.getMap("colors")
     val instructionsTexts = instructionsTheme?.getMap("texts")
 
-    context?.let { ctx ->
-      AssetManager.initialize(ctx, theme)
-    }
-
-    val logoResourceId = AssetManager.getProcessedAsset("iproov_logo") 
-      ?: AssetManager.getProcessedAsset("instructions_logo")
-    val closeButtonResourceId = AssetManager.getProcessedAsset("iproov_close_button")
+    Log.d(TAG, "🏭 Iniciando construção do tema IProov customizado...")
+    val iproovDrawables = AssetProcessor.processIProovAssets(theme)
+    Log.d(TAG, "📦 Assets processados: ${iproovDrawables.size} encontrados")
     
-    logoResourceId?.let {
-      setLogo(it)
-    } ?: run {
-      setLogo(R.drawable.error_icon)
+    Log.d(TAG, "🎨 Assets encontrados para processamento: ${iproovDrawables.size}")
+    iproovDrawables.forEach { (key, value) ->
+      Log.d(TAG, "   📎 $key = '$value'")
     }
     
-    closeButtonResourceId?.let {
-      setCloseButton(it)
-    } ?: run {
-      setCloseButton(br.com.oiti.designsystem.R.drawable.close_icon)
+    if (iproovDrawables.isNotEmpty()) {
+      Log.d(TAG, "🎨 Configurando drawables customizados: ${iproovDrawables.size} assets")
+      setDrawablesKey(iproovDrawables)
+    } else {
+      Log.d(TAG, "📋 Nenhum drawable customizado encontrado, usando padrões")
     }
 
     setInstructionsTheme {
@@ -106,12 +106,21 @@ object IProovThemeFactory {
       setStatusBarColor(instructionsColors?.getString("statusBarColor") ?: "#1F1F1F")
       setStatusBarIsDarkIcons(false)
       setBottomSheetColor(instructionsColors?.getString("bottomSheetColor") ?: "#333333")
-      setDocumentTipsInstructionText(instructionsTexts?.getString("documentTipsInstructionText") ?: texts?.getString("documentTipsInstructionText") ?: "teste 1")
-      setDocumentTypesInstructionText(instructionsTexts?.getString("documentTypesInstructionText") ?: texts?.getString("documentTypesInstructionText") ?: "teste 2")
       setBottomSheetCornerRadius(16f)
       setContinueButtonText(instructionsTexts?.getString("continueButtonText") ?: texts?.getString("continueButtonText") ?: "Startar")
       setContinueButtonColor(instructionsColors?.getString("continueButtonColor") ?: "#00FF00")
       setContinueButtonTextColor(instructionsColors?.getString("continueButtonTextColor") ?: "#000000")
+
+      val contextImageName = iproovDrawables[IProovDrawablesKey.INSTRUCTIONS_CONTEXT_IMAGE] as? String
+      if (contextImageName != null && context != null) {
+        val resourceId = AssetProcessor.getDrawableResourceId(context, contextImageName)
+        if (resourceId != 0) {
+          Log.d(TAG, "✅ Usando context image customizado: $resourceId")
+          setContextImage(resourceId)
+        } else {
+          Log.w(TAG, "⚠️ Context image customizado não encontrado")
+        }
+      }
     }
 
     val permissionTheme = theme?.getMap("permission")
@@ -124,8 +133,6 @@ object IProovThemeFactory {
       setBackgroundColor(permissionColors?.getString("backgroundColor") ?: "#1F1F1F")
       setStatusBarColor(permissionColors?.getString("statusBarColor") ?: "#1F1F1F")
       setStatusBarIsDarkIcons(false)
-      setCheckPermissionButtonText(permissionTexts?.getString("checkPermissionButtonText") ?: texts?.getString("checkPermissionButtonText") ?: "Permitir Acesso")
-      setCheckPermissionButtonStyle(permissionColors?.getString("checkPermissionButtonColor") ?: "#00FF00")
     }
 
     val processingTheme = theme?.getMap("processing")

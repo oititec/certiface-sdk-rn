@@ -5,13 +5,15 @@ import br.com.oiti.designsystem.R
 import br.com.oiti.domain.model.facetec.FacetecButtonLocation
 import br.com.oiti.domain.model.facetec.FacetecExitAnimationStyle
 import br.com.oiti.domain.model.facetec.FacetecTheme
+import android.util.Log
 import br.com.oiti.manager.exports.FacetecFontsKey
 import br.com.oiti.manager.exports.FacetecTextKey
 import br.com.oititec.rn.sdk.theme.FacetecFonts
-import br.com.oititec.rn.sdk.managers.AssetManager
+import br.com.oititec.rn.sdk.processors.AssetProcessor
 import com.facebook.react.bridge.ReadableMap
 
 object FacetecThemeFactory {
+  private const val TAG = "FacetecThemeFactory"
 
   fun buildDefault(): FacetecTheme = FacetecTheme.build {}
 
@@ -55,13 +57,21 @@ object FacetecThemeFactory {
       )
     }
 
-    context?.let { ctx ->
-      AssetManager.initialize(ctx, theme)
+    Log.d(TAG, "🏭 Iniciando construção do tema Facetec customizado...")
+    val facetecDrawables = AssetProcessor.processFacetecAssets(theme)
+    Log.d(TAG, "📦 Assets processados: ${facetecDrawables.size} encontrados")
+
+    Log.d(TAG, "🎨 Assets encontrados para processamento: ${facetecDrawables.size}")
+    facetecDrawables.forEach { (key, value) ->
+      Log.d(TAG, "   📎 $key = '$value'")
     }
 
-    val overlayBrandingImageId = AssetManager.getProcessedAsset("facetec_overlay_branding")
-    val cancelButtonImageId = AssetManager.getProcessedAsset("facetec_cancel_button")
-    val activityIndicatorImageId = AssetManager.getProcessedAsset("facetec_activity_indicator")
+    if (facetecDrawables.isNotEmpty()) {
+      Log.d(TAG, "🎨 Configurando drawables customizados: ${facetecDrawables.size} assets")
+      setFacetecDrawablesMap(facetecDrawables)
+    } else {
+      Log.d(TAG, "📋 Nenhum drawable customizado encontrado, usando padrões")
+    }
 
     val customFacetecTexts = hashMapOf<FacetecTextKey, String>()
 
@@ -142,11 +152,6 @@ object FacetecThemeFactory {
     resultScreenCustomActivityIndicatorRotationInterval(1000)
     resultScreenAnimationRelativeScale(1f)
     resultScreenShowUploadProgressBar(true)
-    activityIndicatorImageId?.let {
-      resultScreenCustomActivityIndicatorImage(it)
-    } ?: run {
-      resultScreenCustomActivityIndicatorImage(R.drawable.success_icon)
-    }
     resultScreenCustomStaticResultAnimationUnSuccess(R.drawable.error_icon)
     resultScreenCustomStaticResultAnimationSuccess(R.drawable.success_icon)
     resultScreenCustomResultAnimationUnSuccess(R.drawable.error_icon)
@@ -162,7 +167,7 @@ object FacetecThemeFactory {
     ovalCustomizationProgressColor1(facetecColors?.getString("ovalProgressFirst") ?: "#00FF00")
     ovalCustomizationProgressColor2(facetecColors?.getString("ovalProgressSecond") ?: "#FF0000")
     ovalCustomizationProgressRadialOffset(8)
-    
+
     // Frame
     frameBackgroundColor(facetecColors?.getString("frameBackground") ?: "#121212")
     frameBorderColor(facetecColors?.getString("frameBorder") ?: "#FFFFFF")
@@ -172,13 +177,8 @@ object FacetecThemeFactory {
 
     // Overlay
     overlayBackgroundColor(facetecColors?.getString("overlayBackground") ?: "#80000000")
-    overlayBrandingImageId?.let {
-      overlayBrandingImage(it)
-    } ?: run {
-      overlayBrandingImage(R.drawable.neutral_face)
-    }
     overlayShowBrandingImage(true)
-    
+
     // Feedback
     feedbackBackgroundColors(facetecColors?.getString("feedbackBarBackground") ?: "#FFFDE7")
     feedbackTextColor(facetecColors?.getString("feedbackMessage") ?: "#000000")
@@ -187,11 +187,6 @@ object FacetecThemeFactory {
     feedbackEnablePulsatingText(true)
 
     // Cancel Button
-    cancelButtonImageId?.let {
-      cancelButtonCustomImage(it)
-    } ?: run {
-      cancelButtonCustomImage(R.drawable.close_icon)
-    }
     cancelButtonLocation(FacetecButtonLocation.TOP_RIGHT)
     exitAnimationStyle(FacetecExitAnimationStyle.RIPPLE_IN)
 
@@ -215,10 +210,8 @@ object FacetecThemeFactory {
       setBackgroundColor(permissionColors?.getString("background") ?: "#1F1F1F")
       setStatusBarColor(permissionColors?.getString("statusBar") ?: "#1F1F1F")
       setStatusBarIsDarkIcons(false)
-      setCheckPermissionButtonText(permissionTexts?.getString("checkPermissionButtonText") ?: "Permitir")
-      setCheckPermissionButtonStyle(permissionColors?.getString("checkPermissionButtonBackground") ?: "#0F9D58")
     }
-    
+
     // Processing Screen
     val processingTheme = theme?.getMap("processing")
     val processingColors = processingTheme?.getMap("colors")

@@ -3,16 +3,6 @@ package br.com.oititec.rn.sdk.theme
 import br.com.oiti.manager.exports.FacetecFontsKey
 import com.facebook.react.bridge.ReadableMap
 
- readyScreenHeader?: string;
-  readyScreenSubtext?: string;
-  resultScreenMessage?: string;
-  retryScreenHeader?: string;
-  retryScreenSubtext?: string;
-  feedbackMessage?: string;
-  guidanceHeader?: string;
-  guidanceSubtext?: string;
-  guidanceButton?: string;
-
 class FacetecFonts(
     private val instructionsFonts: ReadableMap?,
     private val permissionFonts: ReadableMap?,
@@ -75,7 +65,7 @@ class FacetecFonts(
             FacetecFontsKey.INSTRUCTIONS_CAPTION_FONT to instructionsCaptionFont,
             FacetecFontsKey.INSTRUCTIONS_DOCUMENT_TYPES_INSTRUCTIONS_FONT to instructionsFirstInstructionTitleFont,
             FacetecFontsKey.INSTRUCTIONS_DOCUMENT_TIPS_INSTRUCTIONS_FONT to instructionsSecondInstructionTitleFont,
-            FacetecFontsKey.INSTRUCTIONS_BUTTON_FONT to instructionsButtonFont,
+            FacetecFontsKey.INSTRUCTIONS_BUTTON_FONT to instructionsContinueButtonFont,
             
             FacetecFontsKey.PERMISSION_TITLE_FONT to permissionTitleFont,
             FacetecFontsKey.PERMISSION_CAPTION_FONT to permissionCaptionFont,
