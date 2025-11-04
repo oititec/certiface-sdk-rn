@@ -162,7 +162,7 @@ object FacetecThemeFactory {
     ovalCustomizationProgressColor1(facetecColors?.getString("ovalProgressFirst") ?: "#00FF00")
     ovalCustomizationProgressColor2(facetecColors?.getString("ovalProgressSecond") ?: "#FF0000")
     ovalCustomizationProgressRadialOffset(8)
-    
+
     // Frame
     frameBackgroundColor(facetecColors?.getString("frameBackground") ?: "#121212")
     frameBorderColor(facetecColors?.getString("frameBorder") ?: "#FFFFFF")
@@ -178,7 +178,7 @@ object FacetecThemeFactory {
       overlayBrandingImage(R.drawable.neutral_face)
     }
     overlayShowBrandingImage(true)
-    
+
     // Feedback
     feedbackBackgroundColors(facetecColors?.getString("feedbackBarBackground") ?: "#FFFDE7")
     feedbackTextColor(facetecColors?.getString("feedbackMessage") ?: "#000000")
@@ -215,10 +215,10 @@ object FacetecThemeFactory {
       setBackgroundColor(permissionColors?.getString("background") ?: "#1F1F1F")
       setStatusBarColor(permissionColors?.getString("statusBar") ?: "#1F1F1F")
       setStatusBarIsDarkIcons(false)
-      setCheckPermissionButtonText(permissionTexts?.getString("checkPermissionButtonText") ?: "Permitir")
-      setCheckPermissionButtonStyle(permissionColors?.getString("checkPermissionButtonBackground") ?: "#0F9D58")
+//      setCheckPermissionButtonText(permissionTexts?.getString("checkPermissionButtonText") ?: "Permitir")
+//      setCheckPermissionButtonStyle(permissionColors?.getString("checkPermissionButtonBackground") ?: "#0F9D58")
     }
-    
+
     // Processing Screen
     val processingTheme = theme?.getMap("processing")
     val processingColors = processingTheme?.getMap("colors")

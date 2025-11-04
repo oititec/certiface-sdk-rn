@@ -19,10 +19,6 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
   override fun getName(): String {
     return NAME
   }
-
-  override fun multiply(a: Double, b: Double): Double {
-    return a * b
-  }
   override fun checkCameraPermission(promise: Promise?) {
     val permission = ContextCompat.checkSelfPermission(reactApplicationContext, Manifest.permission.CAMERA)
     promise?.resolve(permission == PackageManager.PERMISSION_GRANTED)
@@ -77,10 +73,6 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
       isCustomEnabled = customEnabled,
       theme = theme
     )
-  }
-
-  override fun testString(appKey: String?): String {
-    TODO("Not yet implemented")
   }
 
   companion object {

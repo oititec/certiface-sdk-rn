@@ -81,16 +81,16 @@ object IProovThemeFactory {
       AssetManager.initialize(ctx, theme)
     }
 
-    val logoResourceId = AssetManager.getProcessedAsset("iproov_logo") 
+    val logoResourceId = AssetManager.getProcessedAsset("iproov_logo")
       ?: AssetManager.getProcessedAsset("instructions_logo")
     val closeButtonResourceId = AssetManager.getProcessedAsset("iproov_close_button")
-    
+
     logoResourceId?.let {
       setLogo(it)
     } ?: run {
       setLogo(R.drawable.error_icon)
     }
-    
+
     closeButtonResourceId?.let {
       setCloseButton(it)
     } ?: run {
@@ -106,8 +106,8 @@ object IProovThemeFactory {
       setStatusBarColor(instructionsColors?.getString("statusBarColor") ?: "#1F1F1F")
       setStatusBarIsDarkIcons(false)
       setBottomSheetColor(instructionsColors?.getString("bottomSheetColor") ?: "#333333")
-      setDocumentTipsInstructionText(instructionsTexts?.getString("documentTipsInstructionText") ?: texts?.getString("documentTipsInstructionText") ?: "teste 1")
-      setDocumentTypesInstructionText(instructionsTexts?.getString("documentTypesInstructionText") ?: texts?.getString("documentTypesInstructionText") ?: "teste 2")
+//      setDocumentTipsInstructionText(instructionsTexts?.getString("documentTipsInstructionText") ?: texts?.getString("documentTipsInstructionText") ?: "teste 1")
+//      setDocumentTypesInstructionText(instructionsTexts?.getString("documentTypesInstructionText") ?: texts?.getString("documentTypesInstructionText") ?: "teste 2")
       setBottomSheetCornerRadius(16f)
       setContinueButtonText(instructionsTexts?.getString("continueButtonText") ?: texts?.getString("continueButtonText") ?: "Startar")
       setContinueButtonColor(instructionsColors?.getString("continueButtonColor") ?: "#00FF00")
@@ -124,8 +124,8 @@ object IProovThemeFactory {
       setBackgroundColor(permissionColors?.getString("backgroundColor") ?: "#1F1F1F")
       setStatusBarColor(permissionColors?.getString("statusBarColor") ?: "#1F1F1F")
       setStatusBarIsDarkIcons(false)
-      setCheckPermissionButtonText(permissionTexts?.getString("checkPermissionButtonText") ?: texts?.getString("checkPermissionButtonText") ?: "Permitir Acesso")
-      setCheckPermissionButtonStyle(permissionColors?.getString("checkPermissionButtonColor") ?: "#00FF00")
+//      setCheckPermissionButtonText(permissionTexts?.getString("checkPermissionButtonText") ?: texts?.getString("checkPermissionButtonText") ?: "Permitir Acesso")
+//      setCheckPermissionButtonStyle(permissionColors?.getString("checkPermissionButtonColor") ?: "#00FF00")
     }
 
     val processingTheme = theme?.getMap("processing")
