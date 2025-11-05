@@ -13,8 +13,10 @@ extension RnSdkImpl: LivenessCallback {
       "status": "success",
       "result": [
         "valid": resultData.valid,
-        "codId": resultData.codId as Any,
+        "codID": resultData.codId as Any,
+        "cause": "",
         "protocol": resultData.protocol as Any,
+        "scanResultBlob": "",
       ],
     ]
 
