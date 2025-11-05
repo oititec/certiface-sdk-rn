@@ -8,9 +8,12 @@ import com.facebook.react.bridge.Callback
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.bridge.WritableMap
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.module.annotations.ReactModule
 import br.com.oititec.rn.sdk.executor.LivenessExecutor
 import br.com.oititec.rn.sdk.model.Features
+import org.json.JSONObject
 
 @ReactModule(name = RnSdkModule.NAME)
 class RnSdkModule(reactContext: ReactApplicationContext) :
@@ -65,7 +68,8 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
     LivenessExecutor(appKey, selectedFeature).executeLiveness(
       context = activity,
       execOnSuccess = { livenessResult ->
-        onSuccess?.invoke(livenessResult)
+        val jsonResult = convertLivenessResultToJson(livenessResult)
+        onSuccess?.invoke(jsonResult)
       },
       execOnError = { error ->
         onError?.invoke(error)
@@ -75,6 +79,27 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
     )
   }
 
+  private fun convertLivenessResultToJson(livenessResult: br.com.oiti.manager.exports.LivenessResult?): String {
+    return try {
+      val jsonObject = JSONObject()
+      jsonObject.put("status", "success")
+      
+      val resultObject = JSONObject()
+      resultObject.put("valid", livenessResult?.valid ?: false)
+      resultObject.put("codID", livenessResult?.codID ?: "")
+      resultObject.put("cause", livenessResult?.cause ?: "")
+      resultObject.put("protocol", livenessResult?.protocol ?: "")
+      resultObject.put("scanResultBlob", livenessResult?.scanResultBlob ?: "")
+      
+      jsonObject.put("result", resultObject)
+      jsonObject.toString()
+    } catch (e: Exception) {
+      val errorObject = JSONObject()
+      errorObject.put("status", "error")
+      errorObject.put("message", "Failed to serialize result: ${e.message}")
+      errorObject.toString()
+    }
+  }
 
   companion object {
     const val NAME = "RnSdk"

@@ -86,3 +86,4 @@ chmod +x scripts/distribute-android.sh
 firebase projects:list
 firebase apps:list android
 ```
+

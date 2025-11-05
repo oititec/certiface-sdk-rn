@@ -279,7 +279,18 @@ const HomeScreen = () => {
         isCustomEnabled,
         isCustomEnabled ? customTheme : undefined
       );
-      addResult(`Start Journey result: ${result}`);
+      
+      try {
+        const parsedResult = JSON.parse(result);
+        if (parsedResult.status === 'success') {
+          const { valid, codID, protocol } = parsedResult.result;
+          addResult(`✅ Liveness Success - Valid: ${valid}, CodID: ${codID}, Protocol: ${protocol}`);
+        } else {
+          addResult(`❌ Liveness Error: ${parsedResult.message}`);
+        }
+      } catch (parseError) {
+        addResult(`Start Journey result: ${result}`);
+      }
     } catch (error) {
       addResult(`Start Journey error: ${error}`);
     }
