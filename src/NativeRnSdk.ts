@@ -6,6 +6,7 @@ export interface Spec extends TurboModule {
   requestCameraPermission(): Promise<boolean>;
   startJourney(
     appKey: string,
+    environment: string,
     onSuccess: (data: string) => void,
     onError: (error: string) => void,
     isCustomEnabled?: boolean,

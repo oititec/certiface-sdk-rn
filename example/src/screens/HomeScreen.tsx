@@ -14,7 +14,7 @@ import {
   checkCameraPermission,
   requestCameraPermission,
   startJourney,
-  LivenessProvider,
+  Environment,
   type OitiTheme,
 } from '@oiti/rn-sdk';
 import { useUserStore } from '../store/userStore';
@@ -22,10 +22,10 @@ import { useUserStore } from '../store/userStore';
 const HomeScreen = () => {
   const [results, setResults] = useState<string[]>([]);
   const [isCustomEnabled, setIsCustomEnabled] = useState(false);
+  const [environment, setEnvironment] = useState<Environment>(Environment.HML);
   const { appKey } = useUserStore();
 
   const customTheme: OitiTheme = {
-    provider: LivenessProvider.FACETEC,
     facetec: {
       colors: {
         readyScreenHeader: '#FFFFFF',
@@ -272,10 +272,11 @@ const HomeScreen = () => {
 
     try {
       addResult(
-        `Starting journey with custom theme: ${isCustomEnabled ? 'ENABLED' : 'DISABLED'}`
+        `Starting journey with environment: ${environment}, custom theme: ${isCustomEnabled ? 'ENABLED' : 'DISABLED'}`
       );
       const result = await startJourney(
         appKey,
+        environment,
         isCustomEnabled,
         isCustomEnabled ? customTheme : undefined
       );
@@ -314,6 +315,21 @@ const HomeScreen = () => {
             >
               {appKey ? 'Ready' : 'Not Set - Go to Session'}
             </Text>
+          </View>
+
+          <View style={styles.switchContainer}>
+            <Text style={styles.switchLabel}>Environment:</Text>
+            <Switch
+              value={environment === Environment.PRD}
+              onValueChange={(value) =>
+                setEnvironment(value ? Environment.PRD : Environment.HML)
+              }
+              trackColor={{ false: '#767577', true: '#0F9D58' }}
+              thumbColor={
+                environment === Environment.PRD ? '#FFFFFF' : '#f4f3f4'
+              }
+            />
+            <Text style={styles.switchStatus}>{environment}</Text>
           </View>
 
           <View style={styles.switchContainer}>

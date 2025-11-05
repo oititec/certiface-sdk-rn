@@ -23,15 +23,22 @@ class LivenessExecutor(val appkey: String, val feature: Features) {
 
   fun executeLiveness(
     context: Context,
+    environment: String,
     execOnSuccess: (LivenessResult?) -> Unit,
     execOnError: (String?) -> Unit,
     isCustomEnabled: Boolean = false,
     theme: ReadableMap? = null
   ) {
+    val sdkEnvironment = when (environment) {
+      "HML" -> Environment.HML
+      "PRD" -> Environment.PRD
+      else -> Environment.HML
+    }
+
     CertifaceSDK.initialize(
       context,
       SDKConfig(
-        environment = Environment.HML,
+        environment = sdkEnvironment,
         appKey = appkey
       )
     )

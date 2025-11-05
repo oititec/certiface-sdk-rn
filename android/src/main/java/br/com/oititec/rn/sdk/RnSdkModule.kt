@@ -43,6 +43,7 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
 
   override fun startJourney(
     appKey: String?,
+    environment: String?,
     onSuccess: Callback?,
     onError: Callback?,
     isCustomEnabled: Boolean?,
@@ -57,6 +58,11 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
       return
     }
 
+    if (environment.isNullOrEmpty()) {
+      onError?.invoke("ENVIRONMENT_NULO")
+      return
+    }
+
     val activity = reactApplicationContext ?: run {
       onError?.invoke("NO_ACTIVITY")
       return
@@ -64,6 +70,7 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
 
     LivenessExecutor(appKey, selectedFeature).executeLiveness(
       context = activity,
+      environment = environment,
       execOnSuccess = { livenessResult ->
         onSuccess?.invoke(livenessResult)
       },

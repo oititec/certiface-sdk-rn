@@ -3,6 +3,11 @@ export enum LivenessProvider {
   IPROOV = 'IPROOV',
 }
 
+export enum Environment {
+  HML = 'HML',
+  PRD = 'PRD',
+}
+
 /**
  * Facetec Theme
  */
@@ -326,7 +331,7 @@ export interface ResultTheme {
  */
 
 export interface OitiTheme {
-  provider: LivenessProvider;
+  provider?: LivenessProvider;
   facetec?: FacetecTheme;
   iproov?: IProovTheme;
   instructions?: InstructionsTheme;

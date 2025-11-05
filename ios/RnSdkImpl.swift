@@ -14,18 +14,26 @@ import UIKit
 
   @objc public func startJourney(
     appKey: String,
+    environment: String,
     isCustomEnabled: Bool,
     theme: [String: Any]?,
     onSuccess: @escaping (String) -> Void,
     onError: @escaping (String) -> Void
   ) {
-    print("AppKey: \(appKey), CustomEnabled: \(isCustomEnabled)")
+    print("AppKey: \(appKey), Environment: \(environment), CustomEnabled: \(isCustomEnabled)")
     if let themeData = theme {
       print("Theme: \(themeData)")
     }
 
     self.onSuccessCallback = onSuccess
     self.onErrorCallback = onError
+
+    let sdkEnvironment: CertifaceSDK.Environment
+    if environment == "PRD" {
+      sdkEnvironment = .prd
+    } else {
+      sdkEnvironment = .hml
+    }
 
     let customization: IProovCustomization
     if isCustomEnabled {
@@ -35,7 +43,7 @@ import UIKit
     }
 
     let options = LivenessManagerOptions
-      .builder(appKey: appKey, environment: .hml)
+      .builder(appKey: appKey, environment: sdkEnvironment)
       .setIProovCustomization(customization)
       .build()
 
