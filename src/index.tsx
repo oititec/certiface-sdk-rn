@@ -1,7 +1,8 @@
 import OitiSDK from './NativeRnSdk';
-import type { OitiTheme } from './@types/theme';
+import type { LivenessProvider, OitiTheme } from './@types/theme';
 
-import type { LivenessResponse, LivenessResult, LivenessProvider } from './@types/result';
+import type { LivenessResponse, LivenessResult } from './@types/result';
+import type { Environment } from '../lib/typescript/src';
 
 export function checkCameraPermission(): Promise<boolean> {
   return OitiSDK.checkCameraPermission();
