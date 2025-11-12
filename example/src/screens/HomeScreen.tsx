@@ -15,6 +15,7 @@ import {
   requestCameraPermission,
   startJourney,
   Environment,
+  LivenessProvider,
   type OitiTheme,
 } from '@oiti/rn-sdk';
 import { useUserStore } from '../store/userStore';
@@ -23,6 +24,9 @@ const HomeScreen = () => {
   const [results, setResults] = useState<string[]>([]);
   const [isCustomEnabled, setIsCustomEnabled] = useState(false);
   const [environment, setEnvironment] = useState<Environment>(Environment.HML);
+  const [provider, setProvider] = useState<LivenessProvider>(
+    LivenessProvider.FACETEC
+  );
   const { appKey } = useUserStore();
 
   const customTheme: OitiTheme = {
@@ -272,11 +276,12 @@ const HomeScreen = () => {
 
     try {
       addResult(
-        `Starting journey with environment: ${environment}, custom theme: ${isCustomEnabled ? 'ENABLED' : 'DISABLED'}`
+        `Starting journey with provider: ${provider}, environment: ${environment}, custom theme: ${isCustomEnabled ? 'ENABLED' : 'DISABLED'}`
       );
       const result = await startJourney(
         appKey,
         environment,
+        provider,
         isCustomEnabled,
         isCustomEnabled ? customTheme : undefined
       );
@@ -315,6 +320,23 @@ const HomeScreen = () => {
             >
               {appKey ? 'Ready' : 'Not Set - Go to Session'}
             </Text>
+          </View>
+
+          <View style={styles.switchContainer}>
+            <Text style={styles.switchLabel}>Provider:</Text>
+            <Switch
+              value={provider === LivenessProvider.IPROOV}
+              onValueChange={(value) =>
+                setProvider(
+                  value ? LivenessProvider.IPROOV : LivenessProvider.FACETEC
+                )
+              }
+              trackColor={{ false: '#767577', true: '#4A90E2' }}
+              thumbColor={
+                provider === LivenessProvider.IPROOV ? '#FFFFFF' : '#f4f3f4'
+              }
+            />
+            <Text style={styles.switchStatus}>{provider}</Text>
           </View>
 
           <View style={styles.switchContainer}>

@@ -7,6 +7,7 @@ export interface Spec extends TurboModule {
   startJourney(
     appKey: string,
     environment: string,
+    provider: string,
     onSuccess: (data: string) => void,
     onError: (error: string) => void,
     isCustomEnabled?: boolean,
