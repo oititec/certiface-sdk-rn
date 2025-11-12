@@ -22,10 +22,10 @@ class RnSdkPackage : BaseReactPackage() {
       moduleInfos[RnSdkModule.NAME] = ReactModuleInfo(
           RnSdkModule.NAME,
           RnSdkModule.NAME,
-        false,  // canOverrideExistingModule
-        false,  // needsEagerInit
-        false,  // isCxxModule
-        true // isTurboModule
+        false,
+        false,
+        false,
+        true
       )
       moduleInfos
     }

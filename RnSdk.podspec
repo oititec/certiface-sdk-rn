@@ -14,11 +14,14 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/oititec/rn-sdk.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,mm,cpp,swift}"
+  s.resource_bundles = {
+    'RnSdkBundle' => ['ios/Resources/**/*.xcassets']
+  }
   s.private_header_files = "ios/**/*.h"
 
   s.frameworks = "AVFoundation"
   
-  s.dependency 'OitiSDK', '0.3.0'
+  s.dependency 'CertifaceSDK', '1.0.0'
 
   install_modules_dependencies(s)
 end

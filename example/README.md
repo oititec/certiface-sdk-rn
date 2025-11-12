@@ -1,97 +1,325 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# @oiti/rn-sdk - Aplicativo de Exemplo
 
-# Getting Started
+Este é um aplicativo de exemplo que demonstra como usar o `@oiti/rn-sdk` para implementar verificação de liveness (prova de vida) em aplicações React Native.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## 📱 Sobre o Aplicativo
 
-## Step 1: Start Metro
+O aplicativo de exemplo inclui:
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- ✅ Gerenciamento de permissões de câmera
+- ✅ Inicialização de jornada de verificação
+- ✅ Customização de tema (FaceTec e iProov)
+- ✅ Exibição de resultados em tempo real
+- ✅ Navegação entre telas (Home e Session)
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## 🚀 Como Executar
 
-```sh
-# Using npm
-npm start
+### Pré-requisitos
 
-# OR using Yarn
-yarn start
+Certifique-se de ter completado o guia [Configurar o Ambiente](https://reactnative.dev/docs/set-up-your-environment) antes de prosseguir.
+
+### Passo 1: Instalar Dependências
+
+A partir da raiz do projeto principal:
+
+```bash
+yarn install
 ```
 
-## Step 2: Build and run your app
+### Passo 2: Configurar iOS (somente macOS)
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+```bash
+cd example/ios
+bundle install
+bundle exec pod install
+cd ../..
+```
+
+### Passo 3: Iniciar Metro
+
+```bash
+yarn example start
+```
+
+### Passo 4: Executar o Aplicativo
+
+Em um novo terminal:
+
+**Android:**
+```bash
+yarn example android
+```
+
+**iOS:**
+```bash
+yarn example ios
+```
+
+## 🎯 Funcionalidades do Exemplo
+
+### 1. Tela Home
+
+- Verificar permissão da câmera
+- Solicitar permissão da câmera
+- Iniciar verificação de liveness
+- Alternar tema customizado (ON/OFF)
+- Visualizar resultados em tempo real
+
+### 2. Tela Session
+
+- Inserir dados do usuário (CPF, Nome, Data de Nascimento)
+- Gerar App Key para testes
+- Visualizar App Key atual
+
+## 💻 Estrutura do Código
+
+```
+example/
+├── src/
+│   ├── App.tsx                     
+│   ├── navigation/
+│   │   └── AppNavigator.tsx        
+│   ├── screens/
+│   │   ├── HomeScreen.tsx          
+│   │   └── SessionScreen.tsx       
+│   └── store/
+│       └── userStore.ts            
+```
+
+## 🎨 Exemplo de Uso no Código
+
+### Verificação Simples
+
+```typescript
+import { startJourney } from '@oiti/rn-sdk';
+
+const handleVerification = async () => {
+  try {
+    const result = await startJourney(appKey);
+    console.log('Resultado:', result);
+  } catch (error) {
+    console.error('Erro:', error);
+  }
+};
+```
+
+### Com Tema Customizado
+
+```typescript
+import { startJourney, LivenessProvider, type OitiTheme } from '@oiti/rn-sdk';
+
+const customTheme: OitiTheme = {
+  provider: LivenessProvider.FACETEC,
+  facetec: {
+    colors: {
+      frameBackground: '#1A1A1A',
+      frameBorder: '#FF6B35',
+      ovalStroke: '#FF6B35',
+    },
+    texts: {
+      readyHeader1: 'Prepare-se',
+      readyButton: 'Iniciar',
+    },
+  },
+};
+
+const result = await startJourney(appKey, true, customTheme);
+```
+
+## 🎨 Configuração de Assets e Fonts
+
+Os assets e fonts referenciados no tema precisam ser cadastrados nativamente em cada plataforma:
 
 ### Android
 
-```sh
-# Using npm
-npm run android
+#### Drawable Resources
 
-# OR using Yarn
-yarn android
+Os assets devem ser adicionados em `android/app/src/main/res/drawable/`:
+
 ```
+android/app/src/main/res/
+└── drawable/
+    ├── shell.png
+    └── outros_assets.png
+```
+
+Formatos aceitos: `.png`, `.jpg`, `.xml` (vector drawables)
+
+#### Fonts
+
+As fontes devem ser adicionadas em `android/app/src/main/res/font/`:
+
+```
+android/app/src/main/res/
+└── font/
+    ├── sixty.ttf
+    └── outras_fontes.ttf
+```
+
+Formatos aceitos: `.ttf`, `.otf`
 
 ### iOS
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+#### Assets
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+Os assets devem ser adicionados em um Asset Catalog (`.xcassets`):
 
-```sh
-bundle install
+```
+ios/RnSdkExample/
+└── Images.xcassets/
+    ├── shell.imageset/
+    │   ├── Contents.json
+    │   ├── shell.png
+    │   ├── shell@2x.png
+    │   └── shell@3x.png
+    └── Contents.json
 ```
 
-Then, and every time you update your native dependencies, run:
+Estrutura do `Contents.json` para cada imageset:
 
-```sh
+```json
+{
+  "images": [
+    {
+      "filename": "shell.png",
+      "idiom": "universal",
+      "scale": "1x"
+    },
+    {
+      "filename": "shell@2x.png",
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "shell@3x.png",
+      "idiom": "universal",
+      "scale": "3x"
+    }
+  ],
+  "info": {
+    "author": "xcode",
+    "version": 1
+  }
+}
+```
+
+#### Fonts
+
+As fontes devem ser adicionadas ao projeto e registradas no `Info.plist`:
+
+1. Adicione os arquivos de fonte ao projeto:
+
+```
+ios/RnSdkExample/
+└── Fonts/
+    ├── sixty.ttf
+    └── outras_fontes.ttf
+```
+
+2. Registre no `Info.plist`:
+
+```xml
+<key>UIAppFonts</key>
+<array>
+  <string>sixty.ttf</string>
+  <string>outras_fontes.ttf</string>
+</array>
+```
+
+3. No Xcode: arraste os arquivos `.ttf` para o projeto e marque "Copy items if needed" e o target correto.
+
+### Referenciando no Tema
+
+Use apenas o nome base do asset/font (sem extensão):
+
+```typescript
+assets: {
+  overlayBrandImage: 'shell',
+},
+fonts: {
+  readyScreenHeader: 'sixty',
+}
+```
+
+## 📊 Resultados Esperados
+
+### Sucesso
+```json
+{
+  "valid": true,
+  "codID": "abc123def456",
+  "cause": "Approved",
+  "protocol": "20231105-001"
+}
+```
+
+### Erro
+```json
+{
+  "valid": false,
+  "cause": "User cancelled",
+  "protocol": null
+}
+```
+
+## 🔧 Desenvolvimento
+
+### Modo de Desenvolvimento
+
+Para fazer alterações no SDK e testá-las no aplicativo de exemplo:
+
+1. Faça alterações no código do SDK (pasta `src/` na raiz)
+2. Execute `yarn prepare` na raiz para recompilar
+3. O aplicativo de exemplo irá recarregar automaticamente
+
+### Hot Reload
+
+- **Android**: <kbd>R</kbd> + <kbd>R</kbd> ou <kbd>Ctrl</kbd> + <kbd>M</kbd> → Reload
+- **iOS**: <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> no Simulator
+
+## 📝 Notas
+
+- É necessário ter uma **App Key válida** fornecida pela Oiti para testar o SDK
+- As permissões de câmera devem ser concedidas para o funcionamento correto
+- O tema customizado é opcional e pode ser ativado/desativado na tela Home
+
+## 🐛 Solução de Problemas
+
+### Android
+
+**Erro de compilação:**
+```bash
+cd example/android
+./gradlew clean
+cd ../..
+yarn example android
+```
+
+**Erro de permissões:**
+- Verifique se as permissões estão no `AndroidManifest.xml`
+- Desinstale e reinstale o aplicativo
+
+### iOS
+
+**Erro no pod install:**
+```bash
+cd example/ios
+bundle exec pod deintegrate
 bundle exec pod install
+cd ../..
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+**Erro de assinatura:**
+- Abra o projeto no Xcode
+- Configure sua equipe de desenvolvimento
+- Reconstrua o projeto
 
-```sh
-# Using npm
-npm run ios
+## 📚 Recursos Úteis
 
-# OR using Yarn
-yarn ios
-```
+- [Documentação do SDK](../../README.md)
+- [React Native Docs](https://reactnative.dev/docs/getting-started)
+- [Solução de Problemas](https://reactnative.dev/docs/troubleshooting)
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+## 📄 Licença
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+MIT © [Oiti](https://github.com/oititec)

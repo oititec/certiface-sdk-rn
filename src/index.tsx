@@ -1,8 +1,7 @@
 import OitiSDK from './NativeRnSdk';
+import type { OitiTheme } from './@types/theme';
 
-export function multiply(a: number, b: number): number {
-  return OitiSDK.multiply(a, b);
-}
+import type { LivenessResponse, LivenessResult, LivenessProvider } from './@types/result';
 
 export function checkCameraPermission(): Promise<boolean> {
   return OitiSDK.checkCameraPermission();
@@ -12,16 +11,37 @@ export function requestCameraPermission(): Promise<boolean> {
   return OitiSDK.requestCameraPermission();
 }
 
-export function testString(string: string): string {
-  return OitiSDK.testString(string);
-}
-
-export function startJourney(appKey: string): Promise<string> {
+export async function startJourney(
+  appKey: string,
+  environment: Environment,
+  provider: LivenessProvider,
+  isCustomEnabled?: boolean,
+  theme?: OitiTheme
+): Promise<LivenessResult> {
   return new Promise((resolve, reject) => {
     OitiSDK.startJourney(
       appKey,
-      (data: string) => resolve(data),
-      (error: string) => reject(new Error(error))
+      environment,
+      provider,
+      (data: string) => {
+        try {
+          const parsedResponse: LivenessResponse = JSON.parse(data);
+
+          if (parsedResponse.status === 'success') {
+            resolve(parsedResponse.result);
+          } else {
+            reject(new Error(parsedResponse.message));
+          }
+        } catch (parseError) {
+          reject(new Error(`Failed to parse response: ${parseError}`));
+        }
+      },
+      (error: string) => reject(new Error(error)),
+      isCustomEnabled,
+      theme as Object
     );
   });
 }
+
+export * from './@types/theme';
+export * from './@types/result';

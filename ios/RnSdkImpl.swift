@@ -5,48 +5,79 @@
 //  Created by Gabriel Catelli Goulart on 21/07/25.
 //
 
-import Foundation
-import OitiSDK
+import CertifaceSDK
 import UIKit
 
 @objc public class RnSdkImpl: NSObject {
-  
   var onSuccessCallback: ((String) -> Void)?
   var onErrorCallback: ((String) -> Void)?
-  
-  @objc public func testString(
-    string: String
-  ) {
-    print(string)
-  }
 
   @objc public func startJourney(
     appKey: String,
+    environment: String,
+    provider: String,
+    isCustomEnabled: Bool,
+    theme: [String: Any]?,
     onSuccess: @escaping (String) -> Void,
     onError: @escaping (String) -> Void
   ) {
-    print(appKey)
+    print(
+      "AppKey: \(appKey), Environment: \(environment), Provider: \(provider), CustomEnabled: \(isCustomEnabled)"
+    )
+    if let themeData = theme {
+      print("Theme: \(themeData)")
+    }
+
     self.onSuccessCallback = onSuccess
     self.onErrorCallback = onError
 
-    guard let viewController = getRootViewController() else {
-        onError("Cannot get rootViewController")
-        return
+    let sdkEnvironment: CertifaceSDK.Environment
+    if environment == "PRD" {
+      sdkEnvironment = .prd
+    } else {
+      sdkEnvironment = .hml
     }
 
-    let builder =
-      LivenessManagerOptions
-      .builder(appKey: appKey, environment: .hml)
+    let livenessProvider: LivenessProvider
+    if provider == "FACETEC" {
+      livenessProvider = .facetec
+    } else if provider == "IPROOV" {
+      livenessProvider = .iproov
+    } else {
+      onError("Invalid provider: \(provider)")
+      return
+    }
 
-    let options = builder.build()
+    let optionsBuilder = LivenessManagerOptions.builder(appKey: appKey, environment: sdkEnvironment)
 
-    let manager = OitiSDKFactory.createLivenessManager(for: .iproov)
-    DispatchQueue.main.async {
+    if livenessProvider == .iproov {
+      let customization: IProovCustomization
+      if isCustomEnabled {
+        customization = ThemeFactory.createIProovCustomization(from: theme)
+      } else {
+        customization = IProovCustomization.builder().build()
+      }
+      optionsBuilder.setIProovCustomization(customization)
+    } else {
+      let customization: FacetecCustomization
+      if isCustomEnabled {
+        customization = ThemeFactory.createFacetecCustomization(from: theme)
+      } else {
+        customization = FacetecCustomization.builder().build()
+      }
+      optionsBuilder.setFacetecCustomization(customization)
+    }
+
+    let options = optionsBuilder.build()
+    let manager = CertifaceSDKFactory.createLivenessManager(for: livenessProvider)
+
+    DispatchQueue.main.async { [weak self] in
+      guard let self, let viewController = getRootViewController() else {
+        onError("Cannot get rootViewController")
+        return
+      }
+
       manager.start(at: viewController, options: options, callback: self)
     }
   }
-  
-  
 }
-
-

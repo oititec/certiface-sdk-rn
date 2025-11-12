@@ -16,23 +16,18 @@
 
 RCT_EXPORT_MODULE()
 
-- (NSNumber *)multiply:(double)a b:(double)b {
-  NSNumber *result = @(a * b);
-  return result;
-}
-
-- (void)checkCameraPermission:(nonnull RCTPromiseResolveBlock)resolve
-                       reject:(nonnull RCTPromiseRejectBlock)reject {
+- (void)checkCameraPermission:(RCTPromiseResolveBlock)resolve
+                       reject:(RCTPromiseRejectBlock)reject {
   AVAuthorizationStatus status =
-      [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+  [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
 
   resolve(@(status == AVAuthorizationStatusAuthorized));
 }
 
-- (void)requestCameraPermission:(nonnull RCTPromiseResolveBlock)resolve
-                         reject:(nonnull RCTPromiseRejectBlock)reject {
+- (void)requestCameraPermission:(RCTPromiseResolveBlock)resolve
+                         reject:(RCTPromiseRejectBlock)reject {
   AVAuthorizationStatus status =
-      [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+  [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
 
   if (status == AVAuthorizationStatusAuthorized) {
     resolve(@YES);
@@ -41,29 +36,35 @@ RCT_EXPORT_MODULE()
 
   [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
                            completionHandler:^(BOOL granted) {
-                             dispatch_async(dispatch_get_main_queue(), ^{
-                               resolve(@(granted));
-                             });
-                           }];
+    dispatch_async(dispatch_get_main_queue(), ^{
+      resolve(@(granted));
+    });
+  }];
 }
 
-- (void)startJourney:(NSString*)appKey
-             onSuccess:(nonnull RCTResponseSenderBlock)onSuccess
-             onError:(nonnull RCTResponseSenderBlock)onError {
+- (void)startJourney:(NSString *)appKey
+         environment:(NSString *)environment
+            provider:(NSString *)provider
+           onSuccess:(RCTResponseSenderBlock)onSuccess
+             onError:(RCTResponseSenderBlock)onError
+     isCustomEnabled:(NSNumber *)isCustomEnabled
+               theme:(NSDictionary *)theme {
+  BOOL customEnabled = isCustomEnabled ? [isCustomEnabled boolValue] : NO;
   [moduleImpl startJourneyWithAppKey:appKey
-                            onSuccess:^(NSString * _Nonnull result) {
-      onSuccess(@[ result ]);
-    }
-                              onError:^(NSString * _Nonnull error) {
-      onError(@[ error ]);
-    }];
+                         environment:environment
+                            provider:provider
+                     isCustomEnabled:customEnabled
+                               theme:theme
+                           onSuccess:^(NSString *_Nonnull result) {
+    onSuccess(@[ result ]);
+  }
+                             onError:^(NSString *_Nonnull error) {
+    onError(@[ error ]);
+  }];
 }
 
-- (void)testString:(NSString *)appKey {
-  [moduleImpl testStringWithString:appKey];
-}
-
-- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
+(const facebook::react::ObjCTurboModule::InitParams &)params {
   return std::make_shared<facebook::react::NativeRnSdkSpecJSI>(params);
 }
 
