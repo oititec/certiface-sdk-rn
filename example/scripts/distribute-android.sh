@@ -27,3 +27,4 @@ fi
 
 echo "✅ Distribution completed successfully!"
 echo "📱 Check Firebase Console for the distributed app"
+

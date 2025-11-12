@@ -17,6 +17,7 @@ import {
   Environment,
   LivenessProvider,
   type OitiTheme,
+  type LivenessResult,
 } from '@oiti/rn-sdk';
 import { useUserStore } from '../store/userStore';
 
@@ -278,14 +279,18 @@ const HomeScreen = () => {
       addResult(
         `Starting journey with provider: ${provider}, environment: ${environment}, custom theme: ${isCustomEnabled ? 'ENABLED' : 'DISABLED'}`
       );
-      const result = await startJourney(
+      const result: LivenessResult = await startJourney(
         appKey,
         environment,
         provider,
         isCustomEnabled,
         isCustomEnabled ? customTheme : undefined
       );
-      addResult(`Start Journey result: ${result}`);
+
+      const { valid, codID, protocol } = result;
+      addResult(
+        `✅ Liveness Success - Valid: ${valid}, CodID: ${codID}, Protocol: ${protocol}`
+      );
     } catch (error) {
       addResult(`Start Journey error: ${error}`);
     }
