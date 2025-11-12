@@ -43,12 +43,16 @@ RCT_EXPORT_MODULE()
 }
 
 - (void)startJourney:(NSString *)appKey
+         environment:(NSString *)environment
+            provider:(NSString *)provider
            onSuccess:(RCTResponseSenderBlock)onSuccess
              onError:(RCTResponseSenderBlock)onError
      isCustomEnabled:(NSNumber *)isCustomEnabled
                theme:(NSDictionary *)theme {
   BOOL customEnabled = isCustomEnabled ? [isCustomEnabled boolValue] : NO;
   [moduleImpl startJourneyWithAppKey:appKey
+                         environment:environment
+                            provider:provider
                      isCustomEnabled:customEnabled
                                theme:theme
                            onSuccess:^(NSString *_Nonnull result) {

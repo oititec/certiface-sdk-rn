@@ -14,12 +14,16 @@ import UIKit
 
   @objc public func startJourney(
     appKey: String,
+    environment: String,
+    provider: String,
     isCustomEnabled: Bool,
     theme: [String: Any]?,
     onSuccess: @escaping (String) -> Void,
     onError: @escaping (String) -> Void
   ) {
-    print("AppKey: \(appKey), CustomEnabled: \(isCustomEnabled)")
+    print(
+      "AppKey: \(appKey), Environment: \(environment), Provider: \(provider), CustomEnabled: \(isCustomEnabled)"
+    )
     if let themeData = theme {
       print("Theme: \(themeData)")
     }
@@ -27,19 +31,45 @@ import UIKit
     self.onSuccessCallback = onSuccess
     self.onErrorCallback = onError
 
-    let customization: IProovCustomization
-    if isCustomEnabled {
-      customization = ThemeFactory.createIProovCustomization(from: theme)
+    let sdkEnvironment: CertifaceSDK.Environment
+    if environment == "PRD" {
+      sdkEnvironment = .prd
     } else {
-      customization = IProovCustomization.builder().build()
+      sdkEnvironment = .hml
     }
 
-    let options = LivenessManagerOptions
-      .builder(appKey: appKey, environment: .hml)
-      .setIProovCustomization(customization)
-      .build()
+    let livenessProvider: LivenessProvider
+    if provider == "FACETEC" {
+      livenessProvider = .facetec
+    } else if provider == "IPROOV" {
+      livenessProvider = .iproov
+    } else {
+      onError("Invalid provider: \(provider)")
+      return
+    }
 
-    let manager = CertifaceSDKFactory.createLivenessManager(for: .iproov)
+    let optionsBuilder = LivenessManagerOptions.builder(appKey: appKey, environment: sdkEnvironment)
+
+    if livenessProvider == .iproov {
+      let customization: IProovCustomization
+      if isCustomEnabled {
+        customization = ThemeFactory.createIProovCustomization(from: theme)
+      } else {
+        customization = IProovCustomization.builder().build()
+      }
+      optionsBuilder.setIProovCustomization(customization)
+    } else {
+      let customization: FacetecCustomization
+      if isCustomEnabled {
+        customization = ThemeFactory.createFacetecCustomization(from: theme)
+      } else {
+        customization = FacetecCustomization.builder().build()
+      }
+      optionsBuilder.setFacetecCustomization(customization)
+    }
+
+    let options = optionsBuilder.build()
+    let manager = CertifaceSDKFactory.createLivenessManager(for: livenessProvider)
 
     DispatchQueue.main.async { [weak self] in
       guard let self, let viewController = getRootViewController() else {

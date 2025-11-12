@@ -46,18 +46,37 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
 
   override fun startJourney(
     appKey: String?,
+    environment: String?,
+    provider: String?,
     onSuccess: Callback?,
     onError: Callback?,
     isCustomEnabled: Boolean?,
     theme: ReadableMap?
   ) {
-    val features = Features.entries
-    var selectedFeature = features.first()
     val customEnabled = isCustomEnabled ?: false
 
     if (appKey.isNullOrEmpty()) {
       onError?.invoke("APP_KEY_NULO")
       return
+    }
+
+    if (environment.isNullOrEmpty()) {
+      onError?.invoke("ENVIRONMENT_NULO")
+      return
+    }
+
+    if (provider.isNullOrEmpty()) {
+      onError?.invoke("PROVIDER_NULO")
+      return
+    }
+
+    val selectedFeature = when (provider) {
+      "FACETEC" -> Features.Facetec
+      "IPROOV" -> Features.IProov
+      else -> {
+        onError?.invoke("PROVIDER_INVALIDO: $provider")
+        return
+      }
     }
 
     val activity = reactApplicationContext ?: run {
@@ -67,6 +86,7 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
 
     LivenessExecutor(appKey, selectedFeature).executeLiveness(
       context = activity,
+      environment = environment,
       execOnSuccess = { livenessResult ->
         val jsonResult = convertLivenessResultToJson(livenessResult)
         onSuccess?.invoke(jsonResult)

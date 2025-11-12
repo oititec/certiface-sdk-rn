@@ -1,6 +1,7 @@
 import OitiSDK from './NativeRnSdk';
 import type { OitiTheme } from './@types/theme';
-import type { LivenessResponse, LivenessResult } from './@types/result';
+
+import type { LivenessResponse, LivenessResult, LivenessProvider } from './@types/result';
 
 export function checkCameraPermission(): Promise<boolean> {
   return OitiSDK.checkCameraPermission();
@@ -12,12 +13,16 @@ export function requestCameraPermission(): Promise<boolean> {
 
 export async function startJourney(
   appKey: string,
+  environment: Environment,
+  provider: LivenessProvider,
   isCustomEnabled?: boolean,
   theme?: OitiTheme
 ): Promise<LivenessResult> {
   return new Promise((resolve, reject) => {
     OitiSDK.startJourney(
       appKey,
+      environment,
+      provider,
       (data: string) => {
         try {
           const parsedResponse: LivenessResponse = JSON.parse(data);
