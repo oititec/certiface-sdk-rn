@@ -6,11 +6,15 @@ interface UserData {
   nascimento: string;
 }
 
+type LivenessProvider = 'IPROOV' | 'FACETEC';
+
 interface UserStore {
   userData: UserData;
   appKey: string;
+  provider: LivenessProvider;
   setUserData: (data: Partial<UserData>) => void;
   setAppKey: (key: string) => void;
+  setProvider: (provider: LivenessProvider) => void;
   generateCredential: () => Promise<any>;
   generateAppKey: () => Promise<string>;
 }
@@ -22,6 +26,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
     nascimento: '08/10/1996',
   },
   appKey: '',
+  provider: 'FACETEC',
 
   setUserData: (data) =>
     set((state) => ({
@@ -30,13 +35,30 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
   setAppKey: (key) => set({ appKey: key }),
 
+  setProvider: (provider) => set({ provider }),
+
   generateCredential: async () => {
+    const { provider } = get();
+    
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
 
+    const credentials = {
+      IPROOV: {
+        user: 'mobile.demo.app',
+        pass: 'ddc0ba9a6a5ab1681108a7e34c914207',
+      },
+      FACETEC: {
+        user: 'mobile.hml.apiglobal',
+        pass: 'c951c17decd9e06772853e23a35056bf',
+      },
+    };
+
+    const { user, pass } = credentials[provider];
+
     const urlencoded = new URLSearchParams();
-    urlencoded.append('user', 'mobile.demo.app');
-    urlencoded.append('pass', 'ddc0ba9a6a5ab1681108a7e34c914207');
+    urlencoded.append('user', user);
+    urlencoded.append('pass', pass);
 
     const requestOptions = {
       method: 'POST',
@@ -53,15 +75,26 @@ export const useUserStore = create<UserStore>((set, get) => ({
   },
 
   generateAppKey: async () => {
-    const { userData, generateCredential } = get();
+    const { userData, provider, generateCredential } = get();
 
     const credential = await generateCredential();
+
+    const credentials = {
+      IPROOV: {
+        user: 'mobile.demo.app',
+      },
+      FACETEC: {
+        user: 'mobile.hml.apiglobal',
+      },
+    };
+
+    const { user } = credentials[provider];
 
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
 
     const urlencoded = new URLSearchParams();
-    urlencoded.append('user', 'mobile.demo.app');
+    urlencoded.append('user', user);
     urlencoded.append('token', JSON.stringify(credential));
     urlencoded.append('cpf', userData.cpf);
     urlencoded.append('nome', userData.nome);
