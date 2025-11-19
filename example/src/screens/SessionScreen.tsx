@@ -10,12 +10,32 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Switch,
 } from 'react-native';
+import { LivenessProvider } from '@oiti/rn-sdk';
 import { useUserStore } from '../store/userStore';
 
 const SessionScreen = () => {
-  const { userData, appKey, setUserData, generateAppKey } = useUserStore();
+  const {
+    userData,
+    appKey,
+    setUserData,
+    generateAppKey,
+    provider,
+    setProvider: setStoreProvider,
+  } = useUserStore();
   const [loading, setLoading] = useState(false);
+  const [localProvider, setLocalProvider] = useState<LivenessProvider>(
+    provider === 'IPROOV' ? LivenessProvider.IPROOV : LivenessProvider.FACETEC
+  );
+
+  const handleProviderChange = (value: boolean) => {
+    const newProvider = value
+      ? LivenessProvider.IPROOV
+      : LivenessProvider.FACETEC;
+    setLocalProvider(newProvider);
+    setStoreProvider(newProvider);
+  };
 
   const handleGenerateAppKey = async () => {
     try {
@@ -42,6 +62,21 @@ const SessionScreen = () => {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
+          <View style={styles.switchContainer}>
+            <Text style={styles.switchLabel}>Provider:</Text>
+            <Switch
+              value={localProvider === LivenessProvider.IPROOV}
+              onValueChange={handleProviderChange}
+              trackColor={{ false: '#767577', true: '#4A90E2' }}
+              thumbColor={
+                localProvider === LivenessProvider.IPROOV
+                  ? '#FFFFFF'
+                  : '#f4f3f4'
+              }
+            />
+            <Text style={styles.switchStatus}>{localProvider}</Text>
+          </View>
+
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Dados do Usuário</Text>
 
@@ -123,6 +158,26 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 20,
     paddingBottom: 40,
+  },
+  switchContainer: {
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  switchLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  switchStatus: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginLeft: 10,
   },
   section: {
     backgroundColor: 'white',

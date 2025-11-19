@@ -7,12 +7,15 @@ interface UserData {
   nascimento: string;
 }
 
+type LivenessProvider = 'IPROOV' | 'FACETEC';
+
 interface UserStore {
   userData: UserData;
   appKey: string;
   livenessProvider: LivenessProvider;
   setUserData: (data: Partial<UserData>) => void;
   setAppKey: (key: string) => void;
+  setProvider: (provider: LivenessProvider) => void;
   generateCredential: () => Promise<any>;
   generateAppKey: () => Promise<string>;
   setLivenessProvider: (provider: LivenessProvider) => void;
@@ -26,7 +29,6 @@ export const useUserStore = create<UserStore>((set, get) => ({
   },
   appKey: '',
   livenessProvider: LivenessProvider.FACETEC,
-
   setUserData: (data) =>
     set((state) => ({
       userData: { ...state.userData, ...data },
@@ -34,7 +36,11 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
   setAppKey: (key) => set({ appKey: key }),
 
+  setProvider: (provider) => set({ provider }),
+
   generateCredential: async () => {
+    const { provider } = get();
+    
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
 
@@ -43,6 +49,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
     const pass = facetecProvider
       ? 'c951c17decd9e06772853e23a35056bf'
       : 'ddc0ba9a6a5ab1681108a7e34c914207';
+    
     const urlencoded = new URLSearchParams();
     urlencoded.append('user', user);
     urlencoded.append('pass', pass);
@@ -62,9 +69,20 @@ export const useUserStore = create<UserStore>((set, get) => ({
   },
 
   generateAppKey: async () => {
-    const { userData, generateCredential } = get();
+    const { userData, provider, generateCredential } = get();
 
     const credential = await generateCredential();
+
+    const credentials = {
+      IPROOV: {
+        user: 'mobile.demo.app',
+      },
+      FACETEC: {
+        user: 'mobile.hml.apiglobal',
+      },
+    };
+
+    const { user } = credentials[provider];
 
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');

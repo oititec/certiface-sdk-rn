@@ -27,7 +27,7 @@ allprojects {
         google()
         mavenCentral()
         maven {
-            url 'https://raw.githubusercontent.com/oititec/android-oiti-sdk-versions/master'
+            url 'https://raw.githubusercontent.com/oititec/android-oiti-sdk-versions-beta/master'
         }
     }
 }

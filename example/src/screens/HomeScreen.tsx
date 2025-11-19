@@ -339,6 +339,7 @@ const HomeScreen = () => {
                 setLivenessProvider(newProvider);
                 setAppKey('');
               }}
+
               trackColor={{ false: '#767577', true: '#4A90E2' }}
               thumbColor={
                 provider === LivenessProvider.IPROOV ? '#FFFFFF' : '#f4f3f4'
