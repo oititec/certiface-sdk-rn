@@ -5,7 +5,6 @@
 
 SDK React Native oficial da Oiti para verificação biométrica de liveness (prova de vida). Integre detecção facial avançada com FaceTec e iProov em aplicações Android e iOS com suporte completo a personalização de temas e interface nativa de alta performance.
 
-
 </div>
 
 ---
@@ -83,6 +82,7 @@ import {
   LivenessProvider,
   Environment,
   type OitiTheme,
+  type LivenessResult,
 } from '@oiti/rn-sdk';
 ```
 
@@ -91,15 +91,20 @@ import {
 ```typescript
 import React from 'react';
 import { Button, Alert } from 'react-native';
-import { startJourney, Environment } from '@oiti/rn-sdk';
+import { startJourney, Environment, LivenessProvider } from '@oiti/rn-sdk';
 
 export default function App() {
   const handleVerification = async () => {
     try {
       const appKey = 'your-app-key-here';
-      const result = await startJourney(appKey, Environment.HML);
+      const result = await startJourney(
+        appKey,
+        Environment.HML,
+        LivenessProvider.FACETEC,
+        false
+      );
 
-      Alert.alert('Sucesso!', `Verificação concluída: ${result}`);
+      Alert.alert('Sucesso!', `Verificação concluída: ${result.codID}`);
     } catch (error) {
       Alert.alert('Erro', `Falha: ${error.message}`);
     }
@@ -111,46 +116,74 @@ export default function App() {
 
 ### Resultado Esperado
 
-Quando bem-sucedido, o método `startJourney` retorna uma string JSON contendo:
+Quando bem-sucedido, o método `startJourney` retorna um objeto `LivenessResult`:
 
-```json
+```typescript
 {
-  "valid": true,
-  "codID": "abc123def456",
-  "cause": "Approved",
-  "protocol": "20231105-001"
+  valid: true,
+  codID: "abc123def456",
+  protocol: "20231105-001"
 }
 ```
 
 ## 📚 API
 
-### `startJourney(appKey, environment, isCustomEnabled?, theme?)`
+### `startJourney(appKey, environment, provider, isCustomEnabled?, theme?)`
 
 Inicia o processo de verificação de liveness.
 
 **Parâmetros:**
 
-| Nome              | Tipo          | Obrigatório | Descrição                                      |
-| ----------------- | ------------- | ----------- | ---------------------------------------------- |
-| `appKey`          | `string`      | ✅          | Chave de aplicação fornecida pela Oiti         |
-| `environment`     | `Environment` | ✅          | Ambiente de execução (`HML` ou `PRD`)          |
-| `isCustomEnabled` | `boolean`     | ❌          | Habilita tema personalizado (padrão: `false`)  |
-| `theme`           | `OitiTheme`   | ❌          | Objeto com configurações de tema personalizado |
+| Nome              | Tipo               | Obrigatório | Descrição                                      |
+| ----------------- | ------------------ | ----------- | ---------------------------------------------- |
+| `appKey`          | `string`           | ✅          | Chave de aplicação fornecida pela Oiti         |
+| `environment`     | `Environment`      | ✅          | Ambiente de execução (`HML` ou `PRD`)          |
+| `provider`        | `LivenessProvider` | ✅          | Provedor de liveness (`FACETEC` ou `IPROOV`)   |
+| `isCustomEnabled` | `boolean`          | ❌          | Habilita tema personalizado (padrão: `false`)  |
+| `theme`           | `OitiTheme`        | ❌          | Objeto com configurações de tema personalizado |
 
-**Retorna:** `Promise<string>` com o resultado da verificação
+**Retorna:** `Promise<LivenessResult>` com o resultado da verificação
 
 **Exemplo:**
 
 ```typescript
-const result = await startJourney('your-app-key', Environment.HML);
+const result = await startJourney(
+  'your-app-key',
+  Environment.HML,
+  LivenessProvider.FACETEC,
+  false
+);
 
 const resultWithTheme = await startJourney(
   'your-app-key',
   Environment.PRD,
+  LivenessProvider.IPROOV,
   true,
   customTheme
 );
 ```
+
+---
+
+### `LivenessResult`
+
+Tipo de retorno da função `startJourney`:
+
+```typescript
+interface LivenessResult {
+  valid: boolean;
+  codID: string | null;
+  protocol: string | null;
+}
+```
+
+**Propriedades:**
+
+| Nome       | Tipo             | Descrição                                |
+| ---------- | ---------------- | ---------------------------------------- |
+| `valid`    | `boolean`        | Indica se a verificação foi bem-sucedida |
+| `codID`    | `string \| null` | Código de identificação da verificação   |
+| `protocol` | `string \| null` | Protocolo da sessão de verificação       |
 
 ---
 
@@ -208,7 +241,6 @@ O SDK oferece suporte a temas personalizados para os provedores **FaceTec** e **
 import { LivenessProvider, Environment, type OitiTheme } from '@oiti/rn-sdk';
 
 const customTheme: OitiTheme = {
-  provider: LivenessProvider.FACETEC,
   facetec: {
     colors: {
       frameBackground: '#1A1A1A',
@@ -228,7 +260,13 @@ const customTheme: OitiTheme = {
   },
 };
 
-await startJourney(appKey, Environment.HML, true, customTheme);
+await startJourney(
+  appKey,
+  Environment.HML,
+  LivenessProvider.FACETEC,
+  true,
+  customTheme
+);
 ```
 
 ### Opções de Provider
@@ -261,6 +299,8 @@ import {
   checkCameraPermission,
   requestCameraPermission,
   Environment,
+  LivenessProvider,
+  type LivenessResult,
 } from '@oiti/rn-sdk';
 
 export default function LivenessScreen() {
@@ -282,17 +322,20 @@ export default function LivenessScreen() {
       }
 
       const appKey = 'your-app-key-here';
-      const result = await startJourney(appKey, Environment.HML);
+      const result: LivenessResult = await startJourney(
+        appKey,
+        Environment.HML,
+        LivenessProvider.FACETEC,
+        false
+      );
 
-      const data = JSON.parse(result);
-
-      if (data.valid) {
+      if (result.valid) {
         Alert.alert(
           'Verificação Aprovada!',
-          `Protocolo: ${data.protocol}\nCódigo: ${data.codID}`
+          `Protocolo: ${result.protocol}\nCódigo: ${result.codID}`
         );
       } else {
-        Alert.alert('Verificação Recusada', `Motivo: ${data.cause}`);
+        Alert.alert('Verificação Recusada');
       }
     } catch (error) {
       Alert.alert('Erro', error.message);
@@ -315,22 +358,21 @@ export default function LivenessScreen() {
 
 **Resultado de Sucesso:**
 
-```json
+```typescript
 {
-  "valid": true,
-  "codID": "abc123def456",
-  "cause": "Approved",
-  "protocol": "20231105-001"
+  valid: true,
+  codID: "abc123def456",
+  protocol: "20231105-001"
 }
 ```
 
 **Resultado de Erro:**
 
-```json
+```typescript
 {
-  "valid": false,
-  "cause": "User cancelled",
-  "protocol": null
+  valid: false,
+  codID: null,
+  protocol: null
 }
 ```
 
@@ -340,16 +382,16 @@ export default function LivenessScreen() {
 
 ```typescript
 import React from 'react';
-import { Button } from 'react-native';
+import { Button, Alert } from 'react-native';
 import {
   startJourney,
   LivenessProvider,
   Environment,
   type OitiTheme,
+  type LivenessResult,
 } from '@oiti/rn-sdk';
 
 const customTheme: OitiTheme = {
-  provider: LivenessProvider.FACETEC,
   facetec: {
     colors: {
       frameBackground: '#1A1A1A',
@@ -398,9 +440,22 @@ const customTheme: OitiTheme = {
 
 export default function ThemedVerification() {
   const handleStart = async () => {
-    const appKey = 'your-app-key-here';
-    const result = await startJourney(appKey, Environment.PRD, true, customTheme);
-    console.log('Result:', result);
+    try {
+      const appKey = 'your-app-key-here';
+      const result: LivenessResult = await startJourney(
+        appKey,
+        Environment.PRD,
+        LivenessProvider.FACETEC,
+        true,
+        customTheme
+      );
+
+      if (result.valid) {
+        Alert.alert('Sucesso!', `Protocolo: ${result.protocol}`);
+      }
+    } catch (error) {
+      Alert.alert('Erro', error.message);
+    }
   };
 
   return <Button title="Iniciar com Tema Custom" onPress={handleStart} />;
@@ -414,17 +469,15 @@ export default function ThemedVerification() {
 ```typescript
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { startJourney, Environment } from '@oiti/rn-sdk';
-
-interface VerificationResult {
-  valid: boolean;
-  codID?: string;
-  cause: string;
-  protocol?: string;
-}
+import {
+  startJourney,
+  Environment,
+  LivenessProvider,
+  type LivenessResult,
+} from '@oiti/rn-sdk';
 
 export default function VerificationComponent() {
-  const [result, setResult] = useState<VerificationResult | null>(null);
+  const [result, setResult] = useState<LivenessResult | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleVerification = async () => {
@@ -433,22 +486,22 @@ export default function VerificationComponent() {
 
     try {
       const appKey = process.env.OITI_APP_KEY || 'your-app-key';
-      const response = await startJourney(appKey, Environment.HML);
+      const data: LivenessResult = await startJourney(
+        appKey,
+        Environment.HML,
+        LivenessProvider.FACETEC,
+        false
+      );
 
-      const data: VerificationResult = JSON.parse(response);
       setResult(data);
 
       if (data.valid) {
-        Alert.alert('✅ Sucesso', 'Identidade verificada!');
+        Alert.alert('Sucesso', 'Identidade verificada!');
       } else {
-        Alert.alert('❌ Falha', `Motivo: ${data.cause}`);
+        Alert.alert('Falha', 'Verificação não aprovada');
       }
     } catch (error) {
       Alert.alert('Erro', `Não foi possível completar: ${error.message}`);
-      setResult({
-        valid: false,
-        cause: error.message,
-      });
     } finally {
       setLoading(false);
     }
@@ -460,7 +513,7 @@ export default function VerificationComponent() {
         style={[styles.button, loading && styles.buttonDisabled]}
         onPress={handleVerification}
         disabled={loading}
-        >
+      >
         <Text style={styles.buttonText}>
           {loading ? 'Verificando...' : 'Iniciar Verificação'}
         </Text>
@@ -469,8 +522,7 @@ export default function VerificationComponent() {
       {result && (
         <View style={styles.resultContainer}>
           <Text style={styles.resultTitle}>Resultado:</Text>
-          <Text>Status: {result.valid ? '✅ Aprovado' : '❌ Reprovado'}</Text>
-          <Text>Motivo: {result.cause}</Text>
+          <Text>Status: {result.valid ? 'Aprovado' : 'Reprovado'}</Text>
           {result.protocol && <Text>Protocolo: {result.protocol}</Text>}
           {result.codID && <Text>Código: {result.codID}</Text>}
         </View>
@@ -515,44 +567,23 @@ const styles = StyleSheet.create({
 
 **Possíveis Resultados:**
 
-✅ **Sucesso:**
+**Sucesso:**
 
-```json
+```typescript
 {
-  "valid": true,
-  "codID": "abc123def456",
-  "cause": "Approved",
-  "protocol": "20231105-001"
+  valid: true,
+  codID: "abc123def456",
+  protocol: "20231105-001"
 }
 ```
 
-❌ **Usuário Cancelou:**
+**Falha:**
 
-```json
+```typescript
 {
-  "valid": false,
-  "cause": "User cancelled",
-  "protocol": null
-}
-```
-
-❌ **Falha na Verificação:**
-
-```json
-{
-  "valid": false,
-  "cause": "Liveness check failed",
-  "protocol": "20231105-002"
-}
-```
-
-❌ **Timeout:**
-
-```json
-{
-  "valid": false,
-  "cause": "Session timeout",
-  "protocol": null
+  valid: false,
+  codID: null,
+  protocol: null
 }
 ```
 
@@ -564,216 +595,217 @@ const styles = StyleSheet.create({
 
 ```typescript
 const customTheme: OitiTheme = {
-    facetec: {
-      colors: {
-        readyScreenHeader: '#FFFFFF',
-        readyScreenSubtext: '#CCCCCC',
-        readyScreenOvalFill: '#FF6B35',
-        readyScreenTextBackground: '#444444',
-        resultScreenForeground: '#FF6B35',
-        resultScreenBackground: '#F0F8FF',
-        ovalStroke: '#FF6B35',
-        ovalProgressFirst: '#FF6B35',
-        ovalProgressSecond: '#FFD700',
-        overlayBackground: '#80000000',
-        frameBorder: '#FF6B35',
-        frameBackground: '#1A1A1A',
-        feedbackBarBackground: '#FFF8DC',
-        feedbackMessage: '#333333',
-        guidanceBackground: '#2E2E2E',
-        guidanceForeground: '#FFFFFF',
-        guidanceButtonTextNormal: '#FFFFFF',
-        guidanceButtonTextHighlight: '#FFFFFF',
-        guidanceButtonTextDisabled: '#AAAAAA',
-        guidanceButtonBackgroundNormal: '#FF6B35',
-        guidanceButtonBackgroundHighlight: '#FF6B35',
-        guidanceButtonBackgroundDisabled: '#666666',
-        guidanceButtonBorder: '#FF6B35',
-      },
-      texts: {
-        readyHeader1: 'Prepare-se',
-        readyHeader2: 'para verificação',
-        readyMessage1: 'Posicione seu rosto',
-        readyMessage2: 'dentro do círculo',
-        readyButton: 'Iniciar',
-        retryHeader: 'Vamos tentar novamente',
-        retrySubheader: 'Ajustes necessários',
-        retryButton: 'Tentar Novamente',
-        resultSuccessMessage: 'Verificação concluída!',
-        feedbackCenterFace: 'Centralize seu rosto',
-        feedbackHoldSteady: 'Mantenha-se parado',
-        feedbackMovePhoneCloser: 'Aproxime o dispositivo',
-        feedbackMovePhoneAway: 'Afaste o dispositivo',
-      },
-      assets: {
-        overlayBrandImage: 'overlayBrandImage',
-        cancelButtonIcon: 'cancelButtonIcon',
-        resultScreenCustomActivityIndicatorImage: 'resultScreenCustomActivityIndicatorImage',
-      },
-      fonts: {
-        readyScreenHeader: 'sixty',
-        readyScreenSubtext: 'sixty',
-        resultScreenMessage: 'sixty',
-        retryScreenHeader: 'sixty',
-        retryScreenSubtext: 'sixty',
-        feedbackMessage: 'sixty',
-        guidanceHeader: 'sixty',
-        guidanceSubtext: 'sixty',
-        guidanceButton: 'sixty',
-      },
+  facetec: {
+    colors: {
+      readyScreenHeader: '#FFFFFF',
+      readyScreenSubtext: '#CCCCCC',
+      readyScreenOvalFill: '#FF6B35',
+      readyScreenTextBackground: '#444444',
+      resultScreenForeground: '#FF6B35',
+      resultScreenBackground: '#F0F8FF',
+      ovalStroke: '#FF6B35',
+      ovalProgressFirst: '#FF6B35',
+      ovalProgressSecond: '#FFD700',
+      overlayBackground: '#80000000',
+      frameBorder: '#FF6B35',
+      frameBackground: '#1A1A1A',
+      feedbackBarBackground: '#FFF8DC',
+      feedbackMessage: '#333333',
+      guidanceBackground: '#2E2E2E',
+      guidanceForeground: '#FFFFFF',
+      guidanceButtonTextNormal: '#FFFFFF',
+      guidanceButtonTextHighlight: '#FFFFFF',
+      guidanceButtonTextDisabled: '#AAAAAA',
+      guidanceButtonBackgroundNormal: '#FF6B35',
+      guidanceButtonBackgroundHighlight: '#FF6B35',
+      guidanceButtonBackgroundDisabled: '#666666',
+      guidanceButtonBorder: '#FF6B35',
     },
-    iproov: {
-      colors: {
-        title: '#FFFFFF',
-        titleBackground: '#2E2E2E',
-        promptText: '#FFFFFF',
-        promptBackground: '#1A1A1A',
-        background: '#FF6B35',
-        ovalReady: '#FF6B35',
-        ovalNotReady: '#FF3030',
-        ovalCapturing: '#FFFFFF',
-        ovalCompleted: '#FF6B35',
-      },
-      texts: {
-        title: 'Verificação Biométrica',
-      },
-      assets: {
-        closeButtonIcon: 'closeButtonIcon',
-        logoImage: 'logoImage',
-      },
-      fonts: {
-        instructionsTitleFont: 'sixty',
-        instructionsCaptionFont: 'sixty',
-        instructionsDocumentTypesInstructionsFont: 'sixty',
-        instructionsDocumentTipsInstructionsFont: 'sixty',
-        instructionsButtonFont: 'sixty',
-        permissionTitleFont: 'sixty',
-        permissionCaptionFont: 'sixty',
-        permissionButtonFont: 'sixty',
-        resultMessageFont: 'sixty',
-        resultRetryButtonFont: 'sixty',
-      },
+    texts: {
+      readyHeader1: 'Prepare-se',
+      readyHeader2: 'para verificação',
+      readyMessage1: 'Posicione seu rosto',
+      readyMessage2: 'dentro do círculo',
+      readyButton: 'Iniciar',
+      retryHeader: 'Vamos tentar novamente',
+      retrySubheader: 'Ajustes necessários',
+      retryButton: 'Tentar Novamente',
+      resultSuccessMessage: 'Verificação concluída!',
+      feedbackCenterFace: 'Centralize seu rosto',
+      feedbackHoldSteady: 'Mantenha-se parado',
+      feedbackMovePhoneCloser: 'Aproxime o dispositivo',
+      feedbackMovePhoneAway: 'Afaste o dispositivo',
     },
-    instructions: {
-      colors: {
-        statusBar: '#2E2E2E',
-        background: '#2E2E2E',
-        backButtonIcon: '#2E2E2E',
-        backButtonBackground: '#2E2E2E',
-        backButtonBorder: '#2E2E2E',
-        bottomSheet: '#1A1A1A',
-        title: '#FFFFFF',
-        caption: '#CCCCCC',
-        firstInstructionTitle: '#FFFFFF',
-        secondInstructionTitle: '#FFFFFF',
-        continueButtonText: '#FFFFFF',
-        continueButtonBackground: '#FF6B35',
-        continueButtonBorder: '#FF6B35',
-      },
-      texts: {
-        title: 'Verificação de Identidade',
-        caption: 'Siga as instruções para completar o processo',
-        firstInstruction: 'Mantenha o documento bem iluminado',
-        secondInstruction: 'Use um documento oficial com foto',
-        continueButton: 'Continuar',
-      },
-      assets: {
-        backButtonIcon: 'backButtonIcon',
-        contextImage: 'contextImage',
-        firstInstructionIcon: 'firstInstructionIcon',
-        secondInstructionIcon: 'secondInstructionIcon',
-      },
-      fonts: {
-        title: 'sixty',
-        caption: 'sixty',
-        firstInstructionTitle: 'sixty',
-        secondInstructionTitle: 'sixty',
-        continueButton: 'sixty',
-      },
+    assets: {
+      overlayBrandImage: 'overlayBrandImage',
+      cancelButtonIcon: 'cancelButtonIcon',
+      resultScreenCustomActivityIndicatorImage:
+        'resultScreenCustomActivityIndicatorImage',
     },
-    permission: {
-      colors: {
-        statusBar: '#2E2E2E',
-        background: '#2E2E2E',
-        backButtonIcon: '#2E2E2E',
-        backButtonBackground: '#2E2E2E',
-        backButtonBorder: '#2E2E2E',
-        cameraImage: '#FFFFFF',
-        title: '#FFFFFF',
-        caption: '#FFFFFF',
-        checkPermissionButtonText: '#FFFFFF',
-        checkPermissionButtonBackground: '#FF6B35',
-        checkPermissionButtonBorder: '#FF6B35',
-        bottomSheet: '#FF6B35',
-        bottomSheetTitle: '#FF6B35',
-        bottomSheetCaption: '#FF6B35',
-        openSettingsButtonText: '#FF6B35',
-        openSettingsButtonBackground: '#FF6B35',
-        openSettingsButtonBorder: '#FF6B35',
-        closeButtonText: '#FF6B35',
-        closeButtonBackground: '#FF6B35',
-        closeButtonBorder: '#FF6B35',
-      },
-      texts: {
-        title: 'Permissões Necessárias',
-        caption: 'Permissões Necessárias',
-        checkPermissionButton: 'Permitir Acesso',
-        bottomSheetTitle: 'Permitir Acesso',
-        bottomSheetCaption: 'Permitir Acesso',
-        openSettingsButton: 'Permitir Acesso',
-        closeButton: 'Permitir Acesso',
-      },
-      assets: {
-        backButtonIcon: 'backButtonIcon',
-        cameraImage: 'cameraImage',
-      },
-      fonts: {
-        title: 'sixty',
-        caption: 'sixty',
-        checkPermissionButton: 'sixty',
-        bottomSheetTitle: 'sixty',
-        bottomSheetCaption: 'sixty',
-        opentSettingsButton: 'sixty',
-        closeButton: 'sixty',
-      },
+    fonts: {
+      readyScreenHeader: 'sixty',
+      readyScreenSubtext: 'sixty',
+      resultScreenMessage: 'sixty',
+      retryScreenHeader: 'sixty',
+      retryScreenSubtext: 'sixty',
+      feedbackMessage: 'sixty',
+      guidanceHeader: 'sixty',
+      guidanceSubtext: 'sixty',
+      guidanceButton: 'sixty',
     },
-    processing: {
-      colors: {
-        statusBar: '#1A1A1A',
-        background: '#1A1A1A',
-        loading: '#FFFFFF',
-      },
+  },
+  iproov: {
+    colors: {
+      title: '#FFFFFF',
+      titleBackground: '#2E2E2E',
+      promptText: '#FFFFFF',
+      promptBackground: '#1A1A1A',
+      background: '#FF6B35',
+      ovalReady: '#FF6B35',
+      ovalNotReady: '#FF3030',
+      ovalCapturing: '#FFFFFF',
+      ovalCompleted: '#FF6B35',
     },
-    result: {
-      colors: {
-        successStatusBar: '#E8F5E8',
-        successBackground: '#E8F5E8',
-        successText: '#2E7D32',
-        errorStatusBar: '#FFEBEE',
-        errorBackground: '#FFEBEE',
-        errorText: '#C62828',
-        retryBackground: '#C62828',
-        retryText: '#FFEBEE',
-        retryButtonText: '#FF6B35',
-        retryButtonBackground: '#FFFFFF',
-        retryButtonBorder: '#FFFFFF',
-      },
-      texts: {
-        success: 'Verificação concluída com sucesso!',
-        error: 'Houve um erro na verificação. Tente novamente.',
-        retryButton: 'Tentar Novamente',
-      },
-      assets: {
-        successImage: 'successImage',
-        errorImage: 'errorImage',
-        retryImage: 'retryImage',
-      },
-      fonts: {
-        text: 'sixty',
-        retryButton: 'sixty',
-      },
+    texts: {
+      title: 'Verificação Biométrica',
     },
-  };
+    assets: {
+      closeButtonIcon: 'closeButtonIcon',
+      logoImage: 'logoImage',
+    },
+    fonts: {
+      instructionsTitleFont: 'sixty',
+      instructionsCaptionFont: 'sixty',
+      instructionsDocumentTypesInstructionsFont: 'sixty',
+      instructionsDocumentTipsInstructionsFont: 'sixty',
+      instructionsButtonFont: 'sixty',
+      permissionTitleFont: 'sixty',
+      permissionCaptionFont: 'sixty',
+      permissionButtonFont: 'sixty',
+      resultMessageFont: 'sixty',
+      resultRetryButtonFont: 'sixty',
+    },
+  },
+  instructions: {
+    colors: {
+      statusBar: '#2E2E2E',
+      background: '#2E2E2E',
+      backButtonIcon: '#2E2E2E',
+      backButtonBackground: '#2E2E2E',
+      backButtonBorder: '#2E2E2E',
+      bottomSheet: '#1A1A1A',
+      title: '#FFFFFF',
+      caption: '#CCCCCC',
+      firstInstructionTitle: '#FFFFFF',
+      secondInstructionTitle: '#FFFFFF',
+      continueButtonText: '#FFFFFF',
+      continueButtonBackground: '#FF6B35',
+      continueButtonBorder: '#FF6B35',
+    },
+    texts: {
+      title: 'Verificação de Identidade',
+      caption: 'Siga as instruções para completar o processo',
+      firstInstruction: 'Mantenha o documento bem iluminado',
+      secondInstruction: 'Use um documento oficial com foto',
+      continueButton: 'Continuar',
+    },
+    assets: {
+      backButtonIcon: 'backButtonIcon',
+      contextImage: 'contextImage',
+      firstInstructionIcon: 'firstInstructionIcon',
+      secondInstructionIcon: 'secondInstructionIcon',
+    },
+    fonts: {
+      title: 'sixty',
+      caption: 'sixty',
+      firstInstructionTitle: 'sixty',
+      secondInstructionTitle: 'sixty',
+      continueButton: 'sixty',
+    },
+  },
+  permission: {
+    colors: {
+      statusBar: '#2E2E2E',
+      background: '#2E2E2E',
+      backButtonIcon: '#2E2E2E',
+      backButtonBackground: '#2E2E2E',
+      backButtonBorder: '#2E2E2E',
+      cameraImage: '#FFFFFF',
+      title: '#FFFFFF',
+      caption: '#FFFFFF',
+      checkPermissionButtonText: '#FFFFFF',
+      checkPermissionButtonBackground: '#FF6B35',
+      checkPermissionButtonBorder: '#FF6B35',
+      bottomSheet: '#FF6B35',
+      bottomSheetTitle: '#FF6B35',
+      bottomSheetCaption: '#FF6B35',
+      openSettingsButtonText: '#FF6B35',
+      openSettingsButtonBackground: '#FF6B35',
+      openSettingsButtonBorder: '#FF6B35',
+      closeButtonText: '#FF6B35',
+      closeButtonBackground: '#FF6B35',
+      closeButtonBorder: '#FF6B35',
+    },
+    texts: {
+      title: 'Permissões Necessárias',
+      caption: 'Permissões Necessárias',
+      checkPermissionButton: 'Permitir Acesso',
+      bottomSheetTitle: 'Permitir Acesso',
+      bottomSheetCaption: 'Permitir Acesso',
+      openSettingsButton: 'Permitir Acesso',
+      closeButton: 'Permitir Acesso',
+    },
+    assets: {
+      backButtonIcon: 'backButtonIcon',
+      cameraImage: 'cameraImage',
+    },
+    fonts: {
+      title: 'sixty',
+      caption: 'sixty',
+      checkPermissionButton: 'sixty',
+      bottomSheetTitle: 'sixty',
+      bottomSheetCaption: 'sixty',
+      opentSettingsButton: 'sixty',
+      closeButton: 'sixty',
+    },
+  },
+  processing: {
+    colors: {
+      statusBar: '#1A1A1A',
+      background: '#1A1A1A',
+      loading: '#FFFFFF',
+    },
+  },
+  result: {
+    colors: {
+      successStatusBar: '#E8F5E8',
+      successBackground: '#E8F5E8',
+      successText: '#2E7D32',
+      errorStatusBar: '#FFEBEE',
+      errorBackground: '#FFEBEE',
+      errorText: '#C62828',
+      retryBackground: '#C62828',
+      retryText: '#FFEBEE',
+      retryButtonText: '#FF6B35',
+      retryButtonBackground: '#FFFFFF',
+      retryButtonBorder: '#FFFFFF',
+    },
+    texts: {
+      success: 'Verificação concluída com sucesso!',
+      error: 'Houve um erro na verificação. Tente novamente.',
+      retryButton: 'Tentar Novamente',
+    },
+    assets: {
+      successImage: 'successImage',
+      errorImage: 'errorImage',
+      retryImage: 'retryImage',
+    },
+    fonts: {
+      text: 'sixty',
+      retryButton: 'sixty',
+    },
+  },
+};
 ```
 
 ### Configuração de Assets e Fonts
@@ -910,8 +942,6 @@ fonts: {
 ## 🔗 Links Úteis
 
 - [Changelog](https://github.com/oititec/rn-sdk/releases)
-
-
 
 ## 📄 Licença
 
