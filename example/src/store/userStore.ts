@@ -1,3 +1,4 @@
+import { LivenessProvider } from '@oiti/rn-sdk';
 import { create } from 'zustand';
 
 interface UserData {
@@ -11,12 +12,13 @@ type LivenessProvider = 'IPROOV' | 'FACETEC';
 interface UserStore {
   userData: UserData;
   appKey: string;
-  provider: LivenessProvider;
+  livenessProvider: LivenessProvider;
   setUserData: (data: Partial<UserData>) => void;
   setAppKey: (key: string) => void;
   setProvider: (provider: LivenessProvider) => void;
   generateCredential: () => Promise<any>;
   generateAppKey: () => Promise<string>;
+  setLivenessProvider: (provider: LivenessProvider) => void;
 }
 
 export const useUserStore = create<UserStore>((set, get) => ({
@@ -26,8 +28,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
     nascimento: '08/10/1996',
   },
   appKey: '',
-  provider: 'FACETEC',
-
+  livenessProvider: LivenessProvider.FACETEC,
   setUserData: (data) =>
     set((state) => ({
       userData: { ...state.userData, ...data },
@@ -43,19 +44,12 @@ export const useUserStore = create<UserStore>((set, get) => ({
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
 
-    const credentials = {
-      IPROOV: {
-        user: 'mobile.demo.app',
-        pass: 'ddc0ba9a6a5ab1681108a7e34c914207',
-      },
-      FACETEC: {
-        user: 'mobile.hml.apiglobal',
-        pass: 'c951c17decd9e06772853e23a35056bf',
-      },
-    };
-
-    const { user, pass } = credentials[provider];
-
+    const facetecProvider = get().livenessProvider === LivenessProvider.FACETEC;
+    const user = facetecProvider ? 'mobile.hml.apiglobal' : 'mobile.demo.app';
+    const pass = facetecProvider
+      ? 'c951c17decd9e06772853e23a35056bf'
+      : 'ddc0ba9a6a5ab1681108a7e34c914207';
+    
     const urlencoded = new URLSearchParams();
     urlencoded.append('user', user);
     urlencoded.append('pass', pass);
@@ -93,6 +87,10 @@ export const useUserStore = create<UserStore>((set, get) => ({
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
 
+    const user =
+      get().livenessProvider === LivenessProvider.FACETEC
+        ? 'mobile.hml.apiglobal'
+        : 'mobile.demo.app';
     const urlencoded = new URLSearchParams();
     urlencoded.append('user', user);
     urlencoded.append('token', JSON.stringify(credential));
@@ -120,4 +118,6 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
     throw new Error('Failed to generate app key');
   },
+
+  setLivenessProvider: (provider) => set({ livenessProvider: provider }),
 }));

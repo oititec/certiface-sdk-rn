@@ -1,6 +1,6 @@
 {
   "name": "@oiti/rn-sdk-example",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "versionCode": 2,
   "private": true,
   "scripts": {

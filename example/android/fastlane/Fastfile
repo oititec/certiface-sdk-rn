@@ -1,0 +1,36 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+Encoding.default_external = Encoding::UTF_8
+default_platform(:android)
+
+platform :android do
+  def kill_java_processes
+    sh "TASKKILL /F /IM java.exe > nul 2>&1 || echo 'Nenhum processo Java para encerrar'"
+  end
+
+  desc "Enviar um novo build Beta para o Firebase App Distribution"
+  lane :deploy do |options|
+    kill_java_processes
+    gradle(task: "clean assembleRelease")
+    release_notes = options[:release_notes] || "Nenhuma nota adicionada."
+    firebase_app_distribution(
+      app: "1:943099415715:android:fecb32e295f6878c500316",
+      apk_path: "app/build/outputs/apk/release/app-release.apk",
+      groups: "mobile-android",
+      release_notes: release_notes
+    )
+  end
+end

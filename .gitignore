@@ -48,6 +48,14 @@ example/ios/Pods
 # Ruby
 example/vendor/
 
+# Fastlane
+example/**/google-services.json
+example/**/fastlane/report.xml
+example/**/fastlane/nul
+example/**/fastlane/Preview.html
+example/**/fastlane/screenshots
+example/**/fastlane/test_output
+
 # node.js
 #
 node_modules/

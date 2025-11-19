@@ -48,27 +48,25 @@ import UIKit
       return
     }
 
-    let optionsBuilder = LivenessManagerOptions.builder(appKey: appKey, environment: sdkEnvironment)
+    var facetecCustomization = FacetecCustomization.builder().build()
+    var iproovCustomization = IProovCustomization.builder().build()
 
-    if livenessProvider == .iproov {
-      let customization: IProovCustomization
-      if isCustomEnabled {
-        customization = ThemeFactory.createIProovCustomization(from: theme)
-      } else {
-        customization = IProovCustomization.builder().build()
+    if isCustomEnabled {
+      switch livenessProvider {
+      case .facetec:
+        facetecCustomization = ThemeFactory.createFacetecCustomization(from: theme)
+      case .iproov:
+        iproovCustomization = ThemeFactory.createIProovCustomization(from: theme)
+      @unknown default:
+        break
       }
-      optionsBuilder.setIProovCustomization(customization)
-    } else {
-      let customization: FacetecCustomization
-      if isCustomEnabled {
-        customization = ThemeFactory.createFacetecCustomization(from: theme)
-      } else {
-        customization = FacetecCustomization.builder().build()
-      }
-      optionsBuilder.setFacetecCustomization(customization)
     }
 
-    let options = optionsBuilder.build()
+    let options = LivenessManagerOptions
+      .builder(appKey: appKey, environment: sdkEnvironment)
+      .setFacetecCustomization(facetecCustomization)
+      .setIProovCustomization(iproovCustomization)
+      .build()
     let manager = CertifaceSDKFactory.createLivenessManager(for: livenessProvider)
 
     DispatchQueue.main.async { [weak self] in

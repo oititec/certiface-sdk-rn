@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
 
   s.frameworks = "AVFoundation"
   
-  s.dependency 'CertifaceSDK', '1.0.0'
+  s.dependency 'CertifaceSDK', '1.1.0'
 
   install_modules_dependencies(s)
 end
