@@ -25,6 +25,11 @@
 - Melhorias na implementação de resultados
 - Otimizações no código para melhor performance
 
+### Atualização dos Módulos
+
+- **iOS**: CertifaceSDK `1.1.0`
+- **Android**: oitisdk `1.0.3`
+
 ## [1.0.0] - 10/11/2025
 
 ### Adicionado
@@ -43,4 +48,3 @@
 - Suporte a dois provedores de liveness: FaceTec e iProov
 - Sistema de callbacks para sucesso e erro
 - Compatibilidade com React Native 0.60+
-
