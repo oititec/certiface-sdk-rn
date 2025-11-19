@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import androidx.core.graphics.toColorInt
 import br.com.oiti.designsystem.R
-import br.com.oiti.domain.model.iproov.CameraSelection
 import br.com.oiti.domain.model.iproov.OrientationGPA
 import br.com.oiti.domain.model.iproov.OrientationLA
 import br.com.oiti.manager.exports.FilterTheme
@@ -68,7 +67,6 @@ object IProovThemeFactory {
       gpa = OrientationGPA.PORTRAIT,
       la = OrientationLA.PORTRAIT
     )
-    setCamera(CameraSelection.FRONT)
 
     setOvalColors(
       ready = (colors?.getString("ovalReadyColor") ?: "#00FF00").toColorInt(),
