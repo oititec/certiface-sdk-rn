@@ -1,3 +1,4 @@
+import { LivenessProvider } from '@oiti/rn-sdk';
 import { create } from 'zustand';
 
 interface UserData {
@@ -9,10 +10,12 @@ interface UserData {
 interface UserStore {
   userData: UserData;
   appKey: string;
+  livenessProvider: LivenessProvider;
   setUserData: (data: Partial<UserData>) => void;
   setAppKey: (key: string) => void;
   generateCredential: () => Promise<any>;
   generateAppKey: () => Promise<string>;
+  setLivenessProvider: (provider: LivenessProvider) => void;
 }
 
 export const useUserStore = create<UserStore>((set, get) => ({
@@ -22,6 +25,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
     nascimento: '08/10/1996',
   },
   appKey: '',
+  livenessProvider: LivenessProvider.FACETEC,
 
   setUserData: (data) =>
     set((state) => ({
@@ -34,9 +38,14 @@ export const useUserStore = create<UserStore>((set, get) => ({
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
 
+    const facetecProvider = get().livenessProvider === LivenessProvider.FACETEC;
+    const user = facetecProvider ? 'mobile.hml.apiglobal' : 'mobile.demo.app';
+    const pass = facetecProvider
+      ? 'c951c17decd9e06772853e23a35056bf'
+      : 'ddc0ba9a6a5ab1681108a7e34c914207';
     const urlencoded = new URLSearchParams();
-    urlencoded.append('user', 'mobile.demo.app');
-    urlencoded.append('pass', 'ddc0ba9a6a5ab1681108a7e34c914207');
+    urlencoded.append('user', user);
+    urlencoded.append('pass', pass);
 
     const requestOptions = {
       method: 'POST',
@@ -60,8 +69,12 @@ export const useUserStore = create<UserStore>((set, get) => ({
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
 
+    const user =
+      get().livenessProvider === LivenessProvider.FACETEC
+        ? 'mobile.hml.apiglobal'
+        : 'mobile.demo.app';
     const urlencoded = new URLSearchParams();
-    urlencoded.append('user', 'mobile.demo.app');
+    urlencoded.append('user', user);
     urlencoded.append('token', JSON.stringify(credential));
     urlencoded.append('cpf', userData.cpf);
     urlencoded.append('nome', userData.nome);
@@ -87,4 +100,6 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
     throw new Error('Failed to generate app key');
   },
+
+  setLivenessProvider: (provider) => set({ livenessProvider: provider }),
 }));

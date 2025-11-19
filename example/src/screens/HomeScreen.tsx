@@ -28,7 +28,7 @@ const HomeScreen = () => {
   const [provider, setProvider] = useState<LivenessProvider>(
     LivenessProvider.FACETEC
   );
-  const { appKey } = useUserStore();
+  const { appKey, setAppKey, setLivenessProvider } = useUserStore();
 
   const customTheme: OitiTheme = {
     facetec: {
@@ -331,11 +331,14 @@ const HomeScreen = () => {
             <Text style={styles.switchLabel}>Provider:</Text>
             <Switch
               value={provider === LivenessProvider.IPROOV}
-              onValueChange={(value) =>
-                setProvider(
-                  value ? LivenessProvider.IPROOV : LivenessProvider.FACETEC
-                )
-              }
+              onValueChange={(value) => {
+                const newProvider = value
+                  ? LivenessProvider.IPROOV
+                  : LivenessProvider.FACETEC;
+                setProvider(newProvider);
+                setLivenessProvider(newProvider);
+                setAppKey('');
+              }}
               trackColor={{ false: '#767577', true: '#4A90E2' }}
               thumbColor={
                 provider === LivenessProvider.IPROOV ? '#FFFFFF' : '#f4f3f4'
