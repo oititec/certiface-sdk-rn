@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.2.0] - 19/12/2025
+
+### Adicionado
+
+- Configuração `showInstructionScreen` no tema de instruções para controlar exibição da tela de instruções
+- Suporte à configuração em iOS via `setShowInstructionsScreen` no `LivenessManagerOptions`
+- Suporte à configuração em Android para FaceTec e iProov via `setShowInstructionScreen` no `setInstructionsTheme`
+
+### Alterado
+
+- Estrutura do tipo `InstructionsTheme` agora inclui `configuration` com opções de configuração
+
+### Atualização dos Módulos
+
+- **iOS**: CertifaceSDK `1.2.0`
+- **Android**: oitisdk `1.1.0`
+
 ## [1.1.0] - 19/11/2025
 
 ### Adicionado
