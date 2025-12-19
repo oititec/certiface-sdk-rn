@@ -51,6 +51,8 @@ import UIKit
     var facetecCustomization = FacetecCustomization.builder().build()
     var iproovCustomization = IProovCustomization.builder().build()
 
+    var showInstructionsScreen = true
+
     if isCustomEnabled {
       switch livenessProvider {
       case .facetec:
@@ -60,10 +62,18 @@ import UIKit
       @unknown default:
         break
       }
+
+      if let themeData = theme,
+         let instructionsTheme = themeData["instructions"] as? [String: Any],
+         let configuration = instructionsTheme["configuration"] as? [String: Any],
+         let showInstruction = configuration["showInstructionScreen"] as? Bool {
+        showInstructionsScreen = showInstruction
+      }
     }
 
     let options = LivenessManagerOptions
       .builder(appKey: appKey, environment: sdkEnvironment)
+      .setShowInstructionsScreen(showInstructionsScreen)
       .setFacetecCustomization(facetecCustomization)
       .setIProovCustomization(iproovCustomization)
       .build()

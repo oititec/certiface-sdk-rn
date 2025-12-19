@@ -204,7 +204,12 @@ export interface InstructionsThemeFonts {
   continueButton?: string;
 }
 
+export interface InstructionsConfiguration {
+  showInstructionScreen?: boolean;
+}
+
 export interface InstructionsTheme {
+  configuration?: InstructionsConfiguration;
   colors?: InstructionsThemeColors;
   texts?: InstructionsThemeTexts;
   assets?: InstructionsThemeAssets;
