@@ -78,6 +78,8 @@ object IProovThemeFactory {
     val instructionsTheme = theme?.getMap("instructions")
     val instructionsColors = instructionsTheme?.getMap("colors")
     val instructionsTexts = instructionsTheme?.getMap("texts")
+    val instructionsConfiguration = instructionsTheme?.getMap("configuration")
+    val showInstructionScreen = instructionsConfiguration?.getBoolean("showInstructionScreen") ?: true
 
     Log.d(TAG, "🏭 Iniciando construção do tema IProov customizado...")
     val iproovDrawables = AssetProcessor.processIProovAssets(theme)
@@ -96,6 +98,7 @@ object IProovThemeFactory {
     }
 
     setInstructionsTheme {
+      setShowInstructionScreen(showInstructionScreen)
       setTitleText(instructionsTexts?.getString("titleText") ?: texts?.getString("instructionsTitleText") ?: "Teste title")
       setTitleColor(instructionsColors?.getString("titleColor") ?: "#FFFFFF")
       setCaptionText(instructionsTexts?.getString("captionText") ?: texts?.getString("instructionsCaptionText") ?: "teste caption.")

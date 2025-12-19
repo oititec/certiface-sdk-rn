@@ -22,6 +22,8 @@ object FacetecThemeFactory {
     val instructionsColors = instructionsTheme?.getMap("colors")
     val instructionsTexts = instructionsTheme?.getMap("texts")
     val instructionsFonts = instructionsTheme?.getMap("fonts")
+    val instructionsConfiguration = instructionsTheme?.getMap("configuration")
+    val showInstructionScreen = instructionsConfiguration?.getBoolean("showInstructionScreen") ?: true
 
     val permissionTheme = theme?.getMap("permission")
     val permissionColors = permissionTheme?.getMap("colors")
@@ -195,6 +197,7 @@ object FacetecThemeFactory {
 
     // Instructions Screen
     setInstructionsTheme {
+      setShowInstructionScreen(showInstructionScreen)
       setTitleText(instructionsTexts?.getString("title") ?: "Centralize seu rosto")
       setCaptionText(instructionsTexts?.getString("caption") ?: "Mantenha-se dentro do círculo")
       setStatusBarColor(instructionsColors?.getString("statusBar") ?: "#121212")
