@@ -1,6 +1,6 @@
 PODS:
   - boost (1.84.0)
-  - CertifaceSDK (1.1.0):
+  - CertifaceSDK (1.2.0):
     - iProov (= 12.5.0)
     - OILiveness3D_FT (= 9.7.91)
   - DoubleConversion (1.1.6)
@@ -1833,8 +1833,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RnSdk (1.1.0):
-    - CertifaceSDK (= 1.1.0)
+  - RnSdk (1.2.0):
+    - CertifaceSDK (= 1.2.0)
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1969,7 +1969,7 @@ SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
     - iProov
     - SocketRocket
-  https://github.com/oititec/ios-artifactory:
+  https://github.com/oititec/ios-artifactory.git:
     - CertifaceSDK
     - OILiveness3D_FT
 
@@ -2130,7 +2130,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
-  CertifaceSDK: fda849eb8f4cc4652020141a8e8fe2a705d71f94
+  CertifaceSDK: 667e0bf748f70c5e81059dc0c383b2d8e0ce241c
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
   FBLazyVector: 84b955f7b4da8b895faf5946f73748267347c975
@@ -2205,7 +2205,7 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: a1c8cc8a99c32de1244a9cf707bf9d83d0de0f71
   RNGestureHandler: 0397fea67f39d5a2d17fcf4a028e206f7ba098ba
   RNScreens: 7e56b051227a1a11c3068849d1a9a5dd457537df
-  RnSdk: 0acd11e0c903f98793d2d2b16ee2ebc7284c582b
+  RnSdk: 5c4a51377a04addae876701a221463b98f72fc94
   RNVectorIcons: 1fe59cfa2d3ac94ceb9d373a59c54609471b8d56
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: c758bfb934100bb4bf9cbaccb52557cee35e8bdf
