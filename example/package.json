@@ -13,7 +13,8 @@
     "build:android:release": "cd android && ./gradlew assembleRelease --no-daemon --console=plain",
     "distribute:android:debug": "cd android && ./gradlew assembleDebug appDistributionUploadDebug --no-daemon --console=plain",
     "distribute:android:release": "cd android && ./gradlew assembleRelease appDistributionUploadRelease --no-daemon --console=plain",
-    "distribute:android": "./scripts/distribute-android.sh"
+    "distribute:android": "./scripts/distribute-android.sh",
+    "build:android:release:aab": "cd android && ./gradlew bundleRelease --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",

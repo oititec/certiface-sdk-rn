@@ -65,3 +65,4 @@ fi
 echo ""
 echo "Versões atualizadas com sucesso!"
 
+

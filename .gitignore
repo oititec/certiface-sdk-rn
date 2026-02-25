@@ -40,6 +40,8 @@ project.xcworkspace
 .settings
 local.properties
 android.iml
+example/android/app/key.properties
+example/android/app/release.keystore
 
 # Cocoapods
 #
