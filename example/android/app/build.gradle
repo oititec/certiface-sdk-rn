@@ -74,6 +74,9 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+def VERSION_CODE = 2
+def VERSION_NAME = "1.0.0"
+
 def getPackageJson() {
     def packageJsonFile = file("../../package.json")
     return new groovy.json.JsonSlurper().parseText(packageJsonFile.text)
@@ -81,14 +84,15 @@ def getPackageJson() {
 
 def getVersionCode() {
     def packageJson = getPackageJson()
-    return packageJson.versionCode as Integer
+    def code = packageJson.versionCode
+    return code != null ? (code as Integer) : 1
 }
 
 def getVersionName() {
     def packageJson = getPackageJson()
-    def version = packageJson.version
-    def versionCode = packageJson.versionCode
-    return "${version}(${versionCode})"
+    def version = packageJson.version ?: "1.0.0"
+    def code = packageJson.versionCode
+    return "${version}(${code != null ? code : 1})"
 }
 
 def getReleaseNotes() {
@@ -108,8 +112,8 @@ android {
         applicationId "br.com.oititec.rn.sdk.example"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode getVersionCode()
-        versionName getVersionName()
+        versionCode VERSION_CODE
+        versionName VERSION_NAME
     }
     signingConfigs {
         debug {
