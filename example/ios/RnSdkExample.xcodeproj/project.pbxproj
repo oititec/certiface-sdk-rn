@@ -274,7 +274,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = br.com.oititec.rn.certifacesdk.example;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.oititec.rncertifacesdk.example;
 				PRODUCT_NAME = RnSdkExample;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -302,7 +302,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = br.com.oititec.rn.certifacesdk.example;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.oititec.rncertifacesdk.example;
 				PRODUCT_NAME = RnSdkExample;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
