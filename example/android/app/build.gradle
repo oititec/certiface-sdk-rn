@@ -132,10 +132,11 @@ android {
                 keyAlias props['keyAlias']
                 keyPassword props['keyPassword']
             } else {
-                storeFile file('debug.keystore')
-                storePassword 'android'
-                keyAlias 'androiddebugkey'
-                keyPassword 'android'
+                throw new GradleException(
+                    "Assinatura de release obrigatória para AAB/Play Store. " +
+                    "Copie key.properties.example para key.properties em android/app/, " +
+                    "preencha com sua keystore de release e coloque o arquivo release.keystore em android/app/."
+                )
             }
         }
     }
