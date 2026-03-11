@@ -92,5 +92,5 @@ lib/
 ios/generated
 android/generated
 
-# React Native Nitro Modules
-nitrogen/
+# act (local GitHub Actions)
+.secrets

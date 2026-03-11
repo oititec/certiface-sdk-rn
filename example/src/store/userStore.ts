@@ -7,8 +7,6 @@ interface UserData {
   nascimento: string;
 }
 
-type LivenessProvider = 'IPROOV' | 'FACETEC';
-
 interface UserStore {
   userData: UserData;
   appKey: string;
@@ -36,11 +34,9 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
   setAppKey: (key) => set({ appKey: key }),
 
-  setProvider: (provider) => set({ provider }),
+  setProvider: (provider) => set({ livenessProvider: provider }),
 
   generateCredential: async () => {
-    const { provider } = get();
-    
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
 
@@ -49,7 +45,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
     const pass = facetecProvider
       ? 'c951c17decd9e06772853e23a35056bf'
       : 'ddc0ba9a6a5ab1681108a7e34c914207';
-    
+
     const urlencoded = new URLSearchParams();
     urlencoded.append('user', user);
     urlencoded.append('pass', pass);
@@ -69,7 +65,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
   },
 
   generateAppKey: async () => {
-    const { userData, provider, generateCredential } = get();
+    const { userData, livenessProvider, generateCredential } = get();
 
     const credential = await generateCredential();
 
@@ -82,15 +78,11 @@ export const useUserStore = create<UserStore>((set, get) => ({
       },
     };
 
-    const { user } = credentials[provider];
+    const { user } = credentials[livenessProvider];
 
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
 
-    const user =
-      get().livenessProvider === LivenessProvider.FACETEC
-        ? 'mobile.hml.apiglobal'
-        : 'mobile.demo.app';
     const urlencoded = new URLSearchParams();
     urlencoded.append('user', user);
     urlencoded.append('token', JSON.stringify(credential));

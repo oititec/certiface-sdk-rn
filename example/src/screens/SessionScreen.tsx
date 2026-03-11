@@ -21,12 +21,12 @@ const SessionScreen = () => {
     appKey,
     setUserData,
     generateAppKey,
-    provider,
+    livenessProvider,
     setProvider: setStoreProvider,
   } = useUserStore();
   const [loading, setLoading] = useState(false);
   const [localProvider, setLocalProvider] = useState<LivenessProvider>(
-    provider === 'IPROOV' ? LivenessProvider.IPROOV : LivenessProvider.FACETEC
+    livenessProvider === 'IPROOV' ? LivenessProvider.IPROOV : LivenessProvider.FACETEC
   );
 
   const handleProviderChange = (value: boolean) => {
