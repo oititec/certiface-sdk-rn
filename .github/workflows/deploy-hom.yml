@@ -56,7 +56,7 @@ jobs:
           packageName: br.com.oititec.rn.sdk.example
           releaseFiles: example/android/app/build/outputs/bundle/release/app-release.aab
           track: alpha
-          status: completed
+          status: draft
           inAppUpdatePriority: '0'
 
   deploy-ios:
