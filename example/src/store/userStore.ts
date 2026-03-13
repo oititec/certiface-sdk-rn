@@ -43,7 +43,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
     const facetecProvider = get().livenessProvider === LivenessProvider.FACETEC;
     const user = facetecProvider ? 'mobile.hml.apiglobal' : 'mobile.demo.app';
     const pass = facetecProvider
-      ? 'c951c17decd9e06772853e23a35056bf'
+      ? '48667f589a0a56ab74acb5f7da548462'
       : 'ddc0ba9a6a5ab1681108a7e34c914207';
 
     const urlencoded = new URLSearchParams();
