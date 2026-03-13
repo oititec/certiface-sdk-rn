@@ -49,14 +49,15 @@ jobs:
           JAVA_OPTS: '-XX:MaxHeapSize=6g'
         run: yarn workspace @oiti/rn-sdk-example run build:android:release:aab
 
-      - name: Upload to Google Play (closed testing)
+      - name: Upload to Google Play (internal testing)
         uses: r0adkll/upload-google-play@v1.1.3
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: br.com.oititec.rn.sdk.example
           releaseFiles: example/android/app/build/outputs/bundle/release/app-release.aab
-          track: alpha
+          track: internal
           status: draft
+          changesNotSentForReview: true
           inAppUpdatePriority: '0'
 
   deploy-ios:
