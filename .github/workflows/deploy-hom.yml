@@ -57,7 +57,6 @@ jobs:
           releaseFiles: example/android/app/build/outputs/bundle/release/app-release.aab
           track: internal
           status: draft
-          changesNotSentForReview: true
           inAppUpdatePriority: '0'
 
   deploy-ios:
@@ -108,11 +107,16 @@ jobs:
       - name: Build and archive iOS
         run: |
           cd example/ios
+          TEAM_ID="${{ secrets.APPLE_TEAM_ID || 'KRCZ6X7U8S' }}"
           xcodebuild -workspace RnSdkExample.xcworkspace \
             -scheme RnSdkExample \
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath build/RnSdkExample.xcarchive \
+            -allowProvisioningUpdates \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            CODE_SIGN_STYLE=Automatic \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
             archive
 
       - name: Export IPA
