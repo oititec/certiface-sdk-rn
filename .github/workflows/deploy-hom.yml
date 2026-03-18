@@ -88,29 +88,20 @@ jobs:
           p12-file-base64: ${{ secrets.IOS_CERTIFICATES_P12_BASE64 }}
           p12-password: ${{ secrets.IOS_CERTIFICATES_P12_PASSWORD }}
 
-      - name: Download provisioning profiles
-        id: profiles
-        uses: apple-actions/download-provisioning-profiles@v1
-        with:
-          bundle-id: br.com.oititec.rncertifacesdk.example
-          profile-type: IOS_APP_STORE
-          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
-          api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
-          api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
-
-      - name: Resolve provisioning profile metadata
+      - name: Install provisioning profile from secret
         run: |
-          python3 - <<'PY'
-          import json, os
-          profiles = json.loads(r'''${{ steps.profiles.outputs.profiles }}''')
-          if not profiles:
-              raise SystemExit('No provisioning profiles were returned by apple-actions/download-provisioning-profiles')
-          profile = profiles[0]
-          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as f:
-              f.write(f"IOS_PROFILE_NAME={profile['name']}\n")
-              f.write(f"IOS_PROFILE_UUID={profile['udid']}\n")
-          print(profile)
-          PY
+          PROFILE_PATH="$RUNNER_TEMP/certiface-sdk-rn-appstore.mobileprovision"
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo -n "${{ secrets.APPLE_MOBILE_PROFILE_CERTIFICATE_BASE64 }}" | base64 --decode > "$PROFILE_PATH"
+          cp "$PROFILE_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/
+
+          security cms -D -i "$PROFILE_PATH" > "$RUNNER_TEMP/profile.plist"
+          PROFILE_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' "$RUNNER_TEMP/profile.plist")
+          PROFILE_UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$RUNNER_TEMP/profile.plist")
+
+          echo "IOS_PROFILE_NAME=$PROFILE_NAME" >> "$GITHUB_ENV"
+          echo "IOS_PROFILE_UUID=$PROFILE_UUID" >> "$GITHUB_ENV"
+          echo "Installed provisioning profile: $PROFILE_NAME ($PROFILE_UUID)"
 
       - name: Create ExportOptions.plist
         run: |
