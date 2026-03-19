@@ -30,6 +30,21 @@ for arg in "$@"; do
   esac
 done
 
+if [[ -f "$REPO_ROOT/.secrets" && -z "${GITHUB_ACTIONS:-}" ]]; then
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    line="${line%$'\r'}"
+    if [[ "$line" =~ ^([A-Za-z_][A-Za-z0-9_]*)=(.*)$ ]]; then
+      [[ -n "$_cur_key" ]] && { _v="${_cur_val#\"}"; _v="${_v%\"}"; export "${_cur_key}=${_v}"; }
+      _cur_key="${BASH_REMATCH[1]}"
+      _cur_val="${BASH_REMATCH[2]}"
+    elif [[ -n "$_cur_key" ]]; then
+      _cur_val="${_cur_val}"$'\n'"${line}"
+    fi
+  done < "$REPO_ROOT/.secrets"
+  [[ -n "$_cur_key" ]] && { _v="${_cur_val#\"}"; _v="${_v%\"}"; export "${_cur_key}=${_v}"; }
+  unset _cur_key _cur_val _v
+fi
+
 if [[ -z "${GITHUB_ACTIONS:-}" ]]; then
   echo "[1/7] Setup Node e dependências (espelho do .github/actions/setup)"
   if [[ -f .nvmrc ]]; then
@@ -46,7 +61,15 @@ fi
 
 echo "[2/7] CocoaPods (example)"
 cd "$REPO_ROOT/example"
-bundle install
+BUNDLER_VER=""
+if [[ -f Gemfile.lock ]]; then
+  BUNDLER_VER=$(grep -A1 'BUNDLED WITH' Gemfile.lock 2>/dev/null | tail -1 | tr -d ' ')
+fi
+if [[ -n "$BUNDLER_VER" ]]; then
+  bundle _${BUNDLER_VER}_ install || bundle install
+else
+  bundle install
+fi
 bundle exec pod repo update --verbose
 bundle exec pod install --project-directory=ios
 cd "$REPO_ROOT"
@@ -88,23 +111,20 @@ cd "$REPO_ROOT"
 
 echo "[6/7] Build and archive iOS"
 cd "$REPO_ROOT/example/ios"
-ARCHIVE_ARGS=(
-  -workspace RnSdkExample.xcworkspace
-  -scheme RnSdkExample
-  -configuration Release
-  -destination 'generic/platform=iOS'
-  -archivePath build/RnSdkExample.xcarchive
-  -allowProvisioningUpdates
-  DEVELOPMENT_TEAM="$TEAM_ID"
-)
 if [[ -n "$APPSTORE_API_KEY_PATH" && -n "${APPSTORE_KEY_ID:-}" && -n "${APPSTORE_ISSUER_ID:-}" ]]; then
-  ARCHIVE_ARGS+=(
-    -authenticationKeyPath "$APPSTORE_API_KEY_PATH"
-    -authenticationKeyID "$APPSTORE_KEY_ID"
-    -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID"
-  )
+  xcodebuild -workspace RnSdkExample.xcworkspace -scheme RnSdkExample -configuration Release \
+    -destination 'generic/platform=iOS' -archivePath build/RnSdkExample.xcarchive \
+    -allowProvisioningUpdates \
+    -authenticationKeyPath "$APPSTORE_API_KEY_PATH" \
+    -authenticationKeyID "$APPSTORE_KEY_ID" \
+    -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID" \
+    DEVELOPMENT_TEAM="$TEAM_ID" \
+    archive
+else
+  xcodebuild -workspace RnSdkExample.xcworkspace -scheme RnSdkExample -configuration Release \
+    -destination 'generic/platform=iOS' -archivePath build/RnSdkExample.xcarchive \
+    -allowProvisioningUpdates DEVELOPMENT_TEAM="$TEAM_ID" archive
 fi
-xcodebuild "${ARCHIVE_ARGS[@]}" archive
 cd "$REPO_ROOT"
 
 if [[ "$BUILD_ONLY" == "true" ]]; then
@@ -114,21 +134,16 @@ fi
 
 echo "[7/7] Export IPA"
 cd "$REPO_ROOT/example/ios"
-EXPORT_ARGS=(
-  -exportArchive
-  -archivePath build/RnSdkExample.xcarchive
-  -exportPath build
-  -exportOptionsPlist ExportOptions.plist
-  -allowProvisioningUpdates
-)
 if [[ -n "$APPSTORE_API_KEY_PATH" && -n "${APPSTORE_KEY_ID:-}" && -n "${APPSTORE_ISSUER_ID:-}" ]]; then
-  EXPORT_ARGS+=(
-    -authenticationKeyPath "$APPSTORE_API_KEY_PATH"
-    -authenticationKeyID "$APPSTORE_KEY_ID"
+  xcodebuild -exportArchive -archivePath build/RnSdkExample.xcarchive -exportPath build \
+    -exportOptionsPlist ExportOptions.plist -allowProvisioningUpdates \
+    -authenticationKeyPath "$APPSTORE_API_KEY_PATH" \
+    -authenticationKeyID "$APPSTORE_KEY_ID" \
     -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID"
-  )
+else
+  xcodebuild -exportArchive -archivePath build/RnSdkExample.xcarchive -exportPath build \
+    -exportOptionsPlist ExportOptions.plist -allowProvisioningUpdates
 fi
-xcodebuild "${EXPORT_ARGS[@]}"
 cd "$REPO_ROOT"
 
 IPA_PATH="$REPO_ROOT/example/ios/build/RnSdkExample.ipa"

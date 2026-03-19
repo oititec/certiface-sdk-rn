@@ -77,6 +77,12 @@ jobs:
         with:
           xcode-version: ${{ env.XCODE_VERSION }}
 
+      - name: Import Apple Distribution certificate
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.APPLE_DISTRIBUTION_P12_BASE64 }}
+          p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+
       - name: Build iOS, export IPA and upload TestFlight
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID || 'KRCZ6X7U8S' }}
