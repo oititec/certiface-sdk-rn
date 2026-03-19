@@ -77,70 +77,10 @@ jobs:
         with:
           xcode-version: ${{ env.XCODE_VERSION }}
 
-      - name: Install CocoaPods
-        run: |
-          cd example
-          bundle install
-          bundle exec pod repo update --verbose
-          bundle exec pod install --project-directory=ios
-
-      - name: Prepare App Store Connect API key
-        run: |
-          API_KEY_PATH="$RUNNER_TEMP/AuthKey_${{ secrets.APPSTORE_KEY_ID }}.p8"
-          printf '%s' '${{ secrets.APPSTORE_PRIVATE_KEY }}' > "$API_KEY_PATH"
-          chmod 600 "$API_KEY_PATH"
-          echo "APPSTORE_API_KEY_PATH=$API_KEY_PATH" >> "$GITHUB_ENV"
-          echo "Prepared App Store Connect API key at $API_KEY_PATH"
-
-      - name: Create ExportOptions.plist
-        run: |
-          TEAM_ID="${{ secrets.APPLE_TEAM_ID || 'KRCZ6X7U8S' }}"
-          mkdir -p example/ios
-          printf '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0">\n<dict>\n  <key>method</key>\n  <string>app-store</string>\n  <key>signingStyle</key>\n  <string>automatic</string>\n  <key>teamID</key>\n  <string>%s</string>\n</dict>\n</plist>\n' "$TEAM_ID" > example/ios/ExportOptions.plist
-
-      - name: Show iOS signing build settings
-        run: |
-          cd example/ios
-          TEAM_ID="${{ secrets.APPLE_TEAM_ID || 'KRCZ6X7U8S' }}"
-          xcodebuild -workspace RnSdkExample.xcworkspace \
-            -scheme RnSdkExample \
-            -configuration Release \
-            -showBuildSettings \
-            DEVELOPMENT_TEAM="$TEAM_ID" | grep -E 'PRODUCT_BUNDLE_IDENTIFIER|DEVELOPMENT_TEAM|CODE_SIGN|PROVISIONING_PROFILE|OTHER_CODE_SIGN_FLAGS'
-
-      - name: Build and archive iOS
-        run: |
-          cd example/ios
-          TEAM_ID="${{ secrets.APPLE_TEAM_ID || 'KRCZ6X7U8S' }}"
-          xcodebuild -workspace RnSdkExample.xcworkspace \
-            -scheme RnSdkExample \
-            -configuration Release \
-            -destination 'generic/platform=iOS' \
-            -archivePath build/RnSdkExample.xcarchive \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$APPSTORE_API_KEY_PATH" \
-            -authenticationKeyID "${{ secrets.APPSTORE_KEY_ID }}" \
-            -authenticationKeyIssuerID "${{ secrets.APPSTORE_ISSUER_ID }}" \
-            DEVELOPMENT_TEAM="$TEAM_ID" \
-            archive
-
-      - name: Export IPA
-        run: |
-          cd example/ios
-          xcodebuild -exportArchive \
-            -archivePath build/RnSdkExample.xcarchive \
-            -exportPath build \
-            -exportOptionsPlist ExportOptions.plist \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$APPSTORE_API_KEY_PATH" \
-            -authenticationKeyID "${{ secrets.APPSTORE_KEY_ID }}" \
-            -authenticationKeyIssuerID "${{ secrets.APPSTORE_ISSUER_ID }}"
-
-      - name: Upload to TestFlight
-        uses: apple-actions/upload-testflight-build@v1
-        with:
-          app-path: example/ios/build/RnSdkExample.ipa
-          app-type: ios
-          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
-          api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
-          api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+      - name: Build iOS, export IPA and upload TestFlight
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID || 'KRCZ6X7U8S' }}
+          APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_PRIVATE_KEY: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+        run: ./scripts/test-pipeline-ios-local.sh --upload-testflight
