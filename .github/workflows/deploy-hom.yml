@@ -86,12 +86,8 @@ jobs:
 
       - name: Unlock signing keychain for xcodebuild
         run: |
-          KCD="$HOME/Library/Keychains"
-          if [[ -f "$KCD/signing_temp.keychain-db" ]]; then KC="$KCD/signing_temp.keychain-db"
-          elif [[ -f "$KCD/signing_temp.keychain" ]]; then KC="$KCD/signing_temp.keychain"
-          else echo "signing_temp keychain missing"; ls -la "$KCD"; exit 1; fi
-          if [[ -f "$KCD/login.keychain-db" ]]; then LOGIN="$KCD/login.keychain-db"
-          else LOGIN="$KCD/login.keychain"; fi
+          KC="signing_temp.keychain"
+          LOGIN="login.keychain"
           security list-keychains -d user -s "$KC" "$LOGIN"
           security default-keychain -s "$KC"
           security unlock-keychain -p "${{ steps.import_certs.outputs.keychain-password }}" "$KC"
