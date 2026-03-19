@@ -78,10 +78,25 @@ jobs:
           xcode-version: ${{ env.XCODE_VERSION }}
 
       - name: Import Apple Distribution certificate
+        id: import_certs
         uses: apple-actions/import-codesign-certs@v3
         with:
           p12-file-base64: ${{ secrets.IOS_CERTIFICATES_P12_BASE64 }}
           p12-password: ${{ secrets.IOS_CERTIFICATES_P12_PASSWORD }}
+
+      - name: Unlock signing keychain for xcodebuild
+        run: |
+          KCD="$HOME/Library/Keychains"
+          if [[ -f "$KCD/signing_temp.keychain-db" ]]; then KC="$KCD/signing_temp.keychain-db"
+          elif [[ -f "$KCD/signing_temp.keychain" ]]; then KC="$KCD/signing_temp.keychain"
+          else echo "signing_temp keychain missing"; ls -la "$KCD"; exit 1; fi
+          if [[ -f "$KCD/login.keychain-db" ]]; then LOGIN="$KCD/login.keychain-db"
+          else LOGIN="$KCD/login.keychain"; fi
+          security list-keychains -d user -s "$KC" "$LOGIN"
+          security default-keychain -s "$KC"
+          security unlock-keychain -p "${{ steps.import_certs.outputs.keychain-password }}" "$KC"
+          security set-keychain-settings -lut 21600 "$KC"
+          security find-identity -v -p codesigning
 
       - name: Install provisioning profile (App Store)
         env:
