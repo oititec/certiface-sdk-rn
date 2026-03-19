@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Instala perfis de provisionamento (.mobileprovision) no sistema.
-# Na pipeline (CI): usa secret IOS_PROVISIONING_PROFILE_APPSTORE_BASE64.
+# Na pipeline (CI): usa secret APPLE_MOBILE_PROFILE_CERTIFICATE_BASE64.
 # Local: usa pasta com .mobileprovision (default ~/Downloads) e imprime instruções do Keychain.
 #
 # Uso: ./scripts/install-ios-provisioning-and-keychain.sh [pasta]
@@ -16,10 +16,11 @@ fi
 
 count=0
 
-if [[ -n "${IOS_PROVISIONING_PROFILE_APPSTORE_BASE64:-}" ]]; then
+BASE64_PROFILE="${APPLE_MOBILE_PROFILE_CERTIFICATE_BASE64:-${IOS_PROVISIONING_PROFILE_APPSTORE_BASE64:-}}"
+if [[ -n "$BASE64_PROFILE" ]]; then
   echo "Instalando perfil App Store a partir da secret (CI)."
   tmp=$(mktemp).mobileprovision
-  echo "$IOS_PROVISIONING_PROFILE_APPSTORE_BASE64" | base64 -d > "$tmp"
+  echo "$BASE64_PROFILE" | base64 -d > "$tmp"
   dest="$PROVISIONING_DEST/Certiface_SDK_RN_Apple_Store.mobileprovision"
   cp "$tmp" "$dest"
   rm -f "$tmp"
@@ -40,7 +41,11 @@ if [[ -d "$PROFILES_DIR" ]]; then
 fi
 
 if [[ $count -eq 0 ]]; then
-  echo "Nenhum perfil instalado. Passe uma pasta com .mobileprovision ou defina IOS_PROVISIONING_PROFILE_APPSTORE_BASE64 (CI)."
+  if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
+    echo "Nenhum perfil em APPLE_MOBILE_PROFILE_CERTIFICATE_BASE64; Xcode pode usar -allowProvisioningUpdates."
+    exit 0
+  fi
+  echo "Nenhum perfil instalado. Passe uma pasta com .mobileprovision ou defina APPLE_MOBILE_PROFILE_CERTIFICATE_BASE64 (CI)."
   exit 1
 fi
 

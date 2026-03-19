@@ -84,9 +84,8 @@ jobs:
           p12-password: ${{ secrets.IOS_CERTIFICATES_P12_PASSWORD }}
 
       - name: Install provisioning profile (App Store)
-        if: secrets.IOS_PROVISIONING_PROFILE_APPSTORE_BASE64 != ''
         env:
-          IOS_PROVISIONING_PROFILE_APPSTORE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_APPSTORE_BASE64 }}
+          APPLE_MOBILE_PROFILE_CERTIFICATE_BASE64: ${{ secrets.APPLE_MOBILE_PROFILE_CERTIFICATE_BASE64 }}
         run: ./scripts/install-ios-provisioning-and-keychain.sh
 
       - name: Build iOS, export IPA and upload TestFlight
