@@ -80,8 +80,8 @@ jobs:
       - name: Import Apple Distribution certificate
         uses: apple-actions/import-codesign-certs@v3
         with:
-          p12-file-base64: ${{ secrets.APPLE_DISTRIBUTION_P12_BASE64 }}
-          p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          p12-file-base64: ${{ secrets.IOS_CERTIFICATES_P12_BASE64 }}
+          p12-password: ${{ secrets.IOS_CERTIFICATES_P12_PASSWORD }}
 
       - name: Build iOS, export IPA and upload TestFlight
         env:
