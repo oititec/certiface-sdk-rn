@@ -100,6 +100,7 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security list-keychain -d user -s "$KEYCHAIN_PATH" login.keychain-db
           security default-keychain -d user -s "$KEYCHAIN_PATH"
+          echo "IOS_KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
 
           echo '--- Keychains ---'
           security list-keychain -d user
@@ -148,7 +149,8 @@ jobs:
             DEVELOPMENT_TEAM="$TEAM_ID" \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="$IOS_PROFILE_NAME" | grep -E 'PRODUCT_BUNDLE_IDENTIFIER|DEVELOPMENT_TEAM|CODE_SIGN|PROVISIONING_PROFILE'
+            PROVISIONING_PROFILE_SPECIFIER="$IOS_PROFILE_NAME" \
+            OTHER_CODE_SIGN_FLAGS="--keychain $IOS_KEYCHAIN_PATH" | grep -E 'PRODUCT_BUNDLE_IDENTIFIER|DEVELOPMENT_TEAM|CODE_SIGN|PROVISIONING_PROFILE|OTHER_CODE_SIGN_FLAGS'
 
       - name: Build and archive iOS
         run: |
@@ -163,6 +165,7 @@ jobs:
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             PROVISIONING_PROFILE_SPECIFIER="$IOS_PROFILE_NAME" \
+            OTHER_CODE_SIGN_FLAGS="--keychain $IOS_KEYCHAIN_PATH" \
             archive
 
       - name: Export IPA
@@ -171,7 +174,8 @@ jobs:
           xcodebuild -exportArchive \
             -archivePath build/RnSdkExample.xcarchive \
             -exportPath build \
-            -exportOptionsPlist ExportOptions.plist
+            -exportOptionsPlist ExportOptions.plist \
+            OTHER_CODE_SIGN_FLAGS="--keychain $IOS_KEYCHAIN_PATH"
 
       - name: Upload to TestFlight
         uses: apple-actions/upload-testflight-build@v1
