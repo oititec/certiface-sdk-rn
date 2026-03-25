@@ -1,56 +1,18 @@
 # Changelog
 
-## [1.2.0] - 19/12/2025
+## [1.0.0] - 24/03/2026
 
 ### Adicionado
 
 - Configuração `showInstructionScreen` no tema de instruções para controlar exibição da tela de instruções
 - Suporte à configuração em iOS via `setShowInstructionsScreen` no `LivenessManagerOptions`
 - Suporte à configuração em Android para FaceTec e iProov via `setShowInstructionScreen` no `setInstructionsTheme`
-
-### Alterado
-
-- Estrutura do tipo `InstructionsTheme` agora inclui `configuration` com opções de configuração
-
-### Atualização dos Módulos
-
-- **iOS**: CertifaceSDK `1.2.0`
-- **Android**: oitisdk `1.1.0`
-
-## [1.1.0] - 19/11/2025
-
-### Adicionado
-
 - Suporte completo a customização de temas para FaceTec
 - Suporte completo a customização de temas para iProov
 - Sistema de gerenciamento de assets para Android
 - Sistema de gerenciamento de assets para iOS
 - Processador de assets para facilitar integração de imagens e fontes customizadas
 - Configuração de ambientes (HML/PRD) para melhor flexibilidade
-
-### Corrigido
-
-- Correção na implementação do resultado de sucesso
-- Correção nos tipos de importação TypeScript
-- Correção na implementação Android do SDK
-- Correção no theme factory do iProov
-- Ajustes no provedor FaceTec
-
-### Alterado
-
-- Atualização das versões internas do SDK nativo
-- Melhorias na implementação de resultados
-- Otimizações no código para melhor performance
-
-### Atualização dos Módulos
-
-- **iOS**: CertifaceSDK `1.1.0`
-- **Android**: oitisdk `1.0.3`
-
-## [1.0.0] - 10/11/2025
-
-### Adicionado
-
 - Lançamento inicial do SDK React Native da Oiti
 - Integração com FaceTec para verificação de liveness
 - Integração com iProov para verificação de liveness
@@ -65,3 +27,29 @@
 - Suporte a dois provedores de liveness: FaceTec e iProov
 - Sistema de callbacks para sucesso e erro
 - Compatibilidade com React Native 0.60+
+
+
+### Alterado
+
+- Estrutura do tipo `InstructionsTheme` agora inclui `configuration` com opções de configuração
+- Correção na implementação do resultado de sucesso
+- Correção nos tipos de importação TypeScript
+- Correção na implementação Android do SDK
+- Correção no theme factory do iProov
+- Ajustes no provedor FaceTec
+- Atualização das versões internas do SDK nativo
+- Melhorias na implementação de resultados
+- Otimizações no código para melhor performance
+
+### Corrigido
+
+- Correção na implementação do resultado de sucesso
+- Correção nos tipos de importação TypeScript
+- Correção na implementação Android do SDK
+- Correção no theme factory do iProov
+- Ajustes no provedor FaceTec
+
+### Atualização dos Módulos
+
+- **iOS**: CertifaceSDK `1.2.0`
+- **Android**: oitisdk `1.1.0`

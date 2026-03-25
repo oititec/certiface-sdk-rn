@@ -951,7 +951,7 @@ fonts: {
 
 ## 🔗 Links Úteis
 
-- [Changelog](https://github.com/oititec/rn-sdk/releases)
+- [Changelog](https://github.com/oititec/certiface-sdk-rn/releases)
 
 ## 📄 Licença
 

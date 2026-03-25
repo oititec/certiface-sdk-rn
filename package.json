@@ -47,14 +47,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/oititec/rn-sdk.git"
+    "url": "git+https://github.com/oititec/certiface-sdk-rn.git"
   },
-  "author": "Oiti <gabriel.goulart@oititec.com.br> (https://github.com/oititec/rn-sdk)",
+  "author": "Oiti <gabriel.goulart@oititec.com.br> (https://github.com/oititec/certiface-sdk-rn)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/oititec/rn-sdk/issues"
+    "url": "https://github.com/oititec/certiface-sdk-rn/issues"
   },
-  "homepage": "https://github.com/oititec/rn-sdk#readme",
+  "homepage": "https://github.com/oititec/certiface-sdk-rn#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
