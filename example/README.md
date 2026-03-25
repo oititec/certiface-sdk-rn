@@ -1,6 +1,6 @@
-# @oiti/rn-sdk - Aplicativo de Exemplo
+# @certiface/sdk - Aplicativo de Exemplo
 
-Este é um aplicativo de exemplo que demonstra como usar o `@oiti/rn-sdk` para implementar verificação de liveness (prova de vida) em aplicações React Native.
+Este é um aplicativo de exemplo que demonstra como usar o `@certiface/sdk` para implementar verificação de liveness (prova de vida) em aplicações React Native.
 
 ## 📱 Sobre o Aplicativo
 
@@ -91,11 +91,15 @@ example/
 ### Verificação Simples
 
 ```typescript
-import { startJourney } from '@oiti/rn-sdk';
+import { CertifaceSDK, Environment, LivenessProvider } from '@certiface/sdk';
 
 const handleVerification = async () => {
   try {
-    const result = await startJourney(appKey);
+    const result = await CertifaceSDK.startJourney(
+      appKey,
+      Environment.HML,
+      LivenessProvider.FACETEC
+    );
     console.log('Resultado:', result);
   } catch (error) {
     console.error('Erro:', error);
@@ -106,7 +110,12 @@ const handleVerification = async () => {
 ### Com Tema Customizado
 
 ```typescript
-import { startJourney, LivenessProvider, type OitiTheme } from '@oiti/rn-sdk';
+import {
+  CertifaceSDK,
+  Environment,
+  LivenessProvider,
+  type OitiTheme,
+} from '@certiface/sdk';
 
 const customTheme: OitiTheme = {
   provider: LivenessProvider.FACETEC,
@@ -123,7 +132,13 @@ const customTheme: OitiTheme = {
   },
 };
 
-const result = await startJourney(appKey, true, customTheme);
+const result = await CertifaceSDK.startJourney(
+  appKey,
+  Environment.HML,
+  LivenessProvider.FACETEC,
+  true,
+  customTheme
+);
 ```
 
 ## 🎨 Configuração de Assets e Fonts

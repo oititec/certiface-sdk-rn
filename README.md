@@ -1,9 +1,11 @@
-<IMG  src="https://github.com/oititec/liveness-android-sdk/blob/main/Documentation/Images/OitiHeader.png?raw=true"  alt="OitiHeader.png"/>
+<p align="center">
+  <img src="Documentation/images/certiface-header.png" alt="CertiFace" />
+</p>
 <div align="left">
 
-# @oiti/rn-sdk
+# @certiface/sdk
 
-SDK React Native oficial da Oiti para verificação biométrica de liveness (prova de vida). Integre detecção facial avançada com FaceTec e iProov em aplicações Android e iOS com suporte completo a personalização de temas e interface nativa de alta performance.
+SDK React Native para verificação biométrica de liveness (prova de vida), distribuído como `@certiface/sdk`. Integre detecção facial avançada com FaceTec e iProov em aplicações Android e iOS com suporte completo a personalização de temas e interface nativa de alta performance.
 
 </div>
 
@@ -12,13 +14,13 @@ SDK React Native oficial da Oiti para verificação biométrica de liveness (pro
 ## 📦 Instalação
 
 ```bash
-npm install @oiti/rn-sdk
+npm install @certiface/sdk
 ```
 
 ou
 
 ```bash
-yarn add @oiti/rn-sdk
+yarn add @certiface/sdk
 ```
 
 ## ⚙️ Configuração
@@ -76,28 +78,28 @@ cd ios && pod install
 
 ```typescript
 import {
-  startJourney,
-  checkCameraPermission,
-  requestCameraPermission,
+  CertifaceSDK,
   LivenessProvider,
   Environment,
   type OitiTheme,
   type LivenessResult,
-} from '@oiti/rn-sdk';
+} from '@certiface/sdk';
 ```
+
+Todas as chamadas à API passam pelo objeto `CertifaceSDK` (por exemplo `CertifaceSDK.startJourney(...)`).
 
 ### Exemplo Simples
 
 ```typescript
 import React from 'react';
 import { Button, Alert } from 'react-native';
-import { startJourney, Environment, LivenessProvider } from '@oiti/rn-sdk';
+import { CertifaceSDK, Environment, LivenessProvider } from '@certiface/sdk';
 
 export default function App() {
   const handleVerification = async () => {
     try {
       const appKey = 'your-app-key-here';
-      const result = await startJourney(
+      const result = await CertifaceSDK.startJourney(
         appKey,
         Environment.HML,
         LivenessProvider.FACETEC,
@@ -116,7 +118,7 @@ export default function App() {
 
 ### Resultado Esperado
 
-Quando bem-sucedido, o método `startJourney` retorna um objeto `LivenessResult`:
+Quando bem-sucedido, `CertifaceSDK.startJourney` retorna um objeto `LivenessResult`:
 
 ```typescript
 {
@@ -128,7 +130,17 @@ Quando bem-sucedido, o método `startJourney` retorna um objeto `LivenessResult`
 
 ## 📚 API
 
-### `startJourney(appKey, environment, provider, isCustomEnabled?, theme?)`
+### `CertifaceSDK`
+
+Objeto com os métodos expostos pelo SDK:
+
+| Método | Descrição |
+| ------ | --------- |
+| `CertifaceSDK.startJourney(...)` | Inicia a jornada de liveness |
+| `CertifaceSDK.checkCameraPermission()` | Verifica se a câmera está autorizada |
+| `CertifaceSDK.requestCameraPermission()` | Solicita permissão da câmera |
+
+### `CertifaceSDK.startJourney(appKey, environment, provider, isCustomEnabled?, theme?)`
 
 Inicia o processo de verificação de liveness.
 
@@ -147,14 +159,14 @@ Inicia o processo de verificação de liveness.
 **Exemplo:**
 
 ```typescript
-const result = await startJourney(
+const result = await CertifaceSDK.startJourney(
   'your-app-key',
   Environment.HML,
   LivenessProvider.FACETEC,
   false
 );
 
-const resultWithTheme = await startJourney(
+const resultWithTheme = await CertifaceSDK.startJourney(
   'your-app-key',
   Environment.PRD,
   LivenessProvider.IPROOV,
@@ -167,7 +179,7 @@ const resultWithTheme = await startJourney(
 
 ### `LivenessResult`
 
-Tipo de retorno da função `startJourney`:
+Tipo de retorno de `CertifaceSDK.startJourney`:
 
 ```typescript
 interface LivenessResult {
@@ -187,7 +199,7 @@ interface LivenessResult {
 
 ---
 
-### `checkCameraPermission()`
+### `CertifaceSDK.checkCameraPermission()`
 
 Verifica se a permissão da câmera foi concedida.
 
@@ -196,7 +208,7 @@ Verifica se a permissão da câmera foi concedida.
 **Exemplo:**
 
 ```typescript
-const hasPermission = await checkCameraPermission();
+const hasPermission = await CertifaceSDK.checkCameraPermission();
 if (!hasPermission) {
   console.log('Permissão não concedida');
 }
@@ -209,7 +221,7 @@ if (!hasPermission) {
 
 ---
 
-### `requestCameraPermission()`
+### `CertifaceSDK.requestCameraPermission()`
 
 Solicita permissão da câmera ao usuário.
 
@@ -218,7 +230,7 @@ Solicita permissão da câmera ao usuário.
 **Exemplo:**
 
 ```typescript
-const granted = await requestCameraPermission();
+const granted = await CertifaceSDK.requestCameraPermission();
 if (granted) {
   console.log('Usuário concedeu permissão');
 }
@@ -238,7 +250,7 @@ O SDK oferece suporte a temas personalizados para os provedores **FaceTec** e **
 ### Estrutura do Tema
 
 ```typescript
-import { LivenessProvider, Environment, type OitiTheme } from '@oiti/rn-sdk';
+import { CertifaceSDK, LivenessProvider, Environment, type OitiTheme } from '@certiface/sdk';
 
 const customTheme: OitiTheme = {
   facetec: {
@@ -260,7 +272,7 @@ const customTheme: OitiTheme = {
   },
 };
 
-await startJourney(
+await CertifaceSDK.startJourney(
   appKey,
   Environment.HML,
   LivenessProvider.FACETEC,
@@ -295,13 +307,11 @@ enum Environment {
 import React, { useState } from 'react';
 import { View, Button, Alert, ActivityIndicator } from 'react-native';
 import {
-  startJourney,
-  checkCameraPermission,
-  requestCameraPermission,
+  CertifaceSDK,
   Environment,
   LivenessProvider,
   type LivenessResult,
-} from '@oiti/rn-sdk';
+} from '@certiface/sdk';
 
 export default function LivenessScreen() {
   const [loading, setLoading] = useState(false);
@@ -310,10 +320,10 @@ export default function LivenessScreen() {
     setLoading(true);
 
     try {
-      const hasPermission = await checkCameraPermission();
+      const hasPermission = await CertifaceSDK.checkCameraPermission();
 
       if (!hasPermission) {
-        const granted = await requestCameraPermission();
+        const granted = await CertifaceSDK.requestCameraPermission();
         if (!granted) {
           Alert.alert('Erro', 'Permissão da câmera é necessária');
           setLoading(false);
@@ -322,7 +332,7 @@ export default function LivenessScreen() {
       }
 
       const appKey = 'your-app-key-here';
-      const result: LivenessResult = await startJourney(
+      const result: LivenessResult = await CertifaceSDK.startJourney(
         appKey,
         Environment.HML,
         LivenessProvider.FACETEC,
@@ -384,12 +394,12 @@ export default function LivenessScreen() {
 import React from 'react';
 import { Button, Alert } from 'react-native';
 import {
-  startJourney,
+  CertifaceSDK,
   LivenessProvider,
   Environment,
   type OitiTheme,
   type LivenessResult,
-} from '@oiti/rn-sdk';
+} from '@certiface/sdk';
 
 const customTheme: OitiTheme = {
   facetec: {
@@ -442,7 +452,7 @@ export default function ThemedVerification() {
   const handleStart = async () => {
     try {
       const appKey = 'your-app-key-here';
-      const result: LivenessResult = await startJourney(
+      const result: LivenessResult = await CertifaceSDK.startJourney(
         appKey,
         Environment.PRD,
         LivenessProvider.FACETEC,
@@ -470,11 +480,11 @@ export default function ThemedVerification() {
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import {
-  startJourney,
+  CertifaceSDK,
   Environment,
   LivenessProvider,
   type LivenessResult,
-} from '@oiti/rn-sdk';
+} from '@certiface/sdk';
 
 export default function VerificationComponent() {
   const [result, setResult] = useState<LivenessResult | null>(null);
@@ -486,7 +496,7 @@ export default function VerificationComponent() {
 
     try {
       const appKey = process.env.OITI_APP_KEY || 'your-app-key';
-      const data: LivenessResult = await startJourney(
+      const data: LivenessResult = await CertifaceSDK.startJourney(
         appKey,
         Environment.HML,
         LivenessProvider.FACETEC,
@@ -929,7 +939,7 @@ fonts: {
 - ✅ Interface TypeScript com tipagem completa
 - ✅ Suporte para Android e iOS
 - ✅ Integração com TurboModules para performance otimizada
-- ✅ Callbacks de sucesso e erro
+- ✅ API em JavaScript baseada em `CertifaceSDK` e Promises
 - ✅ Compatível com React Native 0.60+
 
 ## 📋 Requisitos

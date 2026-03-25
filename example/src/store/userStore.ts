@@ -1,4 +1,4 @@
-import { LivenessProvider } from '@oiti/rn-sdk';
+import { LivenessProvider } from '@certiface/sdk';
 import { create } from 'zustand';
 
 interface UserData {

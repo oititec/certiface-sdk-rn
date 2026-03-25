@@ -12,7 +12,7 @@ import {
   Platform,
   Switch,
 } from 'react-native';
-import { LivenessProvider } from '@oiti/rn-sdk';
+import { LivenessProvider } from '@certiface/sdk';
 import { useUserStore } from '../store/userStore';
 
 const SessionScreen = () => {

@@ -49,7 +49,7 @@ jobs:
       - name: Build AAB
         env:
           JAVA_OPTS: '-XX:MaxHeapSize=6g'
-        run: yarn workspace @oiti/rn-sdk-example run build:android:release:aab
+        run: yarn workspace @certiface/sdk-example run build:android:release:aab
 
       - name: Upload to Google Play (internal testing)
         uses: r0adkll/upload-google-play@v1.1.3
