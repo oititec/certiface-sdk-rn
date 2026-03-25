@@ -12,7 +12,7 @@ import {
   Platform,
   Switch,
 } from 'react-native';
-import { LivenessProvider } from '@oiti/rn-sdk';
+import { LivenessProvider } from '@certiface/sdk';
 import { useUserStore } from '../store/userStore';
 
 const SessionScreen = () => {
@@ -21,12 +21,12 @@ const SessionScreen = () => {
     appKey,
     setUserData,
     generateAppKey,
-    provider,
+    livenessProvider,
     setProvider: setStoreProvider,
   } = useUserStore();
   const [loading, setLoading] = useState(false);
   const [localProvider, setLocalProvider] = useState<LivenessProvider>(
-    provider === 'IPROOV' ? LivenessProvider.IPROOV : LivenessProvider.FACETEC
+    livenessProvider === 'IPROOV' ? LivenessProvider.IPROOV : LivenessProvider.FACETEC
   );
 
   const handleProviderChange = (value: boolean) => {

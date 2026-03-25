@@ -30,7 +30,7 @@ const AppNavigator = () => {
           name="Home"
           component={HomeScreen}
           options={({ navigation }) => ({
-            title: 'RN OitiSDK Example',
+            title: 'Certiface SDK - RN',
             headerRight: () => (
               <TouchableOpacity
                 style={styles.headerButton}

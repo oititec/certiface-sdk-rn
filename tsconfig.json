@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "@oiti/rn-sdk": ["./src/index"]
+      "@certiface/sdk": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

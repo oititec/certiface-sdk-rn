@@ -4,15 +4,15 @@ import type { LivenessProvider, OitiTheme } from './@types/theme';
 import type { LivenessResponse, LivenessResult } from './@types/result';
 import type { Environment } from './@types/theme';
 
-export function checkCameraPermission(): Promise<boolean> {
+function checkCameraPermission(): Promise<boolean> {
   return OitiSDK.checkCameraPermission();
 }
 
-export function requestCameraPermission(): Promise<boolean> {
+function requestCameraPermission(): Promise<boolean> {
   return OitiSDK.requestCameraPermission();
 }
 
-export async function startJourney(
+async function startJourney(
   appKey: string,
   environment: Environment,
   provider: LivenessProvider,
@@ -43,6 +43,12 @@ export async function startJourney(
     );
   });
 }
+
+export const CertifaceSDK = {
+  checkCameraPermission,
+  requestCameraPermission,
+  startJourney,
+};
 
 export * from './@types/theme';
 export * from './@types/result';

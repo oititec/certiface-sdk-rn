@@ -40,6 +40,9 @@ project.xcworkspace
 .settings
 local.properties
 android.iml
+example/android/app/key.properties
+example/android/app/keystore-base64.txt
+#example/android/app/release.keystore
 
 # Cocoapods
 #
@@ -90,5 +93,5 @@ lib/
 ios/generated
 android/generated
 
-# React Native Nitro Modules
-nitrogen/
+# act (local GitHub Actions)
+.secrets

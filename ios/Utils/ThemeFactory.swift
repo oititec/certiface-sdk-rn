@@ -196,16 +196,16 @@ final class ThemeFactory {
   }
 
   private static func customizeLoadingIProov(
-    in builder: IProovLoadingCustomizationBuilder,
+    in builder: LoadingCustomizationBuilder,
     with theme: [String: Any]
-  ) -> IProovLoadingCustomizationBuilder {
+  ) -> LoadingCustomizationBuilder {
     guard let loadingTheme = theme["processing"] as? [String: Any] else {
        return builder
     }
 
     let colors = loadingTheme["colors"] as? [String: String] ?? [:]
-    setColor(colors["background"], with: builder.setBackgroundColor)
-    setColor(colors["loading"], with: builder.setSpinnerColor)
+    setColor(colors["background"], with: builder.setBackgroundColor(_:))
+    setColor(colors["loading"], with: builder.setSpinnerColor(_:))
 
     return builder
   }
@@ -249,16 +249,16 @@ final class ThemeFactory {
   // MARK: Facetec
 
   private static func customizeLoadingFacetec(
-    in builder: FacetecLoadingCustomizationBuilder,
+    in builder: LoadingCustomizationBuilder,
     with theme: [String: Any]
-  ) -> FacetecLoadingCustomizationBuilder {
+  ) -> LoadingCustomizationBuilder {
     guard let loadingTheme = theme["processing"] as? [String: Any] else {
        return builder
     }
 
     let colors = loadingTheme["colors"] as? [String: String] ?? [:]
-    setColor(colors["background"], with: builder.setBackgroundColor)
-    setColor(colors["loading"], with: builder.setSpinnerColor)
+    setColor(colors["background"], with: builder.setBackgroundColor(_:))
+    setColor(colors["loading"], with: builder.setSpinnerColor(_:))
 
     return builder
   }

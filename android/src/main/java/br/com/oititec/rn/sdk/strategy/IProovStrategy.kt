@@ -5,6 +5,7 @@ import br.com.oiti.domain.callback.CertifaceResultCallback
 import br.com.oiti.iproov.domain.model.IProovManagerOptions
 import br.com.oiti.manager.exports.LivenessResult
 import br.com.oiti.manager.main.CertifaceSDK
+import br.com.oiti.manager.main.LivenessProvider
 import br.com.oititec.rn.sdk.factories.IProovThemeFactory
 import com.facebook.react.bridge.ReadableMap
 
@@ -18,7 +19,7 @@ class IProovStrategy : LivenessProviderStrategy {
   ) {
     val iproovTheme = IProovThemeFactory.create(isCustom, theme, context)
     val opts = IProovManagerOptions(appKey, iproovTheme)
-    val manager = CertifaceSDK.createLivenessManager(CertifaceSDK.LivenessProvider.IPROOV)
+    val manager = CertifaceSDK.createLivenessManager(LivenessProvider.IPROOV)
     manager.start(opts, callback)
   }
 }

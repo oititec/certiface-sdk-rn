@@ -74,6 +74,9 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+def VERSION_CODE = 3
+def VERSION_NAME = "1.0.0"
+
 def getPackageJson() {
     def packageJsonFile = file("../../package.json")
     return new groovy.json.JsonSlurper().parseText(packageJsonFile.text)
@@ -81,14 +84,15 @@ def getPackageJson() {
 
 def getVersionCode() {
     def packageJson = getPackageJson()
-    return packageJson.versionCode as Integer
+    def code = packageJson.versionCode
+    return code != null ? (code as Integer) : 1
 }
 
 def getVersionName() {
     def packageJson = getPackageJson()
-    def version = packageJson.version
-    def versionCode = packageJson.versionCode
-    return "${version}(${versionCode})"
+    def version = packageJson.version ?: "1.0.0"
+    def code = packageJson.versionCode
+    return "${version}(${code != null ? code : 1})"
 }
 
 def getReleaseNotes() {
@@ -108,8 +112,8 @@ android {
         applicationId "br.com.oititec.rn.sdk.example"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode getVersionCode()
-        versionName getVersionName()
+        versionCode VERSION_CODE
+        versionName VERSION_NAME
     }
     signingConfigs {
         debug {
@@ -117,6 +121,23 @@ android {
             storePassword 'android'
             keyAlias 'androiddebugkey'
             keyPassword 'android'
+        }
+        release {
+            def releaseKeyProps = file("key.properties")
+            if (releaseKeyProps.exists()) {
+                def props = new Properties()
+                props.load(new FileInputStream(releaseKeyProps))
+                storeFile file(props['storeFile'])
+                storePassword props['storePassword']
+                keyAlias props['keyAlias']
+                keyPassword props['keyPassword']
+            } else {
+                throw new GradleException(
+                    "Assinatura de release obrigatória para AAB/Play Store. " +
+                    "Copie key.properties.example para key.properties em android/app/, " +
+                    "preencha com sua keystore de release e coloque o arquivo release.keystore em android/app/."
+                )
+            }
         }
     }
     buildTypes {
@@ -129,7 +150,7 @@ android {
             }
         }
         release {
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             firebaseAppDistribution {

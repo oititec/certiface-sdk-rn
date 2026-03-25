@@ -11,14 +11,12 @@ import {
   Switch,
 } from 'react-native';
 import {
-  checkCameraPermission,
-  requestCameraPermission,
-  startJourney,
+  CertifaceSDK,
   Environment,
   LivenessProvider,
   type OitiTheme,
   type LivenessResult,
-} from '@oiti/rn-sdk';
+} from '@certiface/sdk';
 import { useUserStore } from '../store/userStore';
 
 const HomeScreen = () => {
@@ -254,7 +252,7 @@ const HomeScreen = () => {
 
   const handleCheckPermission = async () => {
     try {
-      const hasPermission = await checkCameraPermission();
+      const hasPermission = await CertifaceSDK.checkCameraPermission();
       addResult(
         `Camera permission check: ${hasPermission ? 'Granted' : 'Denied'}`
       );
@@ -265,7 +263,7 @@ const HomeScreen = () => {
 
   const handleRequestPermission = async () => {
     try {
-      const granted = await requestCameraPermission();
+      const granted = await CertifaceSDK.requestCameraPermission();
       addResult(`Camera permission request: ${granted ? 'Granted' : 'Denied'}`);
     } catch (error) {
       addResult(`Camera permission request error: ${error}`);
@@ -282,7 +280,7 @@ const HomeScreen = () => {
       addResult(
         `Starting journey with provider: ${provider}, environment: ${environment}, custom theme: ${isCustomEnabled ? 'ENABLED' : 'DISABLED'}`
       );
-      const result: LivenessResult = await startJourney(
+      const result: LivenessResult = await CertifaceSDK.startJourney(
         appKey,
         environment,
         provider,
