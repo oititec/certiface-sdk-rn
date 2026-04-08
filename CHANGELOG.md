@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.0] - 08/04/2026
+
+### Adicionado
+
+- Versã CertifaceSDK iOS atualizada para 1.3.0
+
 ## [1.0.0] - 24/03/2026
 
 ### Adicionado
