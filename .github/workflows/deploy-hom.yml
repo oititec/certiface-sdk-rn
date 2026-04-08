@@ -1,9 +1,7 @@
 name: Deploy Hom (Google Play + TestFlight)
 
 on:
-  push:
-    branches:
-      - hom
+  workflow_dispatch:
 
 jobs:
   deploy-android:
