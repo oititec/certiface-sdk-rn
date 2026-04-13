@@ -1,7 +1,7 @@
 {
   "name": "@certiface/sdk",
   "version": "1.1.0",
-  "description": "Oiti SDK",
+  "description": "Certiface SDK",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
   "exports": {
@@ -49,7 +49,7 @@
     "type": "git",
     "url": "git+https://github.com/oititec/certiface-sdk-rn.git"
   },
-  "author": "Oiti <gabriel.goulart@oititec.com.br> (https://github.com/oititec/certiface-sdk-rn)",
+  "author": "Certiface (https://github.com/oititec/certiface-sdk-rn)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/oititec/certiface-sdk-rn/issues"
@@ -154,7 +154,7 @@
     "type": "modules",
     "jsSrcsDir": "src",
     "android": {
-      "javaPackageName": "br.com.oititec.rn.sdk"
+      "javaPackageName": "br.com.certiface.rn.sdk"
     }
   },
   "create-react-native-library": {

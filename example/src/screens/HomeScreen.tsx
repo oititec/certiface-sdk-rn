@@ -14,7 +14,7 @@ import {
   CertifaceSDK,
   Environment,
   LivenessProvider,
-  type OitiTheme,
+  type CertifaceTheme,
   type LivenessResult,
 } from '@certiface/sdk';
 import { useUserStore } from '../store/userStore';
@@ -28,7 +28,7 @@ const HomeScreen = () => {
   );
   const { appKey, setAppKey, setLivenessProvider } = useUserStore();
 
-  const customTheme: OitiTheme = {
+  const customTheme: CertifaceTheme = {
     facetec: {
       colors: {
         readyScreenHeader: '#FFFFFF',

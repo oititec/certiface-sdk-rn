@@ -26,7 +26,7 @@ def getExtOrIntegerDefault(name) {
 }
 
 android {
-  namespace "br.com.oititec.rn.sdk"
+  namespace "br.com.certiface.rn.sdk"
 
   compileSdkVersion getExtOrIntegerDefault("compileSdkVersion")
 
@@ -76,11 +76,11 @@ dependencies {
   implementation "com.facebook.react:react-android"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-  implementation 'br.com.oiti:oitisdk:1.1.0'
+  implementation 'br.com.certiface:certifacesdk:1.1.0-snapshot-2'
 }
 
 react {
   jsRootDir = file("../src/")
   libraryName = "RnSdk"
-  codegenJavaPackageName = "br.com.oititec.rn.sdk"
+  codegenJavaPackageName = "br.com.certiface.rn.sdk"
 }

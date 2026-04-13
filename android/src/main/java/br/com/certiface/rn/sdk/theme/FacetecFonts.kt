@@ -1,6 +1,6 @@
-package br.com.oititec.rn.sdk.theme
+package br.com.certiface.rn.sdk.theme
 
-import br.com.oiti.manager.exports.FacetecFontsKey
+import br.com.certiface.manager.exports.FacetecFontsKey
 import com.facebook.react.bridge.ReadableMap
 
 class FacetecFonts(

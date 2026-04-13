@@ -1,8 +1,8 @@
-package br.com.oititec.rn.sdk.managers
+package br.com.certiface.rn.sdk.managers
 
 import android.content.Context
 import android.util.Log
-import br.com.oititec.rn.sdk.utils.AssetProcessor
+import br.com.certiface.rn.sdk.utils.AssetProcessor
 import com.facebook.react.bridge.ReadableMap
 import java.util.concurrent.ConcurrentHashMap
 
@@ -38,7 +38,7 @@ object AssetManager {
                 
                 val drawable = assetProcessor.processBase64ToDrawable(
                     logoBase64, 
-                    br.com.oiti.designsystem.R.drawable.error_icon
+                    br.com.certiface.designsystem.R.drawable.error_icon
                 )
                 
                 val resourceId = assetProcessor.createDynamicResourceId(drawable)
@@ -58,7 +58,7 @@ object AssetManager {
                 
                 val drawable = assetProcessor.processBase64ToDrawable(
                     logoBase64, 
-                    br.com.oiti.designsystem.R.drawable.error_icon
+                    br.com.certiface.designsystem.R.drawable.error_icon
                 )
                 
                 val resourceId = assetProcessor.createDynamicResourceId(drawable)
@@ -73,7 +73,7 @@ object AssetManager {
                 
                 val drawable = assetProcessor.processBase64ToDrawable(
                     closeButtonBase64, 
-                    br.com.oiti.designsystem.R.drawable.close_icon
+                    br.com.certiface.designsystem.R.drawable.close_icon
                 )
                 
                 val resourceId = assetProcessor.createDynamicResourceId(drawable)
@@ -93,7 +93,7 @@ object AssetManager {
                 
                 val drawable = assetProcessor.processBase64ToDrawable(
                     overlayBase64, 
-                    br.com.oiti.designsystem.R.drawable.neutral_face
+                    br.com.certiface.designsystem.R.drawable.neutral_face
                 )
                 
                 val resourceId = assetProcessor.createDynamicResourceId(drawable)
@@ -108,7 +108,7 @@ object AssetManager {
                 
                 val drawable = assetProcessor.processBase64ToDrawable(
                     cancelButtonBase64, 
-                    br.com.oiti.designsystem.R.drawable.close_icon
+                    br.com.certiface.designsystem.R.drawable.close_icon
                 )
                 
                 val resourceId = assetProcessor.createDynamicResourceId(drawable)
@@ -123,7 +123,7 @@ object AssetManager {
                 
                 val drawable = assetProcessor.processBase64ToDrawable(
                     activityIndicatorBase64, 
-                    br.com.oiti.designsystem.R.drawable.success_icon
+                    br.com.certiface.designsystem.R.drawable.success_icon
                 )
                 
                 val resourceId = assetProcessor.createDynamicResourceId(drawable)

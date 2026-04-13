@@ -1,0 +1,42 @@
+ext.resolveReactNativeNodeExecutable = {
+    def fromEnv = System.getenv("NODE_BINARY")
+    if (fromEnv != null) {
+        def f = new File(fromEnv)
+        if (f.isFile()) {
+            return f.absolutePath
+        }
+    }
+    def pathVar = System.getenv("PATH")
+    if (pathVar != null) {
+        for (segment in pathVar.split(File.pathSeparator)) {
+            if (segment == null || segment.isEmpty()) {
+                continue
+            }
+            def candidate = new File(segment, "node")
+            if (candidate.isFile() && candidate.canExecute()) {
+                return candidate.absolutePath
+            }
+        }
+    }
+    def home = System.getProperty("user.home")
+    for (p in ["${home}/.volta/bin/node", "/opt/homebrew/bin/node", "/usr/local/bin/node"]) {
+        def f = new File(p)
+        if (f.isFile() && f.canExecute()) {
+            return f.absolutePath
+        }
+    }
+    def nvmVersions = new File("${home}/.nvm/versions/node")
+    if (nvmVersions.isDirectory()) {
+        def dirs = nvmVersions.listFiles({ file -> file.isDirectory() } as FileFilter) as List
+        if (dirs != null && !dirs.isEmpty()) {
+            dirs.sort { a, b -> b.name <=> a.name }
+            for (d in dirs) {
+                def n = new File(d, "bin/node")
+                if (n.isFile() && n.canExecute()) {
+                    return n.absolutePath
+                }
+            }
+        }
+    }
+    return "node"
+}

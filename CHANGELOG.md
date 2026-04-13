@@ -19,7 +19,7 @@
 - Sistema de gerenciamento de assets para iOS
 - Processador de assets para facilitar integração de imagens e fontes customizadas
 - Configuração de ambientes (HML/PRD) para melhor flexibilidade
-- Lançamento inicial do SDK React Native da Oiti
+- Lançamento inicial do SDK React Native da Certiface
 - Integração com FaceTec para verificação de liveness
 - Integração com iProov para verificação de liveness
 - Função `startJourney` para iniciar processo de verificação biométrica

@@ -1,6 +1,6 @@
-package br.com.oititec.rn.sdk.theme
+package br.com.certiface.rn.sdk.theme
 
-import br.com.oiti.manager.exports.IProovFontsKey
+import br.com.certiface.manager.exports.IProovFontsKey
 import com.facebook.react.bridge.ReadableMap
 
 class IProovFonts(private val fontsBuilder: ReadableMap?) {

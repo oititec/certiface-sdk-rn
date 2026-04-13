@@ -1,17 +1,17 @@
-package br.com.oititec.rn.sdk.executor
+package br.com.certiface.rn.sdk.executor
 
 import android.content.Context
-import br.com.oiti.domain.liveness.LivenessResponse
-import br.com.oiti.domain.model.ErrorResponse
-import br.com.oiti.manager.exports.Environment
-import br.com.oiti.manager.exports.LivenessResult
-import br.com.oiti.manager.exports.ResultCallback
-import br.com.oiti.manager.exports.SDKConfig
-import br.com.oiti.manager.main.CertifaceSDK
-import br.com.oititec.rn.sdk.model.Features
-import br.com.oititec.rn.sdk.strategy.FacetecStrategy
-import br.com.oititec.rn.sdk.strategy.IProovStrategy
-import br.com.oititec.rn.sdk.strategy.LivenessProviderStrategy
+import br.com.certiface.domain.liveness.LivenessResponse
+import br.com.certiface.domain.model.ErrorResponse
+import br.com.certiface.manager.exports.Environment
+import br.com.certiface.manager.exports.LivenessResult
+import br.com.certiface.manager.exports.ResultCallback
+import br.com.certiface.manager.exports.SDKConfig
+import br.com.certiface.manager.main.CertifaceSDK
+import br.com.certiface.rn.sdk.model.Features
+import br.com.certiface.rn.sdk.strategy.FacetecStrategy
+import br.com.certiface.rn.sdk.strategy.IProovStrategy
+import br.com.certiface.rn.sdk.strategy.LivenessProviderStrategy
 import com.facebook.react.bridge.ReadableMap
 
 class LivenessExecutor(val appkey: String, val feature: Features) {

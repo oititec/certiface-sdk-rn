@@ -1,4 +1,4 @@
-package br.com.oititec.rn.sdk
+package br.com.certiface.rn.sdk
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -11,8 +11,8 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.module.annotations.ReactModule
-import br.com.oititec.rn.sdk.executor.LivenessExecutor
-import br.com.oititec.rn.sdk.model.Features
+import br.com.certiface.rn.sdk.executor.LivenessExecutor
+import br.com.certiface.rn.sdk.model.Features
 import org.json.JSONObject
 
 @ReactModule(name = RnSdkModule.NAME)
@@ -99,7 +99,7 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
     )
   }
 
-  private fun convertLivenessResultToJson(livenessResult: br.com.oiti.manager.exports.LivenessResult?): String {
+  private fun convertLivenessResultToJson(livenessResult: br.com.certiface.manager.exports.LivenessResult?): String {
     return try {
       val jsonObject = JSONObject()
       jsonObject.put("status", "success")

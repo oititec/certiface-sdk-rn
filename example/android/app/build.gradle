@@ -1,3 +1,11 @@
+def reactNativeNodeModulesDirForApp = file("${rootDir}/../../node_modules/react-native")
+if (!reactNativeNodeModulesDirForApp.exists()) {
+    reactNativeNodeModulesDirForApp = file("${rootDir}/../../../node_modules/react-native")
+}
+if (reactNativeNodeModulesDirForApp.exists()) {
+    ext.REACT_NATIVE_NODE_MODULES_DIR = reactNativeNodeModulesDirForApp.absolutePath
+}
+
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
@@ -9,6 +17,8 @@ apply plugin: "com.google.firebase.appdistribution"
  * By default you don't need to apply any configuration, just uncomment the lines you need.
  */
 react {
+    nodeExecutableAndArgs = [rootProject.ext.REACT_NATIVE_NODE_EXECUTABLE]
+
     /* Folders */
     //   The root of your project, i.e. where "package.json" lives. Default is '../..'
     // root = file("../../")
@@ -132,11 +142,20 @@ android {
                 keyAlias props['keyAlias']
                 keyPassword props['keyPassword']
             } else {
-                throw new GradleException(
-                    "Assinatura de release obrigatória para AAB/Play Store. " +
-                    "Copie key.properties.example para key.properties em android/app/, " +
-                    "preencha com sua keystore de release e coloque o arquivo release.keystore em android/app/."
-                )
+                def requestedTasks = gradle.startParameter.taskNames*.toLowerCase()
+                def requiresReleaseSigning = requestedTasks.any { taskName ->
+                    taskName.contains("release") ||
+                    taskName.contains("bundle") ||
+                    taskName.contains("publish") ||
+                    taskName.contains("distribute")
+                }
+                if (requiresReleaseSigning) {
+                    throw new GradleException(
+                        "Assinatura de release obrigatória para AAB/Play Store. " +
+                        "Copie key.properties.example para key.properties em android/app/, " +
+                        "preencha com sua keystore de release e coloque o arquivo release.keystore em android/app/."
+                    )
+                }
             }
         }
     }

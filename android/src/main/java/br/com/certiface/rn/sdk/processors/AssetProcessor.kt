@@ -1,9 +1,9 @@
-package br.com.oititec.rn.sdk.processors
+package br.com.certiface.rn.sdk.processors
 
 import android.content.Context
 import android.util.Log
-import br.com.oiti.manager.exports.FacetecDrawablesKey
-import br.com.oiti.manager.exports.IProovDrawablesKey
+import br.com.certiface.manager.exports.FacetecDrawablesKey
+import br.com.certiface.manager.exports.IProovDrawablesKey
 import com.facebook.react.bridge.ReadableMap
 
 object AssetProcessor {

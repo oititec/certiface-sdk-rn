@@ -29,12 +29,35 @@ target 'RnSdkExample' do
   )
 
   post_install do |installer|
-    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
     react_native_post_install(
       installer,
       config[:reactNativePath],
       :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
     )
+    installer.pods_project.targets.each do |target|
+      target.build_phases.each do |phase|
+        next unless phase.respond_to?(:shell_script)
+        next if phase.shell_script.nil?
+        phase.shell_script = phase.shell_script.gsub(
+          '/bin/sh -c "$WITH_ENVIRONMENT $SCRIPT_PHASES_SCRIPT"',
+          '"$WITH_ENVIRONMENT" "$SCRIPT_PHASES_SCRIPT"'
+        )
+      end
+    end
+    fmt_base = File.join(installer.sandbox.root, 'fmt', 'include', 'fmt', 'base.h')
+    if File.exist?(fmt_base)
+      content = File.read(fmt_base)
+      patched = content.gsub(
+        /#elif defined\(__cpp_consteval\)\R#  define FMT_USE_CONSTEVAL 1/,
+        "#elif defined(__cpp_consteval)\n#  define FMT_USE_CONSTEVAL 0"
+      ).gsub(
+        /#elif FMT_GCC_VERSION >= 1002 \|\| FMT_CLANG_VERSION >= 1101\R#  define FMT_USE_CONSTEVAL 1/,
+        "#elif FMT_GCC_VERSION >= 1002 || FMT_CLANG_VERSION >= 1101\n#  define FMT_USE_CONSTEVAL 0"
+      )
+      if patched != content
+        File.chmod(0644, fmt_base)
+        File.write(fmt_base, patched)
+      end
+    end
   end
 end

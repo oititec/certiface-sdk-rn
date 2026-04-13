@@ -1,15 +1,15 @@
-package br.com.oititec.rn.sdk.factories
+package br.com.certiface.rn.sdk.factories
 
 import android.content.Context
-import br.com.oiti.designsystem.R
-import br.com.oiti.domain.model.facetec.FacetecButtonLocation
-import br.com.oiti.domain.model.facetec.FacetecExitAnimationStyle
-import br.com.oiti.domain.model.facetec.FacetecTheme
+import br.com.certiface.designsystem.R
+import br.com.certiface.domain.model.facetec.FacetecButtonLocation
+import br.com.certiface.domain.model.facetec.FacetecExitAnimationStyle
+import br.com.certiface.domain.model.facetec.FacetecTheme
 import android.util.Log
-import br.com.oiti.manager.exports.FacetecFontsKey
-import br.com.oiti.manager.exports.FacetecTextKey
-import br.com.oititec.rn.sdk.theme.FacetecFonts
-import br.com.oititec.rn.sdk.processors.AssetProcessor
+import br.com.certiface.manager.exports.FacetecFontsKey
+import br.com.certiface.manager.exports.FacetecTextKey
+import br.com.certiface.rn.sdk.theme.FacetecFonts
+import br.com.certiface.rn.sdk.processors.AssetProcessor
 import com.facebook.react.bridge.ReadableMap
 
 object FacetecThemeFactory {
@@ -150,7 +150,7 @@ object FacetecThemeFactory {
     resultScreenActivityIndicatorColor(facetecColors?.getString("resultScreenActivityIndicator") ?: "#0F9D58")
     resultScreenResultAnimationBackgroundColor(facetecColors?.getString("resultScreenResultAnimationBackground") ?: "#417FB2")
     resultScreenResultAnimationForegroundColor(facetecColors?.getString("resultScreenResultAnimationForeground") ?: "#FFFFFF")
-    resultScreenCustomActivityIndicatorAnimation(br.com.oiti.facetecsdk.R.drawable.animated_activity_indicator)
+    resultScreenCustomActivityIndicatorAnimation(br.com.certiface.facetecsdk.R.drawable.animated_activity_indicator)
     resultScreenCustomActivityIndicatorRotationInterval(1000)
     resultScreenAnimationRelativeScale(1f)
     resultScreenShowUploadProgressBar(true)
