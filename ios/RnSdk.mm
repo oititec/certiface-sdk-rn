@@ -14,7 +14,7 @@
   return self;
 }
 
-RCT_EXPORT_MODULE()
+RCT_EXPORT_MODULE(CertifaceRnSdk)
 
 - (void)checkCameraPermission:(RCTPromiseResolveBlock)resolve
                        reject:(RCTPromiseRejectBlock)reject {

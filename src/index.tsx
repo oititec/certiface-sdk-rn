@@ -1,15 +1,15 @@
-import NativeRnSdk from './NativeRnSdk';
+import CertifaceRnSdk from './NativeRnSdk';
 import type { CertifaceTheme, LivenessProvider } from './@types/theme';
 
 import type { LivenessResponse, LivenessResult } from './@types/result';
 import type { Environment } from './@types/theme';
 
 function checkCameraPermission(): Promise<boolean> {
-  return NativeRnSdk.checkCameraPermission();
+  return CertifaceRnSdk.checkCameraPermission();
 }
 
 function requestCameraPermission(): Promise<boolean> {
-  return NativeRnSdk.requestCameraPermission();
+  return CertifaceRnSdk.requestCameraPermission();
 }
 
 async function startJourney(
@@ -20,7 +20,7 @@ async function startJourney(
   theme?: CertifaceTheme
 ): Promise<LivenessResult> {
   return new Promise((resolve, reject) => {
-    NativeRnSdk.startJourney(
+    CertifaceRnSdk.startJourney(
       appKey,
       environment,
       provider,

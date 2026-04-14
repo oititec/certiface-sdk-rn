@@ -122,7 +122,7 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
   }
 
   companion object {
-    const val NAME = "RnSdk"
+    const val NAME = "CertifaceRnSdk"
     const val CAMERA_PERMISSION_REQUEST_CODE = 100
   }
 }
