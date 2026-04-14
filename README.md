@@ -35,7 +35,7 @@ allprojects {
         google()
         mavenCentral()
         maven {
-            url 'https://raw.githubusercontent.com/oititec/android-oiti-sdk-versions/master'
+            url 'https://raw.githubusercontent.com/oititec/android-certiface-sdk-versions-beta/main'
         }
     }
 }
@@ -81,7 +81,7 @@ import {
   CertifaceSDK,
   LivenessProvider,
   Environment,
-  type OitiTheme,
+  type CertifaceTheme,
   type LivenessResult,
 } from '@certiface/sdk';
 ```
@@ -148,11 +148,11 @@ Inicia o processo de verificação de liveness.
 
 | Nome              | Tipo               | Obrigatório | Descrição                                      |
 | ----------------- | ------------------ | ----------- | ---------------------------------------------- |
-| `appKey`          | `string`           | ✅          | Chave de aplicação fornecida pela Oiti         |
+| `appKey`          | `string`           | ✅          | Chave de aplicação fornecida pela Certiface         |
 | `environment`     | `Environment`      | ✅          | Ambiente de execução (`HML` ou `PRD`)          |
 | `provider`        | `LivenessProvider` | ✅          | Provedor de liveness (`FACETEC` ou `IPROOV`)   |
 | `isCustomEnabled` | `boolean`          | ❌          | Habilita tema personalizado (padrão: `false`)  |
-| `theme`           | `OitiTheme`        | ❌          | Objeto com configurações de tema personalizado |
+| `theme`           | `CertifaceTheme`        | ❌          | Objeto com configurações de tema personalizado |
 
 **Retorna:** `Promise<LivenessResult>` com o resultado da verificação
 
@@ -250,9 +250,9 @@ O SDK oferece suporte a temas personalizados para os provedores **FaceTec** e **
 ### Estrutura do Tema
 
 ```typescript
-import { CertifaceSDK, LivenessProvider, Environment, type OitiTheme } from '@certiface/sdk';
+import { CertifaceSDK, LivenessProvider, Environment, type CertifaceTheme } from '@certiface/sdk';
 
-const customTheme: OitiTheme = {
+const customTheme: CertifaceTheme = {
   facetec: {
     colors: {
       frameBackground: '#1A1A1A',
@@ -397,11 +397,11 @@ import {
   CertifaceSDK,
   LivenessProvider,
   Environment,
-  type OitiTheme,
+  type CertifaceTheme,
   type LivenessResult,
 } from '@certiface/sdk';
 
-const customTheme: OitiTheme = {
+const customTheme: CertifaceTheme = {
   facetec: {
     colors: {
       frameBackground: '#1A1A1A',
@@ -495,7 +495,7 @@ export default function VerificationComponent() {
     setResult(null);
 
     try {
-      const appKey = process.env.OITI_APP_KEY || 'your-app-key';
+      const appKey = process.env.CERTIFACE_APP_KEY || 'your-app-key';
       const data: LivenessResult = await CertifaceSDK.startJourney(
         appKey,
         Environment.HML,
@@ -604,7 +604,7 @@ const styles = StyleSheet.create({
 ### Exemplo de Tema Personalizado Completo
 
 ```typescript
-const customTheme: OitiTheme = {
+const customTheme: CertifaceTheme = {
   facetec: {
     colors: {
       readyScreenHeader: '#FFFFFF',
@@ -955,12 +955,12 @@ fonts: {
 
 ## 📄 Licença
 
-MIT © [Oiti](https://github.com/oititec)
+MIT © [Certiface](https://github.com/oititec)
 
 ---
 
 <div align="center">
 
-**Feito com ❤️ pela equipe Oiti**
+**Feito com ❤️ pela equipe Certiface**
 
 </div>

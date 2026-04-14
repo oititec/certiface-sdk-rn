@@ -1,12 +1,12 @@
-package br.com.oititec.rn.sdk.strategy
+package br.com.certiface.rn.sdk.strategy
 
 import android.content.Context
-import br.com.oiti.domain.callback.CertifaceResultCallback
-import br.com.oiti.facetecsdk.domain.model.FacetecManagerOptions
-import br.com.oiti.manager.exports.LivenessResult
-import br.com.oiti.manager.main.CertifaceSDK
-import br.com.oiti.manager.main.LivenessProvider
-import br.com.oititec.rn.sdk.factories.FacetecThemeFactory
+import br.com.certiface.domain.callback.CertifaceResultCallback
+import br.com.certiface.facetecsdk.domain.model.FacetecManagerOptions
+import br.com.certiface.manager.exports.LivenessResult
+import br.com.certiface.manager.main.CertifaceSDK
+import br.com.certiface.manager.main.LivenessProvider
+import br.com.certiface.rn.sdk.factories.FacetecThemeFactory
 import com.facebook.react.bridge.ReadableMap
 
 class FacetecStrategy : LivenessProviderStrategy {

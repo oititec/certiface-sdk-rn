@@ -1,4 +1,4 @@
-package br.com.oititec.rn.sdk.utils
+package br.com.certiface.rn.sdk.utils
 
 import android.content.Context
 import android.content.res.Resources

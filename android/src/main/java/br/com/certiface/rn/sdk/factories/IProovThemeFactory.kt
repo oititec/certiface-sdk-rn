@@ -1,18 +1,18 @@
-package br.com.oititec.rn.sdk.factories
+package br.com.certiface.rn.sdk.factories
 
 import android.content.Context
 import android.util.Log
 import androidx.core.graphics.toColorInt
-import br.com.oiti.designsystem.R
-import br.com.oiti.domain.model.iproov.OrientationGPA
-import br.com.oiti.domain.model.iproov.OrientationLA
-import br.com.oiti.manager.exports.FilterTheme
-import br.com.oiti.manager.exports.IProovDrawablesKey
-import br.com.oiti.manager.exports.IProovFontsKey
-import br.com.oiti.manager.exports.IProovTheme
-import br.com.oiti.manager.exports.NaturalStyle
-import br.com.oititec.rn.sdk.theme.IProovFonts
-import br.com.oititec.rn.sdk.processors.AssetProcessor
+import br.com.certiface.designsystem.R
+import br.com.certiface.domain.model.iproov.OrientationGPA
+import br.com.certiface.domain.model.iproov.OrientationLA
+import br.com.certiface.manager.exports.FilterTheme
+import br.com.certiface.manager.exports.IProovDrawablesKey
+import br.com.certiface.manager.exports.IProovFontsKey
+import br.com.certiface.manager.exports.IProovTheme
+import br.com.certiface.manager.exports.NaturalStyle
+import br.com.certiface.rn.sdk.theme.IProovFonts
+import br.com.certiface.rn.sdk.processors.AssetProcessor
 import com.facebook.react.bridge.ReadableMap
 
 object IProovThemeFactory {

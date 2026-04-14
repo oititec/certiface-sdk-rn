@@ -1,8 +1,8 @@
-package br.com.oititec.rn.sdk.strategy
+package br.com.certiface.rn.sdk.strategy
 
 import android.content.Context
-import br.com.oiti.domain.callback.CertifaceResultCallback
-import br.com.oiti.manager.exports.LivenessResult
+import br.com.certiface.domain.callback.CertifaceResultCallback
+import br.com.certiface.manager.exports.LivenessResult
 import com.facebook.react.bridge.ReadableMap
 
 interface LivenessProviderStrategy {

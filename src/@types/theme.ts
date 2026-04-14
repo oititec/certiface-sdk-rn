@@ -331,11 +331,7 @@ export interface ResultTheme {
   fonts?: ResultThemeFonts;
 }
 
-/**
- * Oiti Theme
- */
-
-export interface OitiTheme {
+export interface CertifaceTheme {
   provider?: LivenessProvider;
   facetec?: FacetecTheme;
   iproov?: IProovTheme;

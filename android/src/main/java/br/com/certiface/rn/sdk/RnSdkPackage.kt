@@ -1,4 +1,4 @@
-package br.com.oititec.rn.sdk
+package br.com.certiface.rn.sdk
 
 import com.facebook.react.BaseReactPackage
 import com.facebook.react.bridge.NativeModule

@@ -59,7 +59,7 @@ final class ThemeFactory {
 
   // MARK: - Customization
 
-  // MARK: Oiti
+  // MARK: Certiface
 
   private static func customizeInstruction(
     in builder: InstructionCustomizationBuilder,

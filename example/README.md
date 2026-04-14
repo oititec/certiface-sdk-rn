@@ -114,10 +114,10 @@ import {
   CertifaceSDK,
   Environment,
   LivenessProvider,
-  type OitiTheme,
+  type CertifaceTheme,
 } from '@certiface/sdk';
 
-const customTheme: OitiTheme = {
+const customTheme: CertifaceTheme = {
   provider: LivenessProvider.FACETEC,
   facetec: {
     colors: {
@@ -294,7 +294,7 @@ Para fazer alterações no SDK e testá-las no aplicativo de exemplo:
 
 ## 📝 Notas
 
-- É necessário ter uma **App Key válida** fornecida pela Oiti para testar o SDK
+- É necessário ter uma **App Key válida** fornecida pela Certiface para testar o SDK
 - As permissões de câmera devem ser concedidas para o funcionamento correto
 - O tema customizado é opcional e pode ser ativado/desativado na tela Home
 
@@ -337,4 +337,4 @@ cd ../..
 
 ## 📄 Licença
 
-MIT © [Oiti](https://github.com/oititec)
+MIT © [Certiface](https://github.com/oititec)

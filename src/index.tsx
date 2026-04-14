@@ -1,15 +1,15 @@
-import OitiSDK from './NativeRnSdk';
-import type { LivenessProvider, OitiTheme } from './@types/theme';
+import CertifaceRnSdk from './NativeRnSdk';
+import type { CertifaceTheme, LivenessProvider } from './@types/theme';
 
 import type { LivenessResponse, LivenessResult } from './@types/result';
 import type { Environment } from './@types/theme';
 
 function checkCameraPermission(): Promise<boolean> {
-  return OitiSDK.checkCameraPermission();
+  return CertifaceRnSdk.checkCameraPermission();
 }
 
 function requestCameraPermission(): Promise<boolean> {
-  return OitiSDK.requestCameraPermission();
+  return CertifaceRnSdk.requestCameraPermission();
 }
 
 async function startJourney(
@@ -17,10 +17,10 @@ async function startJourney(
   environment: Environment,
   provider: LivenessProvider,
   isCustomEnabled?: boolean,
-  theme?: OitiTheme
+  theme?: CertifaceTheme
 ): Promise<LivenessResult> {
   return new Promise((resolve, reject) => {
-    OitiSDK.startJourney(
+    CertifaceRnSdk.startJourney(
       appKey,
       environment,
       provider,

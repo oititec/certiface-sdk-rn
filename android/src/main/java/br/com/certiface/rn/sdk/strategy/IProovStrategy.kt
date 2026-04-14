@@ -1,12 +1,12 @@
-package br.com.oititec.rn.sdk.strategy
+package br.com.certiface.rn.sdk.strategy
 
 import android.content.Context
-import br.com.oiti.domain.callback.CertifaceResultCallback
-import br.com.oiti.iproov.domain.model.IProovManagerOptions
-import br.com.oiti.manager.exports.LivenessResult
-import br.com.oiti.manager.main.CertifaceSDK
-import br.com.oiti.manager.main.LivenessProvider
-import br.com.oititec.rn.sdk.factories.IProovThemeFactory
+import br.com.certiface.domain.callback.CertifaceResultCallback
+import br.com.certiface.iproov.domain.model.IProovManagerOptions
+import br.com.certiface.manager.exports.LivenessResult
+import br.com.certiface.manager.main.CertifaceSDK
+import br.com.certiface.manager.main.LivenessProvider
+import br.com.certiface.rn.sdk.factories.IProovThemeFactory
 import com.facebook.react.bridge.ReadableMap
 
 class IProovStrategy : LivenessProviderStrategy {
