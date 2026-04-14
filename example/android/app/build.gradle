@@ -83,8 +83,8 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
-def VERSION_CODE = 4
-def VERSION_NAME = "1.0.0"
+def VERSION_CODE = 5
+def VERSION_NAME = "1.0.1"
 
 def getPackageJson() {
     def packageJsonFile = file("../../package.json")
@@ -99,7 +99,7 @@ def getVersionCode() {
 
 def getVersionName() {
     def packageJson = getPackageJson()
-    def version = packageJson.version ?: "1.0.0"
+    def version = packageJson.version ?: "1.0.1"
     def code = packageJson.versionCode
     return "${version}(${code != null ? code : 1})"
 }
