@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.1] - 05/05/2026
+
+### Adicionado
+
+- Packages android atualizados
+
 ## [1.1.0] - 08/04/2026
 
 ### Adicionado
