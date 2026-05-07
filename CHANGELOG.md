@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2] - 07/05/2026
+
+### Adicionado
+
+- Correção da tela de resultado do fluxo de iproov
+- melhorias no fluxo de customização android/ios
+
 ## [1.1.1] - 05/05/2026
 
 ### Adicionado

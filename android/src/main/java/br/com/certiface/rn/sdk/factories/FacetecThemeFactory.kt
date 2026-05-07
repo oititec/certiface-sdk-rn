@@ -11,6 +11,7 @@ import br.com.certiface.manager.exports.FacetecTextKey
 import br.com.certiface.rn.sdk.theme.FacetecFonts
 import br.com.certiface.rn.sdk.processors.AssetProcessor
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.bridge.ReadableType
 
 object FacetecThemeFactory {
   private const val TAG = "FacetecThemeFactory"
@@ -23,6 +24,7 @@ object FacetecThemeFactory {
     val instructionsTexts = instructionsTheme?.getMap("texts")
     val instructionsFonts = instructionsTheme?.getMap("fonts")
     val instructionsConfiguration = instructionsTheme?.getMap("configuration")
+    val instructionsFlags = instructionsTheme?.getMap("flags")
     val showInstructionScreen = instructionsConfiguration?.getBoolean("showInstructionScreen") ?: true
 
     val permissionTheme = theme?.getMap("permission")
@@ -32,6 +34,8 @@ object FacetecThemeFactory {
 
     val facetecTheme = theme?.getMap("facetec")
     val facetecColors = facetecTheme?.getMap("colors")
+    val facetecSizes = facetecTheme?.getMap("sizes")
+    val facetecFlags = facetecTheme?.getMap("flags")
     val facetecTexts = facetecTheme?.getMap("texts")
     val facetecFontsMap = facetecTheme?.getMap("fonts")
 
@@ -131,16 +135,16 @@ object FacetecThemeFactory {
     guidanceButtonBackgroundHighlightColor(facetecColors?.getString("guidanceButtonBackgroundHighlight") ?: "#0F9D58")
     guidanceButtonBackgroundDisabledColor(facetecColors?.getString("guidanceButtonBackgroundDisabled") ?: "#ff0000")
     guidanceButtonBorderColor(facetecColors?.getString("guidanceButtonBorder") ?: "#0F9D58")
-    guidanceButtonBorderWidth(2)
-    guidanceButtonCornerRadius(12)
+    guidanceButtonBorderWidth(optInt(facetecSizes, "guidanceButtonBorderWidth", 2))
+    guidanceButtonCornerRadius(optInt(facetecSizes, "guidanceButtonCornerRadius", 12))
 
     // Retry Screen
     guidanceRetryScreenHeaderTextColor(facetecColors?.getString("retryScreenHeader") ?: "#FF5252")
     guidanceRetryScreenSubtextTextColor(facetecColors?.getString("retryScreenSubtext") ?: "#DD3333")
     guidanceRetryScreenOvalStrokeColor(facetecColors?.getString("retryScreenOvalStroke") ?: "#FFFFFF")
     guidanceRetryScreenImageBorderColor(facetecColors?.getString("retryScreenImageBorder") ?: "#417FB2")
-    guidanceRetryScreenImageBorderWidth(3)
-    guidanceRetryScreenImageCornerRadius(12)
+    guidanceRetryScreenImageBorderWidth(optInt(facetecSizes, "guidanceRetryScreenImageBorderWidth", 3))
+    guidanceRetryScreenImageCornerRadius(optInt(facetecSizes, "guidanceRetryScreenImageCornerRadius", 12))
 
     // Result Screen
     resultScreenForegroundColor(facetecColors?.getString("resultScreenForeground") ?: "#0F9D58")
@@ -173,20 +177,20 @@ object FacetecThemeFactory {
     // Frame
     frameBackgroundColor(facetecColors?.getString("frameBackground") ?: "#121212")
     frameBorderColor(facetecColors?.getString("frameBorder") ?: "#FFFFFF")
-    frameBorderWidth(2)
-    frameCornerRadius(8)
-    frameElevation(5)
+    frameBorderWidth(optInt(facetecSizes, "frameBorderWidth", 2))
+    frameCornerRadius(optInt(facetecSizes, "frameCornerRadius", 8))
+    frameElevation(optInt(facetecSizes, "frameElevation", 5))
 
     // Overlay
     overlayBackgroundColor(facetecColors?.getString("overlayBackground") ?: "#80000000")
-    overlayShowBrandingImage(true)
+    overlayShowBrandingImage(optBoolean(facetecFlags, "overlayShowBrandingImage", true))
 
     // Feedback
     feedbackBackgroundColors(facetecColors?.getString("feedbackBarBackground") ?: "#FFFDE7")
     feedbackTextColor(facetecColors?.getString("feedbackMessage") ?: "#000000")
-    feedbackCornerRadius(12)
-    feedbackElevation(8)
-    feedbackEnablePulsatingText(true)
+    feedbackCornerRadius(optInt(facetecSizes, "feedbackCornerRadius", 12))
+    feedbackElevation(optInt(facetecSizes, "feedbackElevation", 8))
+    feedbackEnablePulsatingText(optBoolean(facetecFlags, "feedbackEnablePulsatingText", true))
 
     // Cancel Button
     cancelButtonLocation(FacetecButtonLocation.TOP_RIGHT)
@@ -201,10 +205,15 @@ object FacetecThemeFactory {
       setTitleText(instructionsTexts?.getString("title") ?: "Centralize seu rosto")
       setCaptionText(instructionsTexts?.getString("caption") ?: "Mantenha-se dentro do círculo")
       setStatusBarColor(instructionsColors?.getString("statusBar") ?: "#121212")
-      setStatusBarIsDarkIcons(false)
+      setStatusBarIsDarkIcons(optBoolean(instructionsFlags, "statusBarIsDarkIcons", false))
       setBackgroundColor(instructionsColors?.getString("background") ?: "#121212")
       setContinueButtonText(instructionsTexts?.getString("continueButtonText") ?: "Começar")
       setContinueButtonColor(instructionsColors?.getString("continueButtonBackground") ?: "#0F9D58")
+      setContinueButtonTextColor(
+        instructionsColors?.getString("continueButtonTextColor")
+          ?: instructionsColors?.getString("continueButtonText")
+          ?: "#FFFFFF"
+      )
     }
 
     // Permission Screen
@@ -230,4 +239,22 @@ object FacetecThemeFactory {
 
   fun create(isCustom: Boolean, theme: ReadableMap? = null, context: Context? = null): FacetecTheme =
     if (isCustom) buildCustom(theme, context) else buildDefault()
+}
+
+private fun optInt(map: ReadableMap?, key: String, default: Int): Int {
+  map ?: return default
+  if (!map.hasKey(key)) return default
+  return when (map.getType(key)) {
+    ReadableType.Number -> map.getDouble(key).toInt()
+    else -> default
+  }
+}
+
+private fun optBoolean(map: ReadableMap?, key: String, default: Boolean): Boolean {
+  map ?: return default
+  if (!map.hasKey(key)) return default
+  return when (map.getType(key)) {
+    ReadableType.Boolean -> map.getBoolean(key)
+    else -> default
+  }
 }

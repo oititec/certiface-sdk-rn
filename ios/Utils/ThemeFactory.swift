@@ -80,7 +80,10 @@ final class ThemeFactory {
     setColor(colors["caption"], with: builder.setCaptionColor(_:))
     setColor(colors["firstInstructionTitle"], with: builder.setFirstInstructionTitleColor(_:))
     setColor(colors["secondInstructionTitle"], with: builder.setSecondInstructionTitleColor(_:))
-    setColor(colors["continueButtonText"], with: builder.setContinueButtonTextColor(_:))
+    setColor(
+      colors["continueButtonTextColor"] ?? colors["continueButtonText"],
+      with: builder.setContinueButtonTextColor(_:)
+    )
     setColor(colors["continueButtonBackground"], with: builder.setContinueButtonBackgroundColor(_:))
     setColor(colors["continueButtonBorder"], with: builder.setContinueButtonBorderColor(_:))
 
@@ -97,12 +100,25 @@ final class ThemeFactory {
     setImage(assets["firstInstructionIcon"], with: builder.setFirstInstructionIcon(_:))
     setImage(assets["secondInstructionIcon"], with: builder.setSecondInstructionIcon(_:))
 
-    let fonts = instructionsTheme["fonts"] as? [String: String] ?? [:]
-    setFont(fonts["title"], with: builder.setTitleFont(_:), size: 20)
-    setFont(fonts["caption"], with: builder.setCaptionFont(_:), size: 20)
-    setFont(fonts["firstInstructionTitle"], with: builder.setFirstInstructionTitleFont(_:), size: 20)
-    setFont(fonts["secondInstructionTitle"], with: builder.setSecondInstructionTitleFont(_:), size: 20)
-    setFont(fonts["continueButton"], with: builder.setContinueButtonFont(_:), size: 20)
+    let instFonts = instructionsTheme["fonts"] as? [String: String] ?? [:]
+    let iproovFonts = (theme["iproov"] as? [String: Any])?["fonts"] as? [String: String] ?? [:]
+    setFont(instFonts["title"] ?? iproovFonts["instructionsTitleFont"], with: builder.setTitleFont(_:), size: 20)
+    setFont(instFonts["caption"] ?? iproovFonts["instructionsCaptionFont"], with: builder.setCaptionFont(_:), size: 20)
+    setFont(
+      instFonts["firstInstructionTitle"] ?? iproovFonts["instructionsDocumentTypesInstructionsFont"],
+      with: builder.setFirstInstructionTitleFont(_:),
+      size: 20
+    )
+    setFont(
+      instFonts["secondInstructionTitle"] ?? iproovFonts["instructionsDocumentTipsInstructionsFont"],
+      with: builder.setSecondInstructionTitleFont(_:),
+      size: 20
+    )
+    setFont(
+      instFonts["continueButton"] ?? iproovFonts["instructionsButtonFont"],
+      with: builder.setContinueButtonFont(_:),
+      size: 20
+    )
 
     return builder
   }
@@ -149,14 +165,19 @@ final class ThemeFactory {
     setImage(assets["backButtonIcon"], with: builder.setBackButtonIcon(_:))
     setImage(assets["cameraImage"], with: builder.setCameraImage(_:))
 
-    let fonts = cameraPermissionTheme["fonts"] as? [String: String] ?? [:]
-    setFont(fonts["title"], with: builder.setTitleFont(_:), size: 20)
-    setFont(fonts["caption"], with: builder.setCaptionFont(_:), size: 20)
-    setFont(fonts["checkPermissionButton"], with: builder.setCheckPermissionButtonTextFont(_:), size: 20)
-    setFont(fonts["bottomSheetTitle"], with: builder.setBottomSheetTitleFont(_:), size: 20)
-    setFont(fonts["bottomSheetCaption"], with: builder.setBottomSheetCaptionFont(_:), size: 20)
-    setFont(fonts["opentSettingsButton"], with: builder.setOpenSettingsButtonTextFont(_:), size: 20)
-    setFont(fonts["closeButton"], with: builder.setCloseButtonTextFont(_:), size: 20)
+    let permFonts = cameraPermissionTheme["fonts"] as? [String: String] ?? [:]
+    let iproovFonts = (theme["iproov"] as? [String: Any])?["fonts"] as? [String: String] ?? [:]
+    setFont(permFonts["title"] ?? iproovFonts["permissionTitleFont"], with: builder.setTitleFont(_:), size: 20)
+    setFont(permFonts["caption"] ?? iproovFonts["permissionCaptionFont"], with: builder.setCaptionFont(_:), size: 20)
+    setFont(
+      permFonts["checkPermissionButton"] ?? iproovFonts["permissionButtonFont"],
+      with: builder.setCheckPermissionButtonTextFont(_:),
+      size: 20
+    )
+    setFont(permFonts["bottomSheetTitle"], with: builder.setBottomSheetTitleFont(_:), size: 20)
+    setFont(permFonts["bottomSheetCaption"], with: builder.setBottomSheetCaptionFont(_:), size: 20)
+    setFont(permFonts["opentSettingsButton"], with: builder.setOpenSettingsButtonTextFont(_:), size: 20)
+    setFont(permFonts["closeButton"], with: builder.setCloseButtonTextFont(_:), size: 20)
 
     return builder
   }
@@ -172,7 +193,10 @@ final class ThemeFactory {
     }
 
     let colors = instructionsTheme["colors"] as? [String: String] ?? [:]
-    setColor(colors["closeButtonIcon"], with: builder.setCloseButtonImageColor(_:))
+    setColor(
+      colors["closeButtonColor"] ?? colors["closeButtonIcon"],
+      with: builder.setCloseButtonImageColor(_:)
+    )
     setColor(colors["title"], with: builder.setTitleTextColor(_:))
     setColor(colors["titleBackground"], with: builder.setTitleBackgroundColor(_:))
     setColor(colors["promptText"], with: builder.setPromptTextColor(_:))
@@ -239,9 +263,18 @@ final class ThemeFactory {
     setImage(assets["errorImage"], with: builder.setErrorImage(_:))
     setImage(assets["retryImage"], with: builder.setRetryImage(_:))
 
-    let fonts = resultTheme["fonts"] as? [String: String] ?? [:]
-    setFont(fonts["text"], with: builder.setMessageFont(_:), size: 20)
-    setFont(fonts["retryButton"], with: builder.setRetryButtonTextFont(_:), size: 20)
+    let resultFonts = resultTheme["fonts"] as? [String: String] ?? [:]
+    let iproovFonts = (theme["iproov"] as? [String: Any])?["fonts"] as? [String: String] ?? [:]
+    setFont(
+      resultFonts["text"] ?? iproovFonts["resultMessageFont"],
+      with: builder.setMessageFont(_:),
+      size: 20
+    )
+    setFont(
+      resultFonts["retryButton"] ?? iproovFonts["resultRetryButtonFont"],
+      with: builder.setRetryButtonTextFont(_:),
+      size: 20
+    )
 
     return builder
   }
@@ -390,9 +423,34 @@ final class ThemeFactory {
   }
 
   private static func setFont<T>(_ fontName: String?, with builder: @escaping (UIFont) -> T, size: CGFloat) {
-    if let fontName, let font = UIFont(name: fontName, size: size) {
-      _ = builder(font)
+    guard let fontName else { return }
+    let normalizedSize = size > 0 ? size : UIFont.systemFontSize
+    guard let resolvedName = resolveFontName(fontName) else { return }
+    guard let font = UIFont(name: resolvedName, size: normalizedSize) else { return }
+    _ = builder(font)
+  }
+
+  private static func resolveFontName(_ fontName: String) -> String? {
+    let trimmed = fontName.trimmingCharacters(in: .whitespacesAndNewlines)
+    if UIFont(name: trimmed, size: UIFont.systemFontSize) != nil {
+      return trimmed
     }
+
+    let baseName = (trimmed as NSString).deletingPathExtension
+    if UIFont(name: baseName, size: UIFont.systemFontSize) != nil {
+      return baseName
+    }
+
+    let wanted = baseName.lowercased()
+    for family in UIFont.familyNames {
+      for candidate in UIFont.fontNames(forFamilyName: family) {
+        if candidate.lowercased() == wanted {
+          return candidate
+        }
+      }
+    }
+
+    return nil
   }
 
   private static func getResultStyleApperance(from colors: [String: String]) -> BlobAnimationAppearance {

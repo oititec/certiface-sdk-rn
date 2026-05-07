@@ -51,6 +51,7 @@ object IProovThemeFactory {
 
     setTitle(texts?.getString("title") ?: "Verificação Facial")
     setTitleColor(colors?.getString("titleColor") ?: "#FFFFFF")
+    colors?.getString("closeButtonColor")?.let { setCloseButtonColor(it) }
     setHeaderBackgroundColor(colors?.getString("headerBackgroundColor") ?: "#121212")
     setPromptTextColor(colors?.getString("promptTextColor") ?: "#FFFFFF")
     setPromptBackgroundColor(colors?.getString("promptBackgroundColor") ?: "#1F1F1F")
@@ -79,17 +80,32 @@ object IProovThemeFactory {
     val instructionsColors = instructionsTheme?.getMap("colors")
     val instructionsTexts = instructionsTheme?.getMap("texts")
     val instructionsConfiguration = instructionsTheme?.getMap("configuration")
+    val instructionsFlags = instructionsTheme?.getMap("flags")
     val showInstructionScreen = instructionsConfiguration?.getBoolean("showInstructionScreen") ?: true
+    val instructionStatusBarDarkIcons = instructionsFlags?.getBoolean("statusBarIsDarkIcons") ?: false
 
     Log.d(TAG, "🏭 Iniciando construção do tema IProov customizado...")
-    val iproovDrawables = AssetProcessor.processIProovAssets(theme)
+    val iproovDrawablesRaw = AssetProcessor.processIProovAssets(theme)
+    val iproovDrawables = if (context != null && iproovDrawablesRaw.isNotEmpty()) {
+      iproovDrawablesRaw.mapValues { (_, value) ->
+        when (value) {
+          is String -> {
+            val id = AssetProcessor.getDrawableResourceId(context, value)
+            if (id != 0) id else value
+          }
+          else -> value
+        }
+      }
+    } else {
+      iproovDrawablesRaw
+    }
     Log.d(TAG, "📦 Assets processados: ${iproovDrawables.size} encontrados")
-    
+
     Log.d(TAG, "🎨 Assets encontrados para processamento: ${iproovDrawables.size}")
     iproovDrawables.forEach { (key, value) ->
       Log.d(TAG, "   📎 $key = '$value'")
     }
-    
+
     if (iproovDrawables.isNotEmpty()) {
       Log.d(TAG, "🎨 Configurando drawables customizados: ${iproovDrawables.size} assets")
       setDrawablesKey(iproovDrawables)
@@ -105,22 +121,32 @@ object IProovThemeFactory {
       setCaptionColor(instructionsColors?.getString("captionColor") ?: "#AAAAAA")
       setBackgroundColor(instructionsColors?.getString("backgroundColor") ?: "#1F1F1F")
       setStatusBarColor(instructionsColors?.getString("statusBarColor") ?: "#1F1F1F")
-      setStatusBarIsDarkIcons(false)
+      setStatusBarIsDarkIcons(instructionStatusBarDarkIcons)
       setBottomSheetColor(instructionsColors?.getString("bottomSheetColor") ?: "#333333")
       setBottomSheetCornerRadius(16f)
       setContinueButtonText(instructionsTexts?.getString("continueButtonText") ?: texts?.getString("continueButtonText") ?: "Startar")
       setContinueButtonColor(instructionsColors?.getString("continueButtonColor") ?: "#00FF00")
-      setContinueButtonTextColor(instructionsColors?.getString("continueButtonTextColor") ?: "#000000")
+      setContinueButtonTextColor(
+        instructionsColors?.getString("continueButtonTextColor")
+          ?: instructionsColors?.getString("continueButtonText")
+          ?: "#000000"
+      )
 
-      val contextImageName = iproovDrawables[IProovDrawablesKey.INSTRUCTIONS_CONTEXT_IMAGE] as? String
-      if (contextImageName != null && context != null) {
-        val resourceId = AssetProcessor.getDrawableResourceId(context, contextImageName)
-        if (resourceId != 0) {
-          Log.d(TAG, "✅ Usando context image customizado: $resourceId")
-          setContextImage(resourceId)
-        } else {
-          Log.w(TAG, "⚠️ Context image customizado não encontrado")
+      when (val contextImageRes = iproovDrawables[IProovDrawablesKey.INSTRUCTIONS_CONTEXT_IMAGE]) {
+        is Int -> if (contextImageRes != 0) {
+          Log.d(TAG, "✅ Usando context image customizado: $contextImageRes")
+          setContextImage(contextImageRes)
         }
+        is String -> context?.let { ctx ->
+          val resourceId = AssetProcessor.getDrawableResourceId(ctx, contextImageRes)
+          if (resourceId != 0) {
+            Log.d(TAG, "✅ Usando context image customizado: $resourceId")
+            setContextImage(resourceId)
+          } else {
+            Log.w(TAG, "⚠️ Context image customizado não encontrado")
+          }
+        }
+        else -> {}
       }
     }
 

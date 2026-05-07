@@ -12,6 +12,23 @@ export enum Environment {
  * Facetec Theme
  */
 
+export interface FacetecSizes {
+  guidanceButtonBorderWidth?: number;
+  guidanceRetryScreenImageBorderWidth?: number;
+  frameBorderWidth?: number;
+  frameCornerRadius?: number;
+  frameElevation?: number;
+  feedbackElevation?: number;
+  feedbackCornerRadius?: number;
+  guidanceButtonCornerRadius?: number;
+  guidanceRetryScreenImageCornerRadius?: number;
+}
+
+export interface FacetecFlags {
+  overlayShowBrandingImage?: boolean;
+  feedbackEnablePulsatingText?: boolean;
+}
+
 export interface FacetecColors {
   readyScreenHeader?: string;
   readyScreenSubtext?: string;
@@ -111,6 +128,8 @@ export interface FacetecTheme {
   texts?: FacetecTexts;
   fonts?: FacetecFonts;
   assets?: FacetecAssets;
+  sizes?: FacetecSizes;
+  flags?: FacetecFlags;
 }
 
 /**
@@ -119,6 +138,7 @@ export interface FacetecTheme {
 
 export interface IProovColors {
   closeButtonIcon?: string;
+  closeButtonColor?: string;
   title?: string;
   titleBackground?: string;
   promptText?: string;
@@ -177,6 +197,7 @@ export interface InstructionsThemeColors {
   firstInstructionTitle?: string;
   secondInstructionTitle?: string;
   continueButtonText?: string;
+  continueButtonTextColor?: string;
   continueButtonBackground?: string;
   continueButtonBorder?: string;
 }
@@ -208,8 +229,13 @@ export interface InstructionsConfiguration {
   showInstructionScreen?: boolean;
 }
 
+export interface InstructionsFlags {
+  statusBarIsDarkIcons?: boolean;
+}
+
 export interface InstructionsTheme {
   configuration?: InstructionsConfiguration;
+  flags?: InstructionsFlags;
   colors?: InstructionsThemeColors;
   texts?: InstructionsThemeTexts;
   assets?: InstructionsThemeAssets;

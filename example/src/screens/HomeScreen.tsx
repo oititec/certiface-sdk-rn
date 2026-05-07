@@ -86,9 +86,25 @@ const HomeScreen = () => {
         guidanceSubtext: 'sixty',
         guidanceButton: 'sixty',
       },
+      sizes: {
+        guidanceButtonBorderWidth: 2,
+        frameBorderWidth: 2,
+        frameCornerRadius: 8,
+        frameElevation: 5,
+        feedbackElevation: 8,
+        feedbackCornerRadius: 12,
+        guidanceButtonCornerRadius: 12,
+        guidanceRetryScreenImageBorderWidth: 3,
+        guidanceRetryScreenImageCornerRadius: 12,
+      },
+      flags: {
+        overlayShowBrandingImage: true,
+        feedbackEnablePulsatingText: true,
+      },
     },
     iproov: {
       colors: {
+        closeButtonColor: '#FFFFFF',
         title: '#FFFFFF',
         titleBackground: '#2E2E2E',
         promptText: '#FFFFFF',
@@ -123,6 +139,9 @@ const HomeScreen = () => {
       configuration: {
         showInstructionScreen: true,
       },
+      flags: {
+        statusBarIsDarkIcons: false,
+      },
       colors: {
         statusBar: '#2E2E2E',
         background: '#2E2E2E',
@@ -135,6 +154,7 @@ const HomeScreen = () => {
         firstInstructionTitle: '#FFFFFF',
         secondInstructionTitle: '#FFFFFF',
         continueButtonText: '#FFFFFF',
+        continueButtonTextColor: '#FFFFFF',
         continueButtonBackground: '#FF6B35',
         continueButtonBorder: '#FF6B35',
       },
