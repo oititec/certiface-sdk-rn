@@ -46,7 +46,66 @@ const result = spawnSync(
   { cwd: exampleRoot, stdio: 'inherit', env: process.env }
 );
 
+function tryLaunchFallbackActivity() {
+  const sdkRoot = process.env.ANDROID_SDK_ROOT || process.env.ANDROID_HOME;
+  if (!sdkRoot) {
+    return false;
+  }
+
+  const adb = path.join(sdkRoot, 'platform-tools', 'adb');
+  if (!fs.existsSync(adb)) {
+    return false;
+  }
+
+  const devices = spawnSync(adb, ['devices'], { encoding: 'utf8' });
+  const rows = (devices.stdout || '').split(/\r?\n/);
+  const onlineDevice = rows
+    .map((row) => row.trim())
+    .find((row) => row.endsWith('\tdevice'));
+
+  if (!onlineDevice) {
+    return false;
+  }
+
+  const deviceId = onlineDevice.split('\t')[0];
+  const packageCandidates = [
+    'br.com.oititec.rn.sdk.example',
+    'br.com.oititec.rncertifacesdk.example',
+  ];
+
+  for (const pkg of packageCandidates) {
+    const start = spawnSync(
+      adb,
+      [
+        '-s',
+        deviceId,
+        'shell',
+        'am',
+        'start',
+        '-n',
+        `${pkg}/${pkg}.MainActivity`,
+        '-a',
+        'android.intent.action.MAIN',
+        '-c',
+        'android.intent.category.LAUNCHER',
+      ],
+      { encoding: 'utf8' }
+    );
+
+    if (start.status === 0) {
+      console.log(`Fallback launch succeeded with package ${pkg}`);
+      return true;
+    }
+  }
+
+  return false;
+}
+
 if (result.error) {
   throw result.error;
+}
+if (result.status && result.status !== 0) {
+  const fallbackOk = tryLaunchFallbackActivity();
+  process.exit(fallbackOk ? 0 : result.status);
 }
 process.exit(result.status === null ? 1 : result.status);

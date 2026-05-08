@@ -1542,6 +1542,7 @@ __metadata:
     "@babel/runtime": ^7.25.0
     "@certiface/sdk": "workspace:*"
     "@react-native-async-storage/async-storage": ^2.2.0
+    "@react-native-clipboard/clipboard": ^1.16.3
     "@react-native-community/cli": 18.0.0
     "@react-native-community/cli-platform-android": 18.0.0
     "@react-native-community/cli-platform-ios": 18.0.0
@@ -2577,6 +2578,23 @@ __metadata:
   peerDependencies:
     react-native: ^0.0.0-0 || >=0.65 <1.0
   checksum: efbb9c801fb7eecfad1568d6a5e9d247db420b8ba8f1789d5b783e679432567a53cf54c7e7b5e6f315276f33d1df297253549e0cefef2e683539df346d2a1f2d
+  languageName: node
+  linkType: hard
+
+"@react-native-clipboard/clipboard@npm:^1.16.3":
+  version: 1.16.3
+  resolution: "@react-native-clipboard/clipboard@npm:1.16.3"
+  peerDependencies:
+    react: ">= 16.9.0"
+    react-native: ">= 0.61.5"
+    react-native-macos: ">= 0.61.0"
+    react-native-windows: ">= 0.61.0"
+  peerDependenciesMeta:
+    react-native-macos:
+      optional: true
+    react-native-windows:
+      optional: true
+  checksum: 3d9944fc2c4acbecf917e752cc36ec92c4dcdb590c94c81c78c24df9ddd4b02448e252eb39e0949000b01046cfdfe2b03e1676c5e3ac0fe7eb3bf6b649970c27
   languageName: node
   linkType: hard
 
