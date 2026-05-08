@@ -101,21 +101,23 @@ final class ThemeFactory {
     setImage(assets["secondInstructionIcon"], with: builder.setSecondInstructionIcon(_:))
 
     let instFonts = instructionsTheme["fonts"] as? [String: String] ?? [:]
-    let iproovFonts = (theme["iproov"] as? [String: Any])?["fonts"] as? [String: String] ?? [:]
-    setFont(instFonts["title"] ?? iproovFonts["instructionsTitleFont"], with: builder.setTitleFont(_:), size: 20)
-    setFont(instFonts["caption"] ?? iproovFonts["instructionsCaptionFont"], with: builder.setCaptionFont(_:), size: 20)
+    let iproovTheme = theme["iproov"] as? [String: Any] ?? [:]
+    let iproovFonts = iproovTheme["fonts"] as? [String: String] ?? [:]
+    let iproovFontResource = resolveIProovBaseFont(from: iproovTheme)
+    setFont(instFonts["title"] ?? iproovFonts["instructionsTitleFont"] ?? iproovFontResource, with: builder.setTitleFont(_:), size: 20)
+    setFont(instFonts["caption"] ?? iproovFonts["instructionsCaptionFont"] ?? iproovFontResource, with: builder.setCaptionFont(_:), size: 20)
     setFont(
-      instFonts["firstInstructionTitle"] ?? iproovFonts["instructionsDocumentTypesInstructionsFont"],
+      instFonts["firstInstructionTitle"] ?? iproovFonts["instructionsDocumentTypesInstructionsFont"] ?? iproovFontResource,
       with: builder.setFirstInstructionTitleFont(_:),
       size: 20
     )
     setFont(
-      instFonts["secondInstructionTitle"] ?? iproovFonts["instructionsDocumentTipsInstructionsFont"],
+      instFonts["secondInstructionTitle"] ?? iproovFonts["instructionsDocumentTipsInstructionsFont"] ?? iproovFontResource,
       with: builder.setSecondInstructionTitleFont(_:),
       size: 20
     )
     setFont(
-      instFonts["continueButton"] ?? iproovFonts["instructionsButtonFont"],
+      instFonts["continueButton"] ?? iproovFonts["instructionsButtonFont"] ?? iproovFontResource,
       with: builder.setContinueButtonFont(_:),
       size: 20
     )
@@ -166,11 +168,13 @@ final class ThemeFactory {
     setImage(assets["cameraImage"], with: builder.setCameraImage(_:))
 
     let permFonts = cameraPermissionTheme["fonts"] as? [String: String] ?? [:]
-    let iproovFonts = (theme["iproov"] as? [String: Any])?["fonts"] as? [String: String] ?? [:]
-    setFont(permFonts["title"] ?? iproovFonts["permissionTitleFont"], with: builder.setTitleFont(_:), size: 20)
-    setFont(permFonts["caption"] ?? iproovFonts["permissionCaptionFont"], with: builder.setCaptionFont(_:), size: 20)
+    let iproovTheme = theme["iproov"] as? [String: Any] ?? [:]
+    let iproovFonts = iproovTheme["fonts"] as? [String: String] ?? [:]
+    let iproovFontResource = resolveIProovBaseFont(from: iproovTheme)
+    setFont(permFonts["title"] ?? iproovFonts["permissionTitleFont"] ?? iproovFontResource, with: builder.setTitleFont(_:), size: 20)
+    setFont(permFonts["caption"] ?? iproovFonts["permissionCaptionFont"] ?? iproovFontResource, with: builder.setCaptionFont(_:), size: 20)
     setFont(
-      permFonts["checkPermissionButton"] ?? iproovFonts["permissionButtonFont"],
+      permFonts["checkPermissionButton"] ?? iproovFonts["permissionButtonFont"] ?? iproovFontResource,
       with: builder.setCheckPermissionButtonTextFont(_:),
       size: 20
     )
@@ -215,6 +219,7 @@ final class ThemeFactory {
     let assets = instructionsTheme["assets"] as? [String: String] ?? [:]
     setImage(assets["closeButtonIcon"], with: builder.setCloseButtonImage(_:))
     setImage(assets["logoImage"], with: builder.setLogoImage(_:))
+    _ = applyIProovBaseFont(in: builder, with: instructionsTheme)
 
     return builder
   }
@@ -264,14 +269,16 @@ final class ThemeFactory {
     setImage(assets["retryImage"], with: builder.setRetryImage(_:))
 
     let resultFonts = resultTheme["fonts"] as? [String: String] ?? [:]
-    let iproovFonts = (theme["iproov"] as? [String: Any])?["fonts"] as? [String: String] ?? [:]
+    let iproovTheme = theme["iproov"] as? [String: Any] ?? [:]
+    let iproovFonts = iproovTheme["fonts"] as? [String: String] ?? [:]
+    let iproovFontResource = resolveIProovBaseFont(from: iproovTheme)
     setFont(
-      resultFonts["text"] ?? iproovFonts["resultMessageFont"],
+      resultFonts["text"] ?? iproovFonts["resultMessageFont"] ?? iproovFontResource,
       with: builder.setMessageFont(_:),
       size: 20
     )
     setFont(
-      resultFonts["retryButton"] ?? iproovFonts["resultRetryButtonFont"],
+      resultFonts["retryButton"] ?? iproovFonts["resultRetryButtonFont"] ?? iproovFontResource,
       with: builder.setRetryButtonTextFont(_:),
       size: 20
     )
@@ -436,21 +443,66 @@ final class ThemeFactory {
       return trimmed
     }
 
-    let baseName = (trimmed as NSString).deletingPathExtension
+    let pathComponent = (trimmed as NSString).lastPathComponent
+    if UIFont(name: pathComponent, size: UIFont.systemFontSize) != nil {
+      return pathComponent
+    }
+
+    let baseName = (pathComponent as NSString).deletingPathExtension
     if UIFont(name: baseName, size: UIFont.systemFontSize) != nil {
       return baseName
     }
 
     let wanted = baseName.lowercased()
     for family in UIFont.familyNames {
+      if family.lowercased().contains(wanted) {
+        let familyCandidates = UIFont.fontNames(forFamilyName: family)
+        if let first = familyCandidates.first {
+          return first
+        }
+      }
       for candidate in UIFont.fontNames(forFamilyName: family) {
-        if candidate.lowercased() == wanted {
+        let candidateNormalized = candidate.lowercased()
+        if candidateNormalized == wanted || candidateNormalized.contains(wanted) {
           return candidate
         }
       }
     }
 
     return nil
+  }
+
+  private static func applyIProovBaseFont(
+    in builder: IProovLivenessCustomizationBuilder,
+    with iproovTheme: [String: Any]
+  ) -> IProovLivenessCustomizationBuilder {
+    guard let baseFont = resolveIProovBaseFont(from: iproovTheme) else {
+      return builder
+    }
+
+    if let resolvedName = resolveFontName(baseFont) {
+      _ = builder.setFont(withName: resolvedName)
+      return builder
+    }
+
+    let fallbackName = ((baseFont as NSString).lastPathComponent as NSString).deletingPathExtension
+    if !fallbackName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+      _ = builder.setFont(withName: fallbackName)
+    }
+    return builder
+  }
+
+  private static func resolveIProovBaseFont(from iproovTheme: [String: Any]) -> String? {
+    if let fontResource = iproovTheme["fontResource"] as? String,
+       !fontResource.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+      return fontResource
+    }
+
+    guard let fontPath = iproovTheme["fontPath"] as? String else { return nil }
+    let trimmedPath = fontPath.trimmingCharacters(in: .whitespacesAndNewlines)
+    if trimmedPath.isEmpty { return nil }
+    let lastPathComponent = (trimmedPath as NSString).lastPathComponent
+    return (lastPathComponent as NSString).deletingPathExtension
   }
 
   private static func getResultStyleApperance(from colors: [String: String]) -> BlobAnimationAppearance {

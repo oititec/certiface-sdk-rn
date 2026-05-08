@@ -37,6 +37,7 @@
 	<string></string>
 	<key>UIAppFonts</key>
 	<array>
+		<string>sixty.ttf</string>
 		<string>fonts/sixty.ttf</string>
 	</array>
 	<key>UILaunchStoryboardName</key>

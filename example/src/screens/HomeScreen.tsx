@@ -103,6 +103,8 @@ const HomeScreen = () => {
       },
     },
     iproov: {
+      fontResource: 'sixty',
+      fontPath: 'fonts/sixty.ttf',
       colors: {
         closeButtonColor: '#FFFFFF',
         title: '#FFFFFF',

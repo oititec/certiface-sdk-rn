@@ -179,6 +179,8 @@ export interface IProovTheme {
   texts?: IProovTexts;
   assets?: IProovAssets;
   fonts?: IProovFonts;
+  fontResource?: string;
+  fontPath?: string;
 }
 
 /**
