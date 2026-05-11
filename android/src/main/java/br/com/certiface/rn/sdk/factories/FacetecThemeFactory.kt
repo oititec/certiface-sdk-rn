@@ -63,20 +63,12 @@ object FacetecThemeFactory {
       )
     }
 
-    Log.d(TAG, "🏭 Iniciando construção do tema Facetec customizado...")
     val facetecDrawables = AssetProcessor.processFacetecAssets(theme)
-    Log.d(TAG, "📦 Assets processados: ${facetecDrawables.size} encontrados")
-
-    Log.d(TAG, "🎨 Assets encontrados para processamento: ${facetecDrawables.size}")
-    facetecDrawables.forEach { (key, value) ->
-      Log.d(TAG, "   📎 $key = '$value'")
-    }
 
     if (facetecDrawables.isNotEmpty()) {
-      Log.d(TAG, "🎨 Configurando drawables customizados: ${facetecDrawables.size} assets")
       setFacetecDrawablesMap(facetecDrawables)
     } else {
-      Log.d(TAG, "📋 Nenhum drawable customizado encontrado, usando padrões")
+      Log.d(TAG, "Nenhum drawable customizado encontrado, usando padrões")
     }
 
     val customFacetecTexts = hashMapOf<FacetecTextKey, String>()

@@ -88,7 +88,6 @@ object IProovThemeFactory {
     val showInstructionScreen = instructionsConfiguration?.getBoolean("showInstructionScreen") ?: true
     val instructionStatusBarDarkIcons = instructionsFlags?.getBoolean("statusBarIsDarkIcons") ?: false
 
-    Log.d(TAG, "🏭 Iniciando construção do tema IProov customizado...")
     val iproovDrawablesRaw = AssetProcessor.processIProovAssets(theme)
     val iproovDrawables = if (context != null && iproovDrawablesRaw.isNotEmpty()) {
       iproovDrawablesRaw.mapValues { (_, value) ->
@@ -103,18 +102,11 @@ object IProovThemeFactory {
     } else {
       iproovDrawablesRaw
     }
-    Log.d(TAG, "📦 Assets processados: ${iproovDrawables.size} encontrados")
-
-    Log.d(TAG, "🎨 Assets encontrados para processamento: ${iproovDrawables.size}")
-    iproovDrawables.forEach { (key, value) ->
-      Log.d(TAG, "   📎 $key = '$value'")
-    }
 
     if (iproovDrawables.isNotEmpty()) {
-      Log.d(TAG, "🎨 Configurando drawables customizados: ${iproovDrawables.size} assets")
       setDrawablesKey(iproovDrawables)
     } else {
-      Log.d(TAG, "📋 Nenhum drawable customizado encontrado, usando padrões")
+      Log.d(TAG, "Nenhum drawable customizado encontrado, usando padrões")
     }
 
     setInstructionsTheme {
@@ -138,16 +130,14 @@ object IProovThemeFactory {
 
       when (val contextImageRes = iproovDrawables[IProovDrawablesKey.INSTRUCTIONS_CONTEXT_IMAGE]) {
         is Int -> if (contextImageRes != 0) {
-          Log.d(TAG, "✅ Usando context image customizado: $contextImageRes")
           setContextImage(contextImageRes)
         }
         is String -> context?.let { ctx ->
           val resourceId = AssetProcessor.getDrawableResourceId(ctx, contextImageRes)
           if (resourceId != 0) {
-            Log.d(TAG, "✅ Usando context image customizado: $resourceId")
             setContextImage(resourceId)
           } else {
-            Log.w(TAG, "⚠️ Context image customizado não encontrado")
+            Log.w(TAG, "Context image customizado não encontrado")
           }
         }
         else -> {}
