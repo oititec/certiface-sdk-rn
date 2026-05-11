@@ -59,5 +59,20 @@ target 'RnSdkExample' do
         File.write(fmt_base, patched)
       end
     end
+    hermes_replace_script = File.expand_path(
+      File.join(config[:reactNativePath], 'sdks', 'hermes-engine', 'utils', 'replace_hermes_version.js'),
+      __dir__
+    )
+    if File.exist?(hermes_replace_script)
+      script_content = File.read(hermes_replace_script)
+      fixed_script_content = script_content.gsub(
+        'execSync(`tar -xf ${tarballURLPath} -C ${finalLocation}`);',
+        'execSync(`tar -xf "${tarballURLPath}" -C "${finalLocation}"`);'
+      )
+      if fixed_script_content != script_content
+        File.chmod(0644, hermes_replace_script)
+        File.write(hermes_replace_script, fixed_script_content)
+      end
+    end
   end
 end
