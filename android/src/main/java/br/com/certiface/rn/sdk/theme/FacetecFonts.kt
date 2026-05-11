@@ -8,56 +8,44 @@ class FacetecFonts(
     private val permissionFonts: ReadableMap?,
     private val facetecFonts: ReadableMap?
 ) {
-    private val instructionsTitleFont: String = 
-        "fonts/" + (instructionsFonts?.getString("title")?.lowercase() ?: "ubuntu_regular") + ".ttf"
-    
-    private val instructionsCaptionFont: String = 
-        "fonts/" + (instructionsFonts?.getString("caption")?.lowercase() ?: "ubuntu_regular") + ".ttf"
-    
-    private val instructionsFirstInstructionTitleFont: String = 
-        "fonts/" + (instructionsFonts?.getString("firstInstructionTitle")?.lowercase() ?: "ubuntu_regular") + ".ttf"
-    
-    private val instructionsSecondInstructionTitleFont: String = 
-        "fonts/" + (instructionsFonts?.getString("secondInstructionTitle")?.lowercase() ?: "ubuntu_regular") + ".ttf"
-    
-    private val instructionsContinueButtonFont: String = 
-        "fonts/" + (instructionsFonts?.getString("continueButton")?.lowercase() ?: "ubuntu_regular") + ".ttf"
-    
-    private val permissionTitleFont: String = 
-        "fonts/" + (permissionFonts?.getString("title")?.lowercase() ?: "ubuntu_regular") + ".ttf"
-    
-    private val permissionCaptionFont: String = 
-        "fonts/" + (permissionFonts?.getString("caption")?.lowercase() ?: "ubuntu_regular") + ".ttf"
-    
-    private val permissionButtonFont: String = 
-        "fonts/" + (permissionFonts?.getString("checkPermissionButton")?.lowercase() ?: "ubuntu_regular") + ".ttf"
-    
-    private val guidanceHeaderFont: String = 
-        "fonts/" + (facetecFonts?.getString("guidanceHeader")?.lowercase() ?: "ubuntu_regular") + ".ttf"
-    
-    private val guidanceSubtextFont: String = 
-        "fonts/" + (facetecFonts?.getString("guidanceSubtext")?.lowercase() ?: "ubuntu_regular") + ".ttf"
-    
-    private val guidanceButtonFont: String = 
-        "fonts/" + (facetecFonts?.getString("guidanceButton")?.lowercase() ?: "ubuntu_regular") + ".ttf"
-    
-    private val readyScreenHeaderFont: String = 
-        "fonts/" + (facetecFonts?.getString("readyScreenHeader")?.lowercase() ?: "ubuntu_regular") + ".ttf"
-    
-    private val readyScreenSubtextFont: String = 
-        "fonts/" + (facetecFonts?.getString("readyScreenSubtext")?.lowercase() ?: "ubuntu_regular") + ".ttf"
-    
-    private val retryScreenHeaderFont: String = 
-        "fonts/" + (facetecFonts?.getString("retryScreenHeader")?.lowercase() ?: "ubuntu_regular") + ".ttf"
-    
-    private val retryScreenSubtextFont: String = 
-        "fonts/" + (facetecFonts?.getString("retryScreenSubtext")?.lowercase() ?: "ubuntu_regular") + ".ttf"
-    
-    private val resultScreenMessageFont: String = 
-        "fonts/" + (facetecFonts?.getString("resultScreenMessage")?.lowercase() ?: "ubuntu_regular") + ".ttf"
-    
-    private val feedbackMessageFont: String = 
-        "fonts/" + (facetecFonts?.getString("feedbackMessage")?.lowercase() ?: "ubuntu_regular") + ".ttf"
+    private val instructionsTitleFont: String = fontAssetPath(instructionsFonts?.getString("title"))
+
+    private val instructionsCaptionFont: String = fontAssetPath(instructionsFonts?.getString("caption"))
+
+    private val instructionsFirstInstructionTitleFont: String =
+        fontAssetPath(instructionsFonts?.getString("firstInstructionTitle"))
+
+    private val instructionsSecondInstructionTitleFont: String =
+        fontAssetPath(instructionsFonts?.getString("secondInstructionTitle"))
+
+    private val instructionsContinueButtonFont: String =
+        fontAssetPath(instructionsFonts?.getString("continueButton"))
+
+    private val permissionTitleFont: String = fontAssetPath(permissionFonts?.getString("title"))
+
+    private val permissionCaptionFont: String = fontAssetPath(permissionFonts?.getString("caption"))
+
+    private val permissionButtonFont: String =
+        fontAssetPath(permissionFonts?.getString("checkPermissionButton"))
+
+    private val guidanceHeaderFont: String = fontAssetPath(facetecFonts?.getString("guidanceHeader"))
+
+    private val guidanceSubtextFont: String = fontAssetPath(facetecFonts?.getString("guidanceSubtext"))
+
+    private val guidanceButtonFont: String = fontAssetPath(facetecFonts?.getString("guidanceButton"))
+
+    private val readyScreenHeaderFont: String = fontAssetPath(facetecFonts?.getString("readyScreenHeader"))
+
+    private val readyScreenSubtextFont: String = fontAssetPath(facetecFonts?.getString("readyScreenSubtext"))
+
+    private val retryScreenHeaderFont: String = fontAssetPath(facetecFonts?.getString("retryScreenHeader"))
+
+    private val retryScreenSubtextFont: String = fontAssetPath(facetecFonts?.getString("retryScreenSubtext"))
+
+    private val resultScreenMessageFont: String =
+        fontAssetPath(facetecFonts?.getString("resultScreenMessage"))
+
+    private val feedbackMessageFont: String = fontAssetPath(facetecFonts?.getString("feedbackMessage"))
 
     fun apply(): HashMap<FacetecFontsKey, String> {
         return hashMapOf(

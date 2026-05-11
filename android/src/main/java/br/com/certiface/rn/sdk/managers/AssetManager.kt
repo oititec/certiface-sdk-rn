@@ -16,13 +16,10 @@ object AssetManager {
             Log.d(TAG, "AssetManager already initialized")
             return
         }
-        
-        Log.d(TAG, "Initializing AssetManager...")
-        
+                
         theme?.let { processThemeAssets(context, it) }
         
         isInitialized = true
-        Log.d(TAG, "AssetManager initialized successfully")
     }
     
     private fun processThemeAssets(context: Context, theme: ReadableMap) {

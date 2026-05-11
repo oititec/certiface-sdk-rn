@@ -1,427 +1,245 @@
 import { useState } from 'react';
 import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
+  ActivityIndicator,
+  Alert,
+  Pressable,
   SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
-  Switch,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import {
-  CertifaceSDK,
-  Environment,
-  LivenessProvider,
-  type CertifaceTheme,
-  type LivenessResult,
-} from '@certiface/sdk';
+import { CertifaceSDK, Environment, type LivenessResult } from '@certiface/sdk';
+import { useNavigation } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { RootTabParamList } from '../navigation/AppNavigator';
 import { useUserStore } from '../store/userStore';
+import { customTheme } from '../constants/customTheme';
+
+type HomeNavigationProp = BottomTabNavigationProp<RootTabParamList, 'Home'>;
+type JourneyVariant = 'DEFAULT' | 'CUSTOM' | 'NO_INSTRUCTIONS';
 
 const HomeScreen = () => {
-  const [results, setResults] = useState<string[]>([]);
-  const [isCustomEnabled, setIsCustomEnabled] = useState(false);
-  const [environment, setEnvironment] = useState<Environment>(Environment.HML);
-  const [provider, setProvider] = useState<LivenessProvider>(
-    LivenessProvider.FACETEC
-  );
-  const { appKey, setAppKey, setLivenessProvider } = useUserStore();
+  const navigation = useNavigation<HomeNavigationProp>();
+  const [loading, setLoading] = useState(false);
+  const {
+    appKey,
+    selectedFeature,
+    livenessProvider,
+    environment,
+    setSelectedFeature,
+    setEnvironment,
+    addResult,
+  } = useUserStore();
 
-  const customTheme: CertifaceTheme = {
-    facetec: {
-      colors: {
-        readyScreenHeader: '#FFFFFF',
-        readyScreenSubtext: '#CCCCCC',
-        readyScreenOvalFill: '#FF6B35',
-        readyScreenTextBackground: '#444444',
-        resultScreenForeground: '#FF6B35',
-        resultScreenBackground: '#F0F8FF',
-        ovalStroke: '#FF6B35',
-        ovalProgressFirst: '#FF6B35',
-        ovalProgressSecond: '#FFD700',
-        overlayBackground: '#80000000',
-        frameBorder: '#FF6B35',
-        frameBackground: '#1A1A1A',
-        feedbackBarBackground: '#FFF8DC',
-        feedbackMessage: '#333333',
-        guidanceBackground: '#2E2E2E',
-        guidanceForeground: '#FFFFFF',
-        guidanceButtonTextNormal: '#FFFFFF',
-        guidanceButtonTextHighlight: '#FFFFFF',
-        guidanceButtonTextDisabled: '#AAAAAA',
-        guidanceButtonBackgroundNormal: '#FF6B35',
-        guidanceButtonBackgroundHighlight: '#FF6B35',
-        guidanceButtonBackgroundDisabled: '#666666',
-        guidanceButtonBorder: '#FF6B35',
-      },
-      texts: {
-        readyHeader1: 'Prepare-se',
-        readyHeader2: 'para verificação',
-        readyMessage1: 'Posicione seu rosto',
-        readyMessage2: 'dentro do círculo',
-        readyButton: 'Iniciar',
-        retryHeader: 'Vamos tentar novamente',
-        retrySubheader: 'Ajustes necessários',
-        retryButton: 'Tentar Novamente',
-        resultSuccessMessage: 'Verificação concluída!',
-        feedbackCenterFace: 'Centralize seu rosto',
-        feedbackHoldSteady: 'Mantenha-se parado',
-        feedbackMovePhoneCloser: 'Aproxime o dispositivo',
-        feedbackMovePhoneAway: 'Afaste o dispositivo',
-      },
-      assets: {
-        overlayBrandImage: 'shell',
-        cancelButtonIcon: 'shell',
-        resultScreenCustomActivityIndicatorImage: 'shell',
-      },
-      fonts: {
-        readyScreenHeader: 'sixty',
-        readyScreenSubtext: 'sixty',
-        resultScreenMessage: 'sixty',
-        retryScreenHeader: 'sixty',
-        retryScreenSubtext: 'sixty',
-        feedbackMessage: 'sixty',
-        guidanceHeader: 'sixty',
-        guidanceSubtext: 'sixty',
-        guidanceButton: 'sixty',
-      },
-    },
-    iproov: {
-      colors: {
-        title: '#FFFFFF',
-        titleBackground: '#2E2E2E',
-        promptText: '#FFFFFF',
-        promptBackground: '#1A1A1A',
-        background: '#FF6B35',
-        ovalReady: '#FF6B35',
-        ovalNotReady: '#FF3030',
-        ovalCapturing: '#FFFFFF',
-        ovalCompleted: '#FF6B35',
-      },
-      texts: {
-        title: 'Verificação Biométrica',
-      },
-      assets: {
-        closeButtonIcon: 'shell',
-        logoImage: 'shell',
-      },
-      fonts: {
-        instructionsTitleFont: 'sixty',
-        instructionsCaptionFont: 'sixty',
-        instructionsDocumentTypesInstructionsFont: 'sixty',
-        instructionsDocumentTipsInstructionsFont: 'sixty',
-        instructionsButtonFont: 'sixty',
-        permissionTitleFont: 'sixty',
-        permissionCaptionFont: 'sixty',
-        permissionButtonFont: 'sixty',
-        resultMessageFont: 'sixty',
-        resultRetryButtonFont: 'sixty',
-      },
-    },
-    instructions: {
-      configuration: {
-        showInstructionScreen: true,
-      },
-      colors: {
-        statusBar: '#2E2E2E',
-        background: '#2E2E2E',
-        backButtonIcon: '#2E2E2E',
-        backButtonBackground: '#2E2E2E',
-        backButtonBorder: '#2E2E2E',
-        bottomSheet: '#1A1A1A',
-        title: '#FFFFFF',
-        caption: '#CCCCCC',
-        firstInstructionTitle: '#FFFFFF',
-        secondInstructionTitle: '#FFFFFF',
-        continueButtonText: '#FFFFFF',
-        continueButtonBackground: '#FF6B35',
-        continueButtonBorder: '#FF6B35',
-      },
-      texts: {
-        title: 'Verificação de Identidade',
-        caption: 'Siga as instruções para completar o processo',
-        firstInstruction: 'Mantenha o documento bem iluminado',
-        secondInstruction: 'Use um documento oficial com foto',
-        continueButton: 'Continuar',
-      },
-      assets: {
-        backButtonIcon: 'shell',
-        contextImage: 'shell',
-        firstInstructionIcon: 'shell',
-        secondInstructionIcon: 'shell',
-      },
-      fonts: {
-        title: 'sixty',
-        caption: 'sixty',
-        firstInstructionTitle: 'sixty',
-        secondInstructionTitle: 'sixty',
-        continueButton: 'sixty',
-      },
-    },
-    permission: {
-      colors: {
-        statusBar: '#2E2E2E',
-        background: '#2E2E2E',
-        backButtonIcon: '#2E2E2E',
-        backButtonBackground: '#2E2E2E',
-        backButtonBorder: '#2E2E2E',
-        cameraImage: '#FFFFFF',
-        title: '#FFFFFF',
-        caption: '#FFFFFF',
-        checkPermissionButtonText: '#FFFFFF',
-        checkPermissionButtonBackground: '#FF6B35',
-        checkPermissionButtonBorder: '#FF6B35',
-        bottomSheet: '#FF6B35',
-        bottomSheetTitle: '#FF6B35',
-        bottomSheetCaption: '#FF6B35',
-        openSettingsButtonText: '#FF6B35',
-        openSettingsButtonBackground: '#FF6B35',
-        openSettingsButtonBorder: '#FF6B35',
-        closeButtonText: '#FF6B35',
-        closeButtonBackground: '#FF6B35',
-        closeButtonBorder: '#FF6B35',
-      },
-      texts: {
-        title: 'Permissões Necessárias',
-        caption: 'Permissões Necessárias',
-        checkPermissionButton: 'Permitir Acesso',
-        bottomSheetTitle: 'Permitir Acesso',
-        bottomSheetCaption: 'Permitir Acesso',
-        openSettingsButton: 'Permitir Acesso',
-        closeButton: 'Permitir Acesso',
-      },
-      assets: {
-        backButtonIcon: 'shell',
-        cameraImage: 'shell',
-      },
-      fonts: {
-        title: 'sixty',
-        caption: 'sixty',
-        checkPermissionButton: 'sixty',
-        bottomSheetTitle: 'sixty',
-        bottomSheetCaption: 'sixty',
-        opentSettingsButton: 'sixty',
-        closeButton: 'sixty',
-      },
-    },
-    processing: {
-      colors: {
-        statusBar: '#1A1A1A',
-        background: '#1A1A1A',
-        loading: '#FFFFFF',
-      },
-    },
-    result: {
-      colors: {
-        successStatusBar: '#E8F5E8',
-        successBackground: '#E8F5E8',
-        successText: '#2E7D32',
-        errorStatusBar: '#FFEBEE',
-        errorBackground: '#FFEBEE',
-        errorText: '#C62828',
-        retryBackground: '#C62828',
-        retryText: '#FFEBEE',
-        retryButtonText: '#FF6B35',
-        retryButtonBackground: '#FFFFFF',
-        retryButtonBorder: '#FFFFFF',
-      },
-      texts: {
-        success: 'Verificação concluída com sucesso!',
-        error: 'Houve um erro na verificação. Tente novamente.',
-        retryButton: 'Tentar Novamente',
-      },
-      assets: {
-        successImage: 'shell',
-        errorImage: 'shell',
-        retryImage: 'shell',
-      },
-      fonts: {
-        text: 'sixty',
-        retryButton: 'sixty',
-      },
-    },
-  };
-
-  const addResult = (message: string) => {
-    setResults((prev) => [
-      ...prev,
-      `${new Date().toLocaleTimeString()}: ${message}`,
-    ]);
-  };
-
-  const handleCheckPermission = async () => {
-    try {
-      const hasPermission = await CertifaceSDK.checkCameraPermission();
-      addResult(
-        `Camera permission check: ${hasPermission ? 'Granted' : 'Denied'}`
-      );
-    } catch (error) {
-      addResult(`Camera permission check error: ${error}`);
-    }
-  };
-
-  const handleRequestPermission = async () => {
-    try {
-      const granted = await CertifaceSDK.requestCameraPermission();
-      addResult(`Camera permission request: ${granted ? 'Granted' : 'Denied'}`);
-    } catch (error) {
-      addResult(`Camera permission request error: ${error}`);
-    }
-  };
-
-  const handleStartJourney = async () => {
+  const runJourney = async (variant: JourneyVariant) => {
     if (!appKey) {
-      addResult('Error: App Key not set. Go to Session to generate one.');
+      Alert.alert('App Key ausente', 'Gere a App Key na aba Credencial.');
+      addResult('ERRO: App Key não configurada');
       return;
     }
 
+    if (loading) {
+      return;
+    }
+
+    const themeEnabled = variant === 'CUSTOM' || variant === 'NO_INSTRUCTIONS';
+    const hideInstructions = variant === 'NO_INSTRUCTIONS';
+
+    const selectedTheme = hideInstructions
+      ? {
+          ...customTheme,
+          instructions: {
+            ...customTheme.instructions,
+            configuration: {
+              showInstructionScreen: false,
+            },
+          },
+        }
+      : customTheme;
+
     try {
+      setLoading(true);
       addResult(
-        `Starting journey with provider: ${provider}, environment: ${environment}, custom theme: ${isCustomEnabled ? 'ENABLED' : 'DISABLED'}`
+        `Iniciando jornada (${selectedFeature} | ${environment} | tema ${themeEnabled ? 'ON' : 'OFF'})`
       );
       const result: LivenessResult = await CertifaceSDK.startJourney(
         appKey,
         environment,
-        provider,
-        isCustomEnabled,
-        isCustomEnabled ? customTheme : undefined
+        livenessProvider,
+        themeEnabled,
+        themeEnabled ? selectedTheme : undefined
       );
 
       const { valid, codID, protocol } = result;
       addResult(
-        `✅ Liveness Success - Valid: ${valid}, CodID: ${codID}, Protocol: ${protocol}`
+        `✅ Sucesso: valid=${valid} codID=${codID} protocol=${protocol}`
       );
+      navigation.navigate('Results');
     } catch (error) {
-      addResult(`Start Journey error: ${error}`);
+      addResult(`ERRO: ${error}`);
+      navigation.navigate('Results');
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const clearResults = () => {
-    setResults([]);
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView
-        style={styles.keyboardAvoidingView}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
       >
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <Text style={styles.subtitle}>SDK Test Functions</Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>Certiface SDK</Text>
+          <Text style={styles.subtitle}>Teste de jornada</Text>
+        </View>
 
+        <View style={styles.card}>
           <View style={styles.statusContainer}>
-            <Text style={styles.statusLabel}>App Key Status:</Text>
+            <Text style={styles.statusLabel}>App Key</Text>
             <Text
               style={[
                 styles.statusText,
                 appKey ? styles.statusReady : styles.statusNotReady,
               ]}
             >
-              {appKey ? 'Ready' : 'Not Set - Go to Session'}
+              {appKey ? 'Pronta para uso' : 'Não configurada'}
             </Text>
           </View>
 
-          <View style={styles.switchContainer}>
-            <Text style={styles.switchLabel}>Provider:</Text>
-            <Switch
-              value={provider === LivenessProvider.IPROOV}
-              onValueChange={(value) => {
-                const newProvider = value
-                  ? LivenessProvider.IPROOV
-                  : LivenessProvider.FACETEC;
-                setProvider(newProvider);
-                setLivenessProvider(newProvider);
-                setAppKey('');
-              }}
-              trackColor={{ false: '#767577', true: '#4A90E2' }}
-              thumbColor={
-                provider === LivenessProvider.IPROOV ? '#FFFFFF' : '#f4f3f4'
-              }
-            />
-            <Text style={styles.switchStatus}>{provider}</Text>
+          <Text style={styles.segmentTitle}>Feature</Text>
+          <View style={styles.segment}>
+            <Pressable
+              style={[
+                styles.segmentOption,
+                selectedFeature === 'FACETEC' && styles.segmentOptionActive,
+              ]}
+              onPress={() => setSelectedFeature('FACETEC')}
+            >
+              <Text
+                style={[
+                  styles.segmentOptionText,
+                  selectedFeature === 'FACETEC' &&
+                    styles.segmentOptionTextActive,
+                ]}
+              >
+                Facetec
+              </Text>
+            </Pressable>
+            <Pressable
+              style={[
+                styles.segmentOption,
+                selectedFeature === 'IPROOV' && styles.segmentOptionActive,
+              ]}
+              onPress={() => setSelectedFeature('IPROOV')}
+            >
+              <Text
+                style={[
+                  styles.segmentOptionText,
+                  selectedFeature === 'IPROOV' &&
+                    styles.segmentOptionTextActive,
+                ]}
+              >
+                iProov
+              </Text>
+            </Pressable>
           </View>
 
-          <View style={styles.switchContainer}>
-            <Text style={styles.switchLabel}>Environment:</Text>
-            <Switch
-              value={environment === Environment.PRD}
-              onValueChange={(value) =>
-                setEnvironment(value ? Environment.PRD : Environment.HML)
-              }
-              trackColor={{ false: '#767577', true: '#0F9D58' }}
-              thumbColor={
-                environment === Environment.PRD ? '#FFFFFF' : '#f4f3f4'
-              }
-            />
-            <Text style={styles.switchStatus}>{environment}</Text>
+          <Text style={styles.segmentTitle}>Ambiente</Text>
+          <View style={styles.segment}>
+            <Pressable
+              style={[
+                styles.segmentOption,
+                environment === Environment.HML && styles.segmentOptionActive,
+              ]}
+              onPress={() => setEnvironment(Environment.HML)}
+            >
+              <Text
+                style={[
+                  styles.segmentOptionText,
+                  environment === Environment.HML &&
+                    styles.segmentOptionTextActive,
+                ]}
+              >
+                HML
+              </Text>
+            </Pressable>
+            <Pressable
+              style={[
+                styles.segmentOption,
+                environment === Environment.PRD && styles.segmentOptionActive,
+              ]}
+              onPress={() => setEnvironment(Environment.PRD)}
+            >
+              <Text
+                style={[
+                  styles.segmentOptionText,
+                  environment === Environment.PRD &&
+                    styles.segmentOptionTextActive,
+                ]}
+              >
+                PRD
+              </Text>
+            </Pressable>
           </View>
+        </View>
 
-          <View style={styles.switchContainer}>
-            <Text style={styles.switchLabel}>Custom Theme:</Text>
-            <Switch
-              value={isCustomEnabled}
-              onValueChange={setIsCustomEnabled}
-              trackColor={{ false: '#767577', true: '#FF6B35' }}
-              thumbColor={isCustomEnabled ? '#FFFFFF' : '#f4f3f4'}
-            />
-            <Text style={styles.switchStatus}>
-              {isCustomEnabled ? 'ON' : 'OFF'}
+        <Text style={styles.sectionTitle}>Ações</Text>
+
+        <View style={styles.actionsList}>
+          <TouchableOpacity
+            style={[
+              styles.actionCard,
+              styles.primaryAction,
+              (!appKey || loading) && styles.actionDisabled,
+            ]}
+            onPress={() => runJourney('DEFAULT')}
+            disabled={!appKey || loading}
+          >
+            <Text style={styles.primaryActionTitle}>Default</Text>
+            <Text style={styles.primaryActionDescription}>Fluxo normal</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.actionCard,
+              styles.secondaryAction,
+              (!appKey || loading) && styles.actionDisabled,
+            ]}
+            onPress={() => runJourney('CUSTOM')}
+            disabled={!appKey || loading}
+          >
+            <Text style={styles.secondaryActionTitle}>Custom</Text>
+            <Text style={styles.secondaryActionDescription}>
+              Tema customizado
             </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.actionCard,
+              styles.secondaryAction,
+              (!appKey || loading) && styles.actionDisabled,
+            ]}
+            onPress={() => runJourney('NO_INSTRUCTIONS')}
+            disabled={!appKey || loading}
+          >
+            <Text style={styles.secondaryActionTitle}>Sem instruções</Text>
+            <Text style={styles.secondaryActionDescription}>
+              Com tema customizado
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {loading ? (
+          <View style={styles.loadingRow}>
+            <ActivityIndicator size="small" color="#2563EB" />
+            <Text style={styles.loadingText}>Executando jornada...</Text>
           </View>
-
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={handleCheckPermission}
-            >
-              <Text style={styles.buttonText}>Check Camera Permission</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.button}
-              onPress={handleRequestPermission}
-            >
-              <Text style={styles.buttonText}>Request Camera Permission</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.button, !appKey && styles.buttonDisabled]}
-              onPress={handleStartJourney}
-              disabled={!appKey}
-            >
-              <Text style={styles.buttonText}>Start Journey</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.clearButton} onPress={clearResults}>
-              <Text style={styles.buttonText}>Clear Results</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.resultsContainer}>
-            <Text style={styles.resultsTitle}>Results:</Text>
-            <ScrollView style={styles.resultsScroll}>
-              {results.length === 0 ? (
-                <Text style={styles.noResults}>
-                  Sem resultados, tente utilizar os botões!
-                </Text>
-              ) : (
-                results.map((result, index) => (
-                  <Text key={index} style={styles.resultText}>
-                    {result}
-                  </Text>
-                ))
-              )}
-            </ScrollView>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        ) : null}
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -429,123 +247,175 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  keyboardAvoidingView: {
-    flex: 1,
+    backgroundColor: '#F1F5F9',
   },
   scrollView: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
+    padding: 16,
+    paddingBottom: 110,
+  },
+  header: {
+    backgroundColor: '#1E3A8A',
+    borderRadius: 18,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    marginBottom: 20,
+    shadowColor: '#1E293B',
+    shadowOpacity: 0.14,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 5,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    textAlign: 'left',
   },
   subtitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 20,
-    color: '#333',
+    fontSize: 13,
+    marginTop: 4,
+    color: '#E2E8F0',
+    textAlign: 'left',
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#1E293B',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 5,
   },
   statusContainer: {
-    backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 20,
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 14,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: '#F8FAFC',
   },
   statusLabel: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
-    color: '#333',
+    color: '#111827',
   },
   statusText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
   },
   statusReady: {
-    color: '#0F9D58',
+    color: '#16A34A',
   },
   statusNotReady: {
-    color: '#FF3B30',
+    color: '#EF4444',
   },
-  switchContainer: {
-    backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 20,
+  segmentTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1E293B',
+    marginBottom: 8,
+    marginTop: 6,
+  },
+  segment: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  switchLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-  },
-  switchStatus: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginLeft: 10,
-  },
-  buttonContainer: {
-    marginBottom: 20,
-  },
-  button: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: '#E2E8F0',
+    borderRadius: 12,
+    padding: 4,
     marginBottom: 10,
-    alignItems: 'center',
   },
-  buttonDisabled: {
-    backgroundColor: '#cccccc',
-  },
-  clearButton: {
-    backgroundColor: '#FF3B30',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 10,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  resultsContainer: {
-    minHeight: 200,
-    backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 20,
-  },
-  resultsTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#333',
-  },
-  resultsScroll: {
+  segmentOption: {
     flex: 1,
+    borderRadius: 12,
+    paddingVertical: 10,
+    alignItems: 'center',
   },
-  resultText: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 5,
-    fontFamily: 'monospace',
+  segmentOptionActive: {
+    backgroundColor: '#1D4ED8',
   },
-  noResults: {
+  segmentOptionText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#475569',
+  },
+  segmentOptionTextActive: {
+    color: '#FFFFFF',
+  },
+  sectionTitle: {
+    marginTop: 8,
+    marginBottom: 12,
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  actionsList: {
+    gap: 10,
+  },
+  actionCard: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 14,
+    minHeight: 94,
+    justifyContent: 'space-between',
+    shadowColor: '#1E293B',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+  },
+  primaryAction: {
+    backgroundColor: '#DBEAFE',
+  },
+  secondaryAction: {
+    backgroundColor: '#FFF7ED',
+  },
+  actionDisabled: {
+    opacity: 0.5,
+  },
+  actionTitle: {
+    color: '#1F2937',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  actionDescription: {
+    color: '#6B7280',
+    fontSize: 13,
+  },
+  primaryActionTitle: {
+    color: '#1E3A8A',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  primaryActionDescription: {
+    color: '#1D4ED8',
+    fontSize: 13,
+  },
+  secondaryActionTitle: {
+    color: '#9A3412',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  secondaryActionDescription: {
+    color: '#C2410C',
+    fontSize: 13,
+  },
+  loadingRow: {
+    marginTop: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  loadingText: {
+    color: '#1D4ED8',
     fontSize: 14,
-    color: '#999',
-    fontStyle: 'italic',
-    textAlign: 'center',
-    marginTop: 20,
+    fontWeight: '600',
   },
 });
 
