@@ -47,13 +47,13 @@ object IProovThemeFactory {
       buildDefaultIProovFonts(defaultIProovFontValue)
     }
 
-    setTitle(texts?.getString("title") ?: "Verificação Facial")
-    setTitleColor(colors?.getString("titleColor") ?: "#FFFFFF")
-    colors?.getString("closeButtonColor")?.let { setCloseButtonColor(it) }
-    setHeaderBackgroundColor(colors?.getString("headerBackgroundColor") ?: "#121212")
-    setPromptTextColor(colors?.getString("promptTextColor") ?: "#FFFFFF")
-    setPromptBackgroundColor(colors?.getString("promptBackgroundColor") ?: "#1F1F1F")
-    setSurroundColor(colors?.getString("surroundColor") ?: "#00FF00")
+    setTitle(firstString(texts, "title") ?: "Verificação Facial")
+    setTitleColor(firstString(colors, "titleColor", "title") ?: "#FFFFFF")
+    firstString(colors, "closeButtonColor", "closeButtonIcon")?.let { setCloseButtonColor(it) }
+    setHeaderBackgroundColor(firstString(colors, "headerBackgroundColor", "titleBackground") ?: "#121212")
+    setPromptTextColor(firstString(colors, "promptTextColor", "promptText") ?: "#FFFFFF")
+    setPromptBackgroundColor(firstString(colors, "promptBackgroundColor", "promptBackground") ?: "#1F1F1F")
+    setSurroundColor(firstString(colors, "surroundColor", "background") ?: "#00FF00")
     setFontResource(resolvedIProovFontResource)
     applyIProovBaseFont(
       target = this,
@@ -74,10 +74,10 @@ object IProovThemeFactory {
     )
 
     setOvalColors(
-      ready = (colors?.getString("ovalReadyColor") ?: "#00FF00").toColorInt(),
-      notReady = (colors?.getString("ovalNotReadyColor") ?: "#FF0000").toColorInt(),
-      stroke = (colors?.getString("ovalStrokeColor") ?: "#FFFFFF").toColorInt(),
-      completed = (colors?.getString("ovalCompletedColor") ?: "#00FF00").toColorInt()
+      ready = (firstString(colors, "ovalReadyColor", "ovalReady") ?: "#00FF00").toColorInt(),
+      notReady = (firstString(colors, "ovalNotReadyColor", "ovalNotReady") ?: "#FF0000").toColorInt(),
+      stroke = (firstString(colors, "ovalStrokeColor", "ovalCapturing") ?: "#FFFFFF").toColorInt(),
+      completed = (firstString(colors, "ovalCompletedColor", "ovalCompleted") ?: "#00FF00").toColorInt()
     )
 
     val instructionsTheme = theme?.getMap("instructions")
@@ -111,20 +111,35 @@ object IProovThemeFactory {
 
     setInstructionsTheme {
       setShowInstructionScreen(showInstructionScreen)
-      setTitleText(instructionsTexts?.getString("titleText") ?: texts?.getString("instructionsTitleText") ?: "Teste title")
-      setTitleColor(instructionsColors?.getString("titleColor") ?: "#FFFFFF")
-      setCaptionText(instructionsTexts?.getString("captionText") ?: texts?.getString("instructionsCaptionText") ?: "teste caption.")
-      setCaptionColor(instructionsColors?.getString("captionColor") ?: "#AAAAAA")
-      setBackgroundColor(instructionsColors?.getString("backgroundColor") ?: "#1F1F1F")
-      setStatusBarColor(instructionsColors?.getString("statusBarColor") ?: "#1F1F1F")
+      setTitleText(
+        firstString(instructionsTexts, "title", "titleText")
+          ?: firstString(texts, "instructionsTitleText")
+          ?: "Teste title"
+      )
+      setTitleColor(firstString(instructionsColors, "titleColor", "title") ?: "#FFFFFF")
+      setCaptionText(
+        firstString(instructionsTexts, "caption", "captionText")
+          ?: firstString(texts, "instructionsCaptionText")
+          ?: "teste caption."
+      )
+      setCaptionColor(firstString(instructionsColors, "captionColor", "caption") ?: "#AAAAAA")
+      setBackgroundColor(firstString(instructionsColors, "backgroundColor", "background") ?: "#1F1F1F")
+      setStatusBarColor(firstString(instructionsColors, "statusBarColor", "statusBar") ?: "#1F1F1F")
       setStatusBarIsDarkIcons(instructionStatusBarDarkIcons)
-      setBottomSheetColor(instructionsColors?.getString("bottomSheetColor") ?: "#333333")
+      setBottomSheetColor(firstString(instructionsColors, "bottomSheetColor", "bottomSheet") ?: "#333333")
       setBottomSheetCornerRadius(16f)
-      setContinueButtonText(instructionsTexts?.getString("continueButtonText") ?: texts?.getString("continueButtonText") ?: "Startar")
-      setContinueButtonColor(instructionsColors?.getString("continueButtonColor") ?: "#00FF00")
+      setContinueButtonText(
+        instructionsTexts?.getString("continueButton")
+          ?: instructionsTexts?.getString("continueButtonText")
+          ?: texts?.getString("continueButton")
+          ?: texts?.getString("continueButtonText")
+          ?: "Startar"
+      )
+      setContinueButtonColor(
+        firstString(instructionsColors, "continueButtonColor", "continueButtonBackground") ?: "#00FF00"
+      )
       setContinueButtonTextColor(
-        instructionsColors?.getString("continueButtonTextColor")
-          ?: instructionsColors?.getString("continueButtonText")
+        firstString(instructionsColors, "continueButtonTextColor", "continueButtonText")
           ?: "#000000"
       )
 
@@ -149,10 +164,10 @@ object IProovThemeFactory {
     val permissionTexts = permissionTheme?.getMap("texts")
 
     setPermissionTheme {
-      setTitle(permissionTexts?.getString("title") ?: texts?.getString("permissionTitle") ?: "Permissões Necessárias")
-      setTitleColor(permissionColors?.getString("titleColor") ?: "#FFFFFF")
-      setBackgroundColor(permissionColors?.getString("backgroundColor") ?: "#1F1F1F")
-      setStatusBarColor(permissionColors?.getString("statusBarColor") ?: "#1F1F1F")
+      setTitle(firstString(permissionTexts, "title") ?: firstString(texts, "permissionTitle") ?: "Permissões Necessárias")
+      setTitleColor(firstString(permissionColors, "titleColor", "title") ?: "#FFFFFF")
+      setBackgroundColor(firstString(permissionColors, "backgroundColor", "background") ?: "#1F1F1F")
+      setStatusBarColor(firstString(permissionColors, "statusBarColor", "statusBar") ?: "#1F1F1F")
       setStatusBarIsDarkIcons(false)
     }
 
@@ -160,9 +175,9 @@ object IProovThemeFactory {
     val processingColors = processingTheme?.getMap("colors")
 
     setProcessingTheme {
-      setBackgroundColor(processingColors?.getString("backgroundColor") ?: "#000000")
-      setLoadingDialogColor(processingColors?.getString("loadingDialogColor") ?: "#FFFFFF")
-      setStatusBarColor(processingColors?.getString("statusBarColor") ?: "#000000")
+      setBackgroundColor(firstString(processingColors, "backgroundColor", "background") ?: "#000000")
+      setLoadingDialogColor(firstString(processingColors, "loadingDialogColor", "loading") ?: "#FFFFFF")
+      setStatusBarColor(firstString(processingColors, "statusBarColor", "statusBar") ?: "#000000")
       setStatusBarIsDarkIcons(true)
       setLoadingIndicatorSize(100)
       setLoadingIndicatorWidth(10)
@@ -173,25 +188,35 @@ object IProovThemeFactory {
     val resultTexts = resultTheme?.getMap("texts")
 
     setResultTheme {
-      setSuccessBackgroundColor(resultColors?.getString("successBackgroundColor") ?: "#DFFFD6")
+      setSuccessBackgroundColor(firstString(resultColors, "successBackgroundColor", "successBackground") ?: "#DFFFD6")
       setSuccessIcon(R.drawable.success_icon)
-      setSuccessText(resultTexts?.getString("successText") ?: texts?.getString("successText") ?: "Verificação concluída com sucesso!")
-      setSuccessTextColor(resultColors?.getString("successTextColor") ?: "#0F9D58")
+      setSuccessText(firstString(resultTexts, "successText", "success") ?: firstString(texts, "successText") ?: "Verificação concluída com sucesso!")
+      setSuccessTextColor(firstString(resultColors, "successTextColor", "successText") ?: "#0F9D58")
 
-      setStatusBarSuccessColor(resultColors?.getString("statusBarSuccessColor") ?: "#DFFFD6")
-      setStatusBarErrorColor(resultColors?.getString("statusBarErrorColor") ?: "#FFD6D6")
+      setStatusBarSuccessColor(firstString(resultColors, "statusBarSuccessColor", "successStatusBar") ?: "#DFFFD6")
+      setStatusBarErrorColor(firstString(resultColors, "statusBarErrorColor", "errorStatusBar") ?: "#FFD6D6")
       setStatusBarSuccessIsDarkIcons(true)
       setStatusBarErrorIsDarkIcons(true)
 
-      setErrorBackgroundColor(resultColors?.getString("errorBackgroundColor") ?: "#FFD6D6")
+      setErrorBackgroundColor(firstString(resultColors, "errorBackgroundColor", "errorBackground") ?: "#FFD6D6")
       setErrorIcon(R.drawable.error_icon)
-      setErrorText(resultTexts?.getString("errorText") ?: texts?.getString("errorText") ?: "Algo deu errado na verificação.")
-      setErrorTextColor(resultColors?.getString("errorTextColor") ?: "#D93025")
+      setErrorText(firstString(resultTexts, "errorText", "error") ?: firstString(texts, "errorText") ?: "Algo deu errado na verificação.")
+      setErrorTextColor(firstString(resultColors, "errorTextColor", "errorText") ?: "#D93025")
 
-      setRetryButtonColor(resultColors?.getString("retryButtonColor") ?: "#0F9D58")
-      setRetryButtonText(resultTexts?.getString("retryButtonText") ?: texts?.getString("retryButtonText") ?: "Tentar novamente")
-      setRetryButtonTextColor(resultColors?.getString("retryButtonTextColor") ?: "#FFFFFF")
+      setRetryButtonColor(firstString(resultColors, "retryButtonColor", "retryButtonBackground", "retryBackground") ?: "#0F9D58")
+      setRetryButtonText(firstString(resultTexts, "retryButtonText", "retryButton") ?: firstString(texts, "retryButtonText") ?: "Tentar novamente")
+      setRetryButtonTextColor(firstString(resultColors, "retryButtonTextColor", "retryButtonText", "retryText") ?: "#FFFFFF")
     }
+  }
+
+  private fun firstString(map: ReadableMap?, vararg keys: String): String? {
+    map ?: return null
+    for (key in keys) {
+      if (!map.hasKey(key)) continue
+      val value = map.getString(key)?.trim()
+      if (!value.isNullOrEmpty()) return value
+    }
+    return null
   }
 
   private fun resolveFontResource(context: Context?, fontResource: String?): Int {

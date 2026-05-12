@@ -92,7 +92,7 @@ final class ThemeFactory {
     setText(texts["caption"], with: builder.setCaption(_:))
     setText(texts["firstInstruction"], with: builder.setFirstInstructionTitle(_:))
     setText(texts["secondInstruction"], with: builder.setSecondInstructionTitle(_:))
-    setText(texts["continueButton"], with: builder.setContinueButtonText(_:))
+    setText(texts["continueButton"] ?? texts["continueButtonText"], with: builder.setContinueButtonText(_:))
 
     let assets = instructionsTheme["assets"] as? [String: String] ?? [:]
     setImage(assets["backButtonIcon"], with: builder.setBackButtonIcon(_:))
@@ -180,7 +180,11 @@ final class ThemeFactory {
     )
     setFont(permFonts["bottomSheetTitle"], with: builder.setBottomSheetTitleFont(_:), size: 20)
     setFont(permFonts["bottomSheetCaption"], with: builder.setBottomSheetCaptionFont(_:), size: 20)
-    setFont(permFonts["opentSettingsButton"], with: builder.setOpenSettingsButtonTextFont(_:), size: 20)
+    setFont(
+      permFonts["openSettingsButton"] ?? permFonts["opentSettingsButton"],
+      with: builder.setOpenSettingsButtonTextFont(_:),
+      size: 20
+    )
     setFont(permFonts["closeButton"], with: builder.setCloseButtonTextFont(_:), size: 20)
 
     return builder
@@ -198,18 +202,18 @@ final class ThemeFactory {
 
     let colors = instructionsTheme["colors"] as? [String: String] ?? [:]
     setColor(
-      colors["closeButtonColor"] ?? colors["closeButtonIcon"],
+      firstValue(in: colors, keys: "closeButtonColor", "closeButtonIcon"),
       with: builder.setCloseButtonImageColor(_:)
     )
-    setColor(colors["title"], with: builder.setTitleTextColor(_:))
-    setColor(colors["titleBackground"], with: builder.setTitleBackgroundColor(_:))
-    setColor(colors["promptText"], with: builder.setPromptTextColor(_:))
-    setColor(colors["promptBackground"], with: builder.setPromptBackgroundColor(_:))
-    setColor(colors["background"], with: builder.setBackgroundColor(_:))
-    setColor(colors["ovalReady"], with: builder.setGPAOvalStrokeReadyColor(_:))
-    setColor(colors["ovalNotReady"], with: builder.setGPAOvalStrokeNotReadyColor(_:))
-    setColor(colors["ovalCapturing"], with: builder.setLAOvalStrokeCapturingColor(_:))
-    setColor(colors["ovalCompleted"], with: builder.setLAOvalStrokeCompletedColor(_:))
+    setColor(firstValue(in: colors, keys: "title", "titleColor"), with: builder.setTitleTextColor(_:))
+    setColor(firstValue(in: colors, keys: "titleBackground", "headerBackgroundColor"), with: builder.setTitleBackgroundColor(_:))
+    setColor(firstValue(in: colors, keys: "promptText", "promptTextColor"), with: builder.setPromptTextColor(_:))
+    setColor(firstValue(in: colors, keys: "promptBackground", "promptBackgroundColor"), with: builder.setPromptBackgroundColor(_:))
+    setColor(firstValue(in: colors, keys: "background", "surroundColor"), with: builder.setBackgroundColor(_:))
+    setColor(firstValue(in: colors, keys: "ovalReady", "ovalReadyColor"), with: builder.setGPAOvalStrokeReadyColor(_:))
+    setColor(firstValue(in: colors, keys: "ovalNotReady", "ovalNotReadyColor"), with: builder.setGPAOvalStrokeNotReadyColor(_:))
+    setColor(firstValue(in: colors, keys: "ovalCapturing", "ovalStrokeColor"), with: builder.setLAOvalStrokeCapturingColor(_:))
+    setColor(firstValue(in: colors, keys: "ovalCompleted", "ovalCompletedColor"), with: builder.setLAOvalStrokeCompletedColor(_:))
     setColor(colors["filterLineDrawingForeground"], with: builder.setFilterLineDrawingForegroundColor(_:))
     setColor(colors["filterLineDrawingBackground"], with: builder.setFilterLineDrawingBackgroundColor(_:))
 
@@ -316,8 +320,14 @@ final class ThemeFactory {
     setColor(colors["readyScreenSubtext"], with: builder.setReadyScreenMessageColor(_:))
     setColor(colors["readyScreenTextBackground"], with: builder.setReadyScreenTextBackgroundColor(_:))
     setColor(colors["resultScreenMessage"], with: builder.setResultScreenMessageColor(_:))
-    setColor(colors["resultScreenUploadProgressBarFill"], with: builder.setResultScreenUploadProgressBarFillColor(_:))
-    setColor(colors["resultScreenUploadProgressBarTrack"], with: builder.setResultScreenUploadProgressBarTrackColor(_:))
+    setColor(
+      firstValue(in: colors, keys: "resultScreenUploadProgressBarFill", "resultScreenUploadProgressFill"),
+      with: builder.setResultScreenUploadProgressBarFillColor(_:)
+    )
+    setColor(
+      firstValue(in: colors, keys: "resultScreenUploadProgressBarTrack", "resultScreenUploadProgressTrack"),
+      with: builder.setResultScreenUploadProgressBarTrackColor(_:)
+    )
     builder.setResultScreenAnimationStyle(.blob(appearance: getResultStyleApperance(from: colors)))
     setColor(colors["retryScreenHeader"], with: builder.setRetryScreenHeaderColor(_:))
     setColor(colors["retryScreenSubtext"], with: builder.setRetryScreenCaptionColor(_:))
@@ -427,6 +437,16 @@ final class ThemeFactory {
     if let imageName, let image = RnSdkBundle.getImage(named: imageName) {
       _ = builder(image)
     }
+  }
+
+  private static func firstValue(in source: [String: String], keys: String...) -> String? {
+    for key in keys {
+      guard let value = source[key]?.trimmingCharacters(in: .whitespacesAndNewlines) else { continue }
+      if !value.isEmpty {
+        return value
+      }
+    }
+    return nil
   }
 
   private static func setFont<T>(_ fontName: String?, with builder: @escaping (UIFont) -> T, size: CGFloat) {

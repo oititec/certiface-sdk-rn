@@ -292,6 +292,7 @@ export interface PermissionThemeFonts {
   checkPermissionButton?: string;
   bottomSheetTitle?: string;
   bottomSheetCaption?: string;
+  openSettingsButton?: string;
   opentSettingsButton?: string;
   closeButton?: string;
 }

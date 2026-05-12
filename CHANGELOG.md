@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.1.3] - 12/05/2026
+
+### Adicionado
+
+- Nova propriedade `iproov.fontResource` para definir fonte base do iProov por nome de recurso (Android e iOS)
+- Nova propriedade `iproov.fontPath` para fallback de fonte base por caminho do arquivo (Android e iOS)
+- Nova propriedade `iproov.colors.closeButtonColor` para personalizar cor do botão de fechar (Android e iOS)
+- Nova propriedade `instructions.colors.continueButtonTextColor` para personalizar cor do texto do botão de continuar (Android e iOS)
+- Nova propriedade `instructions.flags.statusBarIsDarkIcons` para controlar ícones escuros da status bar na tela de instruções (Android)
+- Novo grupo `facetec.sizes` para customizações de dimensões no FaceTec (Android)
+- Novo grupo `facetec.flags` para customizações booleanas do FaceTec (Android)
+
+### Alterado
+
+- Aplicação de fonte base no iProov Android com `setFontResource(...)` e fallback automático para `setFontPath(...)`
+- Resolução de fonte base no iProov iOS priorizando `fontResource` e fallback por `fontPath`
+- `instructions.configuration.showInstructionScreen` validado para Android e iOS
+- Compatibilidade no Android para `instructions.texts.continueButton` com fallback para `continueButtonText`
+- Fallback de `instructions.colors.continueButtonText` para `instructions.colors.continueButtonTextColor`
+- Compatibilidade no Android e iOS para aliases de chaves do iProov (`title/titleColor`, `titleBackground/headerBackgroundColor`, `promptText/promptTextColor`, `promptBackground/promptBackgroundColor`, `oval*` e `oval*Color`)
+- Compatibilidade no Android para `facetec.colors.resultScreenUploadProgressBarFill/Track` com fallback para `resultScreenUploadProgressFill/Track`
+- Compatibilidade no iOS para `permission.fonts.openSettingsButton` com fallback para `opentSettingsButton`
+- Exemplo atualizado para demonstrar `iproov.fontResource`, `iproov.fontPath`, `instructions.configuration.showInstructionScreen` e `instructions.flags.statusBarIsDarkIcons`
+
 ## [1.1.2] - 07/05/2026
 
 ### Adicionado

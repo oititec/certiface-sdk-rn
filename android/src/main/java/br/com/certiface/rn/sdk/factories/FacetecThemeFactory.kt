@@ -141,8 +141,16 @@ object FacetecThemeFactory {
     // Result Screen
     resultScreenForegroundColor(facetecColors?.getString("resultScreenForeground") ?: "#0F9D58")
     resultScreenBackgroundColors(facetecColors?.getString("resultScreenBackground") ?: "#DFFFD6")
-    resultScreenUploadProgressFillColor(facetecColors?.getString("resultScreenUploadProgressFill") ?: "#0F9D58")
-    resultScreenUploadProgressTrackColor(facetecColors?.getString("resultScreenUploadProgressTrack") ?: "#66000000")
+    resultScreenUploadProgressFillColor(
+      facetecColors?.getString("resultScreenUploadProgressFill")
+        ?: facetecColors?.getString("resultScreenUploadProgressBarFill")
+        ?: "#0F9D58"
+    )
+    resultScreenUploadProgressTrackColor(
+      facetecColors?.getString("resultScreenUploadProgressTrack")
+        ?: facetecColors?.getString("resultScreenUploadProgressBarTrack")
+        ?: "#66000000"
+    )
     resultScreenActivityIndicatorColor(facetecColors?.getString("resultScreenActivityIndicator") ?: "#0F9D58")
     resultScreenResultAnimationBackgroundColor(facetecColors?.getString("resultScreenResultAnimationBackground") ?: "#417FB2")
     resultScreenResultAnimationForegroundColor(facetecColors?.getString("resultScreenResultAnimationForeground") ?: "#FFFFFF")
@@ -199,7 +207,11 @@ object FacetecThemeFactory {
       setStatusBarColor(instructionsColors?.getString("statusBar") ?: "#121212")
       setStatusBarIsDarkIcons(optBoolean(instructionsFlags, "statusBarIsDarkIcons", false))
       setBackgroundColor(instructionsColors?.getString("background") ?: "#121212")
-      setContinueButtonText(instructionsTexts?.getString("continueButtonText") ?: "Começar")
+      setContinueButtonText(
+        instructionsTexts?.getString("continueButton")
+          ?: instructionsTexts?.getString("continueButtonText")
+          ?: "Começar"
+      )
       setContinueButtonColor(instructionsColors?.getString("continueButtonBackground") ?: "#0F9D58")
       setContinueButtonTextColor(
         instructionsColors?.getString("continueButtonTextColor")
