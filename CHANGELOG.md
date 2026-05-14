@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.1.3] - 12/05/2026
+## [1.1.2] - 07/05/2026
 
 ### Adicionado
 
@@ -23,13 +23,6 @@
 - Compatibilidade no Android para `facetec.colors.resultScreenUploadProgressBarFill/Track` com fallback para `resultScreenUploadProgressFill/Track`
 - Compatibilidade no iOS para `permission.fonts.openSettingsButton` com fallback para `opentSettingsButton`
 - Exemplo atualizado para demonstrar `iproov.fontResource`, `iproov.fontPath`, `instructions.configuration.showInstructionScreen` e `instructions.flags.statusBarIsDarkIcons`
-
-## [1.1.2] - 07/05/2026
-
-### Adicionado
-
-- Correção da tela de resultado do fluxo de iproov
-- melhorias no fluxo de customização android/ios
 
 ## [1.1.1] - 05/05/2026
 
