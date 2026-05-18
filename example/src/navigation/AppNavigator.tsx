@@ -5,7 +5,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SessionScreen from '../screens/SessionScreen';
 import HomeScreen from '../screens/HomeScreen';
 import ResultScreen from '../screens/ResultScreen';
-import BottomTabIcon from '../components/BottomTabIcon';
+import BottomTabIcon, {
+  type BottomTabIconName,
+} from '../components/BottomTabIcon';
 
 export type RootTabParamList = {
   Home: undefined;
@@ -14,6 +16,18 @@ export type RootTabParamList = {
 };
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
+
+const TAB_ICONS: Record<keyof RootTabParamList, BottomTabIconName> = {
+  Home: 'home',
+  Credential: 'key',
+  Results: 'document',
+};
+
+const createTabBarIcon =
+  (iconName: BottomTabIconName) =>
+  ({ color, focused }: { color: string; focused: boolean }) => (
+    <BottomTabIcon name={iconName} color={color} focused={focused} />
+  );
 
 const AppNavigator = () => {
   const insets = useSafeAreaInsets();
@@ -27,7 +41,7 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Tab.Navigator
         initialRouteName="Home"
-        screenOptions={({ route }) => ({
+        screenOptions={{
           tabBarActiveTintColor: '#2563EB',
           tabBarInactiveTintColor: '#64748B',
           tabBarLabelStyle: { fontSize: 11, fontWeight: '700', marginTop: 2 },
@@ -37,7 +51,6 @@ const AppNavigator = () => {
             justifyContent: 'center',
             alignItems: 'center',
           },
-          unmountOnBlur: false,
           tabBarStyle: {
             height: tabBarHeight,
             backgroundColor: '#FFFFFF',
@@ -56,37 +69,34 @@ const AppNavigator = () => {
           },
           headerTintColor: '#0F172A',
           headerTitleStyle: { fontWeight: '800', fontSize: 20 },
-          tabBarIcon: ({ color, focused }) => {
-            let iconName: 'home' | 'key' | 'document' = 'home';
-            if (route.name === 'Home') {
-              iconName = 'home';
-            }
-            if (route.name === 'Credential') {
-              iconName = 'key';
-            }
-            if (route.name === 'Results') {
-              iconName = 'document';
-            }
-            return (
-              <BottomTabIcon name={iconName} color={color} focused={focused} />
-            );
-          },
-        })}
+        }}
       >
         <Tab.Screen
           name="Home"
           component={HomeScreen}
-          options={{ title: 'Home', tabBarLabel: 'Home' }}
+          options={{
+            title: 'Home',
+            tabBarLabel: 'Home',
+            tabBarIcon: createTabBarIcon(TAB_ICONS.Home),
+          }}
         />
         <Tab.Screen
           name="Credential"
           component={SessionScreen}
-          options={{ title: 'Credencial', tabBarLabel: 'Credencial' }}
+          options={{
+            title: 'Credencial',
+            tabBarLabel: 'Credencial',
+            tabBarIcon: createTabBarIcon(TAB_ICONS.Credential),
+          }}
         />
         <Tab.Screen
           name="Results"
           component={ResultScreen}
-          options={{ title: 'Resultados', tabBarLabel: 'Resultados' }}
+          options={{
+            title: 'Resultados',
+            tabBarLabel: 'Resultados',
+            tabBarIcon: createTabBarIcon(TAB_ICONS.Results),
+          }}
         />
       </Tab.Navigator>
     </NavigationContainer>

@@ -35,7 +35,10 @@ const HomeScreen = () => {
 
   const runJourney = async (variant: JourneyVariant) => {
     if (!appKey) {
-      Alert.alert('App Key ausente', 'Gere a App Key na aba Credencial.');
+      Alert.alert(
+        'App Key ausente',
+        'Informe ou gere a App Key na aba Credencial.'
+      );
       addResult('ERRO: App Key não configurada');
       return;
     }

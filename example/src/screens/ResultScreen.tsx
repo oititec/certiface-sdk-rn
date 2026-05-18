@@ -1,4 +1,6 @@
+import { useCallback, useEffect, useRef } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   Alert,
   SafeAreaView,
@@ -12,6 +14,26 @@ import { useUserStore } from '../store/userStore';
 
 const ResultScreen = () => {
   const { results, clearResults } = useUserStore();
+  const scrollRef = useRef<ScrollView>(null);
+
+  const scrollToLatest = useCallback(() => {
+    if (results.length === 0) {
+      return;
+    }
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollToEnd({ animated: true });
+    });
+  }, [results.length]);
+
+  useFocusEffect(
+    useCallback(() => {
+      scrollToLatest();
+    }, [scrollToLatest])
+  );
+
+  useEffect(() => {
+    scrollToLatest();
+  }, [scrollToLatest]);
 
   const getTypeStyle = (result: string) => {
     if (result.includes('✅') || result.includes('Sucesso')) {
@@ -48,8 +70,10 @@ const ResultScreen = () => {
       </View>
 
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
+        onContentSizeChange={scrollToLatest}
       >
         {results.length === 0 ? (
           <View style={styles.emptyState}>

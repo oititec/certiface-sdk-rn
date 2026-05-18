@@ -31,6 +31,7 @@ const SessionScreen = () => {
     userData,
     appKey,
     setUserData,
+    setAppKey,
     generateAppKey,
     selectedFeature,
     environment,
@@ -78,7 +79,7 @@ const SessionScreen = () => {
         >
           <View style={styles.header}>
             <Text style={styles.title}>Credencial</Text>
-            <Text style={styles.subtitle}>Gere e valide sua App Key</Text>
+            <Text style={styles.subtitle}>Informe ou gere sua App Key</Text>
           </View>
 
           <View style={styles.section}>
@@ -211,10 +212,12 @@ const SessionScreen = () => {
               <TextInput
                 style={[styles.input, styles.appKeyInput]}
                 value={appKey}
-                placeholder="A App Key aparecerá aqui"
+                onChangeText={setAppKey}
+                placeholder="Cole sua App Key ou gere uma nova"
                 multiline
                 numberOfLines={4}
-                editable={false}
+                autoCapitalize="none"
+                autoCorrect={false}
                 placeholderTextColor="#94A3B8"
               />
             </View>
