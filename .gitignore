@@ -98,3 +98,4 @@ android/generated
 example/deploy-version.env
 example/deploy-version.json
 example/.deploy-build-state.json
+example/ios/.provisioning-profile.env

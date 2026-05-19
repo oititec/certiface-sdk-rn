@@ -7,6 +7,9 @@ BUNDLER_VER=""
 if [[ -f Gemfile.lock ]]; then
   BUNDLER_VER=$(grep -A1 'BUNDLED WITH' Gemfile.lock 2>/dev/null | tail -1 | tr -d ' ')
 fi
+if [[ -n "$BUNDLER_VER" ]] && ! gem list bundler -i -v "$BUNDLER_VER" >/dev/null 2>&1; then
+  gem install bundler -v "$BUNDLER_VER" --no-document
+fi
 if [[ -n "$BUNDLER_VER" ]]; then
   bundle _${BUNDLER_VER}_ install --quiet || bundle install --quiet
 else

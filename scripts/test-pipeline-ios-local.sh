@@ -86,20 +86,12 @@ else
   echo "APPSTORE_KEY_ID/APPSTORE_PRIVATE_KEY não definidos; archive/export usarão conta do Xcode."
 fi
 
-echo "[5/8] ExportOptions.plist"
-mkdir -p example/ios
-printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>method</key>
-  <string>app-store</string>
-  <key>signingStyle</key>
-  <string>automatic</string>
-  <key>teamID</key>
-  <string>'"$TEAM_ID"'</string>
-</dict>
-</plist>' > example/ios/ExportOptions.plist
+echo "[5/8] ExportOptions.plist e signing Release"
+"$REPO_ROOT/scripts/ios-release-signing.sh" export-plist
+XCODE_SIGNING_ARGS=()
+while IFS= read -r _sign_arg; do
+  [[ -n "$_sign_arg" ]] && XCODE_SIGNING_ARGS+=("$_sign_arg")
+done < <("$REPO_ROOT/scripts/ios-release-signing.sh" args)
 
 echo "[6/8] Build settings (Release)"
 cd "$REPO_ROOT/example/ios"
@@ -107,25 +99,28 @@ xcodebuild -workspace RnSdkExample.xcworkspace \
   -scheme RnSdkExample \
   -configuration Release \
   -showBuildSettings \
-  DEVELOPMENT_TEAM="$TEAM_ID" 2>/dev/null | grep -E 'PRODUCT_BUNDLE_IDENTIFIER|DEVELOPMENT_TEAM|CODE_SIGN|PROVISIONING_PROFILE|OTHER_CODE_SIGN_FLAGS' || true
+  "${XCODE_SIGNING_ARGS[@]}" 2>/dev/null | grep -E 'PRODUCT_BUNDLE_IDENTIFIER|DEVELOPMENT_TEAM|CODE_SIGN|PROVISIONING_PROFILE|OTHER_CODE_SIGN_FLAGS' || true
 cd "$REPO_ROOT"
 
 echo "[7/8] Build and archive iOS"
 cd "$REPO_ROOT/example/ios"
+XCODE_AUTH_ARGS=()
 if [[ -n "$APPSTORE_API_KEY_PATH" && -n "${APPSTORE_KEY_ID:-}" && -n "${APPSTORE_ISSUER_ID:-}" ]]; then
-  xcodebuild -workspace RnSdkExample.xcworkspace -scheme RnSdkExample -configuration Release \
-    -destination 'generic/platform=iOS' -archivePath build/RnSdkExample.xcarchive \
-    -allowProvisioningUpdates \
-    -authenticationKeyPath "$APPSTORE_API_KEY_PATH" \
-    -authenticationKeyID "$APPSTORE_KEY_ID" \
-    -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID" \
-    DEVELOPMENT_TEAM="$TEAM_ID" \
-    archive
+  XCODE_AUTH_ARGS=(
+    -allowProvisioningUpdates
+    -authenticationKeyPath "$APPSTORE_API_KEY_PATH"
+    -authenticationKeyID "$APPSTORE_KEY_ID"
+    -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID"
+  )
 else
-  xcodebuild -workspace RnSdkExample.xcworkspace -scheme RnSdkExample -configuration Release \
-    -destination 'generic/platform=iOS' -archivePath build/RnSdkExample.xcarchive \
-    -allowProvisioningUpdates DEVELOPMENT_TEAM="$TEAM_ID" archive
+  XCODE_AUTH_ARGS=(-allowProvisioningUpdates)
 fi
+# shellcheck disable=SC2068
+xcodebuild -workspace RnSdkExample.xcworkspace -scheme RnSdkExample -configuration Release \
+  -destination 'generic/platform=iOS' -archivePath build/RnSdkExample.xcarchive \
+  "${XCODE_AUTH_ARGS[@]}" \
+  "${XCODE_SIGNING_ARGS[@]}" \
+  archive
 cd "$REPO_ROOT"
 
 if [[ "$BUILD_ONLY" == "true" ]]; then
@@ -135,16 +130,10 @@ fi
 
 echo "[8/8] Export IPA"
 cd "$REPO_ROOT/example/ios"
-if [[ -n "$APPSTORE_API_KEY_PATH" && -n "${APPSTORE_KEY_ID:-}" && -n "${APPSTORE_ISSUER_ID:-}" ]]; then
-  xcodebuild -exportArchive -archivePath build/RnSdkExample.xcarchive -exportPath build \
-    -exportOptionsPlist ExportOptions.plist -allowProvisioningUpdates \
-    -authenticationKeyPath "$APPSTORE_API_KEY_PATH" \
-    -authenticationKeyID "$APPSTORE_KEY_ID" \
-    -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID"
-else
-  xcodebuild -exportArchive -archivePath build/RnSdkExample.xcarchive -exportPath build \
-    -exportOptionsPlist ExportOptions.plist -allowProvisioningUpdates
-fi
+# shellcheck disable=SC2068
+xcodebuild -exportArchive -archivePath build/RnSdkExample.xcarchive -exportPath build \
+  -exportOptionsPlist ExportOptions.plist \
+  "${XCODE_AUTH_ARGS[@]}"
 cd "$REPO_ROOT"
 
 IPA_PATH="$REPO_ROOT/example/ios/build/RnSdkExample.ipa"
