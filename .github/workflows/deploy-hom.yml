@@ -18,6 +18,10 @@ on:
           - completed
           - draft
         default: completed
+      min_android_version_code:
+        description: versionCode mínimo (se Play rejeitar duplicado, ex. 1001023)
+        required: false
+        default: ''
 
 jobs:
   resolve-version:
@@ -39,7 +43,15 @@ jobs:
 
       - name: Resolve deploy version
         id: resolve
+        env:
+          MIN_ANDROID_VERSION_CODE: ${{ inputs.min_android_version_code }}
         run: node scripts/resolve-deploy-version.mjs --github-output
+
+      - name: Save build counter
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684
+        with:
+          path: example/.deploy-build-state.json
+          key: deploy-build-${{ hashFiles('example/package.json') }}
 
       - name: Show version
         run: cat example/deploy-version.env

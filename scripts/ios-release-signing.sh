@@ -65,9 +65,9 @@ fs.writeFileSync(process.env.EXPORT_OPTIONS_PLIST, plist);
 
 xcodebuild_signing_args() {
   printf '%s\n' "DEVELOPMENT_TEAM=$TEAM_ID"
-  printf '%s\n' "CODE_SIGN_IDENTITY=Apple Distribution"
   if load_profile_name; then
     printf '%s\n' "CODE_SIGN_STYLE=Manual"
+    printf '%s\n' "CODE_SIGN_IDENTITY=Apple Distribution"
     printf '%s\n' "PROVISIONING_PROFILE_SPECIFIER=$PROFILE_NAME"
   else
     printf '%s\n' "CODE_SIGN_STYLE=Automatic"

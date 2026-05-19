@@ -12,19 +12,47 @@ const marketingVersion = String(pkg.version || '1.0.0');
 const [major, minor, patch] = marketingVersion.split('.').map((n) => Number(n) || 0);
 const semverBase = major * 1_000_000 + minor * 1_000 + patch * 10;
 
-let buildNumber = 1;
+let lastVersionCode = 0;
+let cachedBuildNumber = 0;
+
 if (existsSync(statePath)) {
   try {
     const state = JSON.parse(readFileSync(statePath, 'utf8'));
+    if (Number.isFinite(state.lastVersionCode)) {
+      lastVersionCode = state.lastVersionCode;
+    }
     if (state.version === marketingVersion && Number.isFinite(state.buildNumber)) {
-      buildNumber = state.buildNumber + 1;
+      cachedBuildNumber = state.buildNumber;
     }
   } catch {
-    buildNumber = 1;
+    lastVersionCode = 0;
+    cachedBuildNumber = 0;
   }
 }
 
-const versionCode = semverBase + buildNumber;
+let buildNumber = cachedBuildNumber > 0 ? cachedBuildNumber + 1 : 1;
+let versionCode = semverBase + buildNumber;
+
+if (lastVersionCode >= semverBase) {
+  versionCode = Math.max(versionCode, lastVersionCode + 1);
+}
+
+const runNumber = Number(process.env.GITHUB_RUN_NUMBER || 0);
+if (runNumber > 0) {
+  versionCode = Math.max(versionCode, semverBase + runNumber);
+}
+
+const minOverride = Number(process.env.MIN_ANDROID_VERSION_CODE || 0);
+if (minOverride > versionCode) {
+  versionCode = minOverride;
+}
+
+const pkgFloor = Number(pkg.versionCode);
+if (pkgFloor > versionCode) {
+  versionCode = pkgFloor;
+}
+
+buildNumber = versionCode - semverBase;
 const versionLabel = `${marketingVersion} (${buildNumber})`;
 
 const shellQuote = (value) => `"${String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
@@ -32,7 +60,15 @@ const shellQuote = (value) => `"${String(value).replace(/\\/g, '\\\\').replace(/
 mkdirSync(dirname(statePath), { recursive: true });
 writeFileSync(
   statePath,
-  JSON.stringify({ version: marketingVersion, buildNumber }, null, 2) + '\n'
+  JSON.stringify(
+    {
+      version: marketingVersion,
+      buildNumber,
+      lastVersionCode: versionCode,
+    },
+    null,
+    2
+  ) + '\n'
 );
 
 const jsonPath = join(repoRoot, 'example/deploy-version.json');
