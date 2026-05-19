@@ -95,3 +95,5 @@ android/generated
 
 # act (local GitHub Actions)
 .secrets
+example/deploy-version.env
+example/.deploy-build-state.json

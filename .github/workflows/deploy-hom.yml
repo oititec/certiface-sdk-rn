@@ -20,13 +20,48 @@ on:
         default: completed
 
 jobs:
+  resolve-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version_name: ${{ steps.resolve.outputs.version_name }}
+      version_code: ${{ steps.resolve.outputs.version_code }}
+      build_number: ${{ steps.resolve.outputs.build_number }}
+      version_label: ${{ steps.resolve.outputs.version_label }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Restore build counter
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
+        with:
+          path: example/.deploy-build-state.json
+          key: deploy-build-${{ hashFiles('example/package.json') }}
+
+      - name: Resolve deploy version
+        id: resolve
+        run: node scripts/resolve-deploy-version.mjs --github-output
+
+      - name: Show version
+        run: cat example/deploy-version.env
+
   deploy-android:
+    needs: resolve-version
     runs-on: ubuntu-latest
     env:
       TURBO_CACHE_DIR: .turbo/android
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Apply deploy version
+        run: |
+          cat > example/deploy-version.env <<EOF
+          VERSION_NAME=${{ needs.resolve-version.outputs.version_name }}
+          VERSION_CODE=${{ needs.resolve-version.outputs.version_code }}
+          BUILD_NUMBER=${{ needs.resolve-version.outputs.build_number }}
+          VERSION_LABEL=${{ needs.resolve-version.outputs.version_label }}
+          EOF
+          cat example/deploy-version.env
 
       - name: Setup
         uses: ./.github/actions/setup
@@ -74,12 +109,23 @@ jobs:
           inAppUpdatePriority: '0'
 
   deploy-ios:
+    needs: resolve-version
     runs-on: macos-14
     env:
       XCODE_VERSION: '16.2'
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Apply deploy version
+        run: |
+          cat > example/deploy-version.env <<EOF
+          VERSION_NAME=${{ needs.resolve-version.outputs.version_name }}
+          VERSION_CODE=${{ needs.resolve-version.outputs.version_code }}
+          BUILD_NUMBER=${{ needs.resolve-version.outputs.build_number }}
+          VERSION_LABEL=${{ needs.resolve-version.outputs.version_label }}
+          EOF
+          cat example/deploy-version.env
 
       - name: Setup
         uses: ./.github/actions/setup
@@ -110,7 +156,7 @@ jobs:
           APPLE_MOBILE_PROFILE_CERTIFICATE_BASE64: ${{ secrets.APPLE_MOBILE_PROFILE_CERTIFICATE_BASE64 }}
         run: ./scripts/install-ios-provisioning-and-keychain.sh
 
-      - name: Sync iOS version from package.json
+      - name: Sync iOS version
         run: ./scripts/sync-ios-version.sh
 
       - name: Build iOS and export IPA

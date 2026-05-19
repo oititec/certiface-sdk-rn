@@ -83,26 +83,57 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
-def VERSION_CODE = 6
-def VERSION_NAME = "1.1.2"
-
 def getPackageJson() {
     def packageJsonFile = file("../../package.json")
     return new groovy.json.JsonSlurper().parseText(packageJsonFile.text)
 }
 
+def getDeployVersionProps() {
+    def propsFile = file("../../deploy-version.env")
+    if (!propsFile.exists()) {
+        return null
+    }
+    def props = new Properties()
+    propsFile.withInputStream { props.load(it) }
+    return props
+}
+
+def getSemverBase(String version) {
+    def parts = (version ?: "1.0.0").tokenize(".")
+    def major = parts.size() > 0 ? (parts[0] as Integer) : 0
+    def minor = parts.size() > 1 ? (parts[1] as Integer) : 0
+    def patch = parts.size() > 2 ? (parts[2] as Integer) : 0
+    return major * 1000000 + minor * 1000 + patch * 10
+}
+
 def getVersionCode() {
+    def deployProps = getDeployVersionProps()
+    if (deployProps?.VERSION_CODE) {
+        return deployProps.VERSION_CODE as Integer
+    }
     def packageJson = getPackageJson()
+    def version = packageJson.version ?: "1.0.0"
     def code = packageJson.versionCode
-    return code != null ? (code as Integer) : 1
+    if (code != null) {
+        return code as Integer
+    }
+    return getSemverBase(version) + 1
 }
 
 def getVersionName() {
+    def deployProps = getDeployVersionProps()
+    if (deployProps?.VERSION_LABEL) {
+        return deployProps.VERSION_LABEL
+    }
     def packageJson = getPackageJson()
-    def version = packageJson.version ?: "1.0.1"
-    def code = packageJson.versionCode
-    return "${version}(${code != null ? code : 1})"
+    def version = packageJson.version ?: "1.0.0"
+    def code = getVersionCode()
+    def buildNumber = code - getSemverBase(version)
+    return "${version} (${buildNumber > 0 ? buildNumber : 1})"
 }
+
+def VERSION_CODE = getVersionCode()
+def VERSION_NAME = getVersionName()
 
 def getReleaseNotes() {
     def packageJson = getPackageJson()

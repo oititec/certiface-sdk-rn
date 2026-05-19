@@ -60,7 +60,10 @@ else
   echo "[1/8] CI: pulando yarn install (já feito pelo Setup)."
 fi
 
-echo "[2/8] Versão iOS (package.json → Xcode)"
+echo "[2/8] Versão do deploy (Android + iOS)"
+if [[ ! -f "$REPO_ROOT/example/deploy-version.env" ]]; then
+  node "$REPO_ROOT/scripts/resolve-deploy-version.mjs"
+fi
 "$REPO_ROOT/scripts/sync-ios-version.sh"
 
 echo "[3/8] CocoaPods (example)"
