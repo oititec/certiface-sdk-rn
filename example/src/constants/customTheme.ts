@@ -93,7 +93,6 @@ export const customTheme: CertifaceTheme = {
       title: 'Verificação Biométrica',
     },
     assets: {
-      closeButtonIcon: 'shell',
       logoImage: 'shell',
     },
     fonts: {
@@ -119,7 +118,6 @@ export const customTheme: CertifaceTheme = {
     colors: {
       statusBar: '#2E2E2E',
       background: '#2E2E2E',
-      backButtonIcon: '#2E2E2E',
       backButtonBackground: '#2E2E2E',
       backButtonBorder: '#2E2E2E',
       bottomSheet: '#1A1A1A',

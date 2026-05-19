@@ -3,35 +3,45 @@ package br.com.certiface.rn.sdk.theme
 import br.com.certiface.manager.exports.IProovFontsKey
 import com.facebook.react.bridge.ReadableMap
 
-class IProovFonts(private val fontsBuilder: ReadableMap?) {
-    
+class IProovFonts(
+    private val iproovFonts: ReadableMap?,
+    private val instructionsFonts: ReadableMap? = null
+) {
+
+    private fun resolveFont(iproovKey: String, instructionsKey: String? = null): String {
+        val iproovValue = iproovFonts?.getString(iproovKey)?.trim().orEmpty()
+        if (iproovValue.isNotEmpty()) return fontAssetPath(iproovValue)
+        val instructionsValue = instructionsKey
+            ?.let { instructionsFonts?.getString(it)?.trim().orEmpty() }
+            .orEmpty()
+        if (instructionsValue.isNotEmpty()) return fontAssetPath(instructionsValue)
+        return fontAssetPath(null)
+    }
+
     private val instructionsTitleFont: String =
-        fontAssetPath(fontsBuilder?.getString("instructionsTitleFont"))
+        resolveFont("instructionsTitleFont", "title")
 
     private val instructionsCaptionFont: String =
-        fontAssetPath(fontsBuilder?.getString("instructionsCaptionFont"))
+        resolveFont("instructionsCaptionFont", "caption")
 
     private val instructionsDocumentTypesInstructionsFont: String =
-        fontAssetPath(fontsBuilder?.getString("instructionsDocumentTypesInstructionsFont"))
+        resolveFont("instructionsDocumentTypesInstructionsFont", "firstInstructionTitle")
 
     private val instructionsDocumentTipsInstructionsFont: String =
-        fontAssetPath(fontsBuilder?.getString("instructionsDocumentTipsInstructionsFont"))
+        resolveFont("instructionsDocumentTipsInstructionsFont", "secondInstructionTitle")
 
     private val instructionsButtonFont: String =
-        fontAssetPath(fontsBuilder?.getString("instructionsButtonFont"))
+        resolveFont("instructionsButtonFont", "continueButton")
 
-    private val permissionTitleFont: String = fontAssetPath(fontsBuilder?.getString("permissionTitleFont"))
+    private val permissionTitleFont: String = resolveFont("permissionTitleFont")
 
-    private val permissionCaptionFont: String =
-        fontAssetPath(fontsBuilder?.getString("permissionCaptionFont"))
+    private val permissionCaptionFont: String = resolveFont("permissionCaptionFont")
 
-    private val permissionButtonFont: String =
-        fontAssetPath(fontsBuilder?.getString("permissionButtonFont"))
+    private val permissionButtonFont: String = resolveFont("permissionButtonFont")
 
-    private val resultMessageFont: String = fontAssetPath(fontsBuilder?.getString("resultMessageFont"))
+    private val resultMessageFont: String = resolveFont("resultMessageFont")
 
-    private val resultRetryButtonFont: String =
-        fontAssetPath(fontsBuilder?.getString("resultRetryButtonFont"))
+    private val resultRetryButtonFont: String = resolveFont("resultRetryButtonFont")
 
     fun apply(): Map<IProovFontsKey, String> {
         return mapOf(

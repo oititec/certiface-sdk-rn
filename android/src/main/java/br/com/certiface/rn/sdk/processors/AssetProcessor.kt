@@ -18,6 +18,19 @@ object AssetProcessor {
         }
         return resourceId
     }
+
+    fun resolveDrawableResourceId(context: Context?, value: Any?): Int? {
+        if (context == null || value == null) return null
+        return when (value) {
+            is Int -> value.takeIf { it != 0 }
+            is String -> {
+                val name = value.trim()
+                if (name.isEmpty()) return null
+                getDrawableResourceId(context, name).takeIf { it != 0 }
+            }
+            else -> null
+        }
+    }
     
     fun processFacetecAssets(theme: ReadableMap?): Map<FacetecDrawablesKey, Any> {
         val facetecDrawables = mutableMapOf<FacetecDrawablesKey, Any>()
@@ -73,6 +86,17 @@ object AssetProcessor {
         } ?: Log.d(TAG, "backButtonIcon não encontrado em permission.assets")
         
         return facetecDrawables
+    }
+
+    fun resolveFacetecDrawables(
+        context: Context?,
+        drawables: Map<FacetecDrawablesKey, Any>
+    ): Map<FacetecDrawablesKey, Int> {
+        if (context == null || drawables.isEmpty()) return emptyMap()
+        return drawables.mapNotNull { (key, value) ->
+            val resourceId = resolveDrawableResourceId(context, value) ?: return@mapNotNull null
+            key to resourceId
+        }.toMap()
     }
 
     fun processIProovAssets(theme: ReadableMap?): Map<IProovDrawablesKey, Any> {

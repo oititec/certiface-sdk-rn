@@ -6,12 +6,12 @@ import br.com.certiface.domain.model.facetec.FacetecButtonLocation
 import br.com.certiface.domain.model.facetec.FacetecExitAnimationStyle
 import br.com.certiface.domain.model.facetec.FacetecTheme
 import android.util.Log
+import br.com.certiface.manager.exports.FacetecDrawablesKey
 import br.com.certiface.manager.exports.FacetecFontsKey
 import br.com.certiface.manager.exports.FacetecTextKey
 import br.com.certiface.rn.sdk.theme.FacetecFonts
 import br.com.certiface.rn.sdk.processors.AssetProcessor
 import com.facebook.react.bridge.ReadableMap
-import com.facebook.react.bridge.ReadableType
 
 object FacetecThemeFactory {
   private const val TAG = "FacetecThemeFactory"
@@ -39,7 +39,7 @@ object FacetecThemeFactory {
     val facetecTexts = facetecTheme?.getMap("texts")
     val facetecFontsMap = facetecTheme?.getMap("fonts")
 
-    val facetecFonts = if (facetecFontsMap != null) {
+    val facetecFonts = if (facetecFontsMap != null || instructionsFonts != null || permissionFonts != null) {
       FacetecFonts(instructionsFonts, permissionFonts, facetecFontsMap).apply()
     } else {
       hashMapOf(
@@ -63,7 +63,8 @@ object FacetecThemeFactory {
       )
     }
 
-    val facetecDrawables = AssetProcessor.processFacetecAssets(theme)
+    val facetecDrawablesRaw = AssetProcessor.processFacetecAssets(theme)
+    val facetecDrawables = AssetProcessor.resolveFacetecDrawables(context, facetecDrawablesRaw)
 
     if (facetecDrawables.isNotEmpty()) {
       setFacetecDrawablesMap(facetecDrawables)
@@ -139,7 +140,11 @@ object FacetecThemeFactory {
     guidanceRetryScreenImageCornerRadius(optInt(facetecSizes, "guidanceRetryScreenImageCornerRadius", 12))
 
     // Result Screen
-    resultScreenForegroundColor(facetecColors?.getString("resultScreenForeground") ?: "#0F9D58")
+    resultScreenForegroundColor(
+      facetecColors?.getString("resultScreenForeground")
+        ?: facetecColors?.getString("resultScreenMessage")
+        ?: "#0F9D58"
+    )
     resultScreenBackgroundColors(facetecColors?.getString("resultScreenBackground") ?: "#DFFFD6")
     resultScreenUploadProgressFillColor(
       facetecColors?.getString("resultScreenUploadProgressFill")
@@ -202,30 +207,52 @@ object FacetecThemeFactory {
     // Instructions Screen
     setInstructionsTheme {
       setShowInstructionScreen(showInstructionScreen)
-      setTitleText(instructionsTexts?.getString("title") ?: "Centralize seu rosto")
-      setCaptionText(instructionsTexts?.getString("caption") ?: "Mantenha-se dentro do círculo")
-      setStatusBarColor(instructionsColors?.getString("statusBar") ?: "#121212")
+      setTitleText(firstString(instructionsTexts, "title") ?: "Centralize seu rosto")
+      setCaptionText(firstString(instructionsTexts, "caption") ?: "Mantenha-se dentro do círculo")
+      setTitleColor(firstString(instructionsColors, "titleColor", "title") ?: "#FFFFFF")
+      setCaptionColor(firstString(instructionsColors, "captionColor", "caption") ?: "#AAAAAA")
+      setStatusBarColor(firstString(instructionsColors, "statusBarColor", "statusBar") ?: "#121212")
       setStatusBarIsDarkIcons(optBoolean(instructionsFlags, "statusBarIsDarkIcons", false))
-      setBackgroundColor(instructionsColors?.getString("background") ?: "#121212")
+      setBackgroundColor(firstString(instructionsColors, "backgroundColor", "background") ?: "#121212")
+      setBottomSheetColor(firstString(instructionsColors, "bottomSheetColor", "bottomSheet") ?: "#333333")
+      setBottomSheetCornerRadius(16f)
       setContinueButtonText(
-        instructionsTexts?.getString("continueButton")
-          ?: instructionsTexts?.getString("continueButtonText")
-          ?: "Começar"
+        firstString(instructionsTexts, "continueButton", "continueButtonText") ?: "Começar"
       )
-      setContinueButtonColor(instructionsColors?.getString("continueButtonBackground") ?: "#0F9D58")
+      setContinueButtonColor(
+        firstString(instructionsColors, "continueButtonColor", "continueButtonBackground") ?: "#0F9D58"
+      )
       setContinueButtonTextColor(
-        instructionsColors?.getString("continueButtonTextColor")
-          ?: instructionsColors?.getString("continueButtonText")
-          ?: "#FFFFFF"
+        firstString(instructionsColors, "continueButtonTextColor", "continueButtonText") ?: "#FFFFFF"
       )
+      firstString(instructionsTexts, "firstInstruction")?.let { setFirstInstructionText(it) }
+      firstString(instructionsTexts, "secondInstruction")?.let { setSecondInstructionText(it) }
+      firstString(instructionsColors, "firstInstructionTitle")?.let { setFirstInstructionTextColor(it) }
+      firstString(instructionsColors, "secondInstructionTitle")?.let { setSecondInstructionTextColor(it) }
+      val backButtonDrawableId = facetecDrawables[FacetecDrawablesKey.INSTRUCTIONS_BACK_BUTTON_IMG]
+      backButtonDrawableId?.let { setBackButtonImg(it) }
+      resolveInstructionsBackButtonTintColor(instructionsColors, hasCustomBackButtonImage = backButtonDrawableId != null)
+        ?.let { setBackButtonColor(it) }
+      facetecDrawables[FacetecDrawablesKey.INSTRUCTIONS_CONTEXT_IMAGE]?.let { setContextImage(it) }
+      facetecDrawables[FacetecDrawablesKey.INSTRUCTIONS_FIRST_INSTRUCTION_ICON]?.let { setFirstInstructionIcon(it) }
+      facetecDrawables[FacetecDrawablesKey.INSTRUCTIONS_SECOND_INSTRUCTION_ICON]?.let { setSecondInstructionIcon(it) }
     }
 
-    // Permission Screen
     setPermissionTheme {
-      setTitle(permissionTexts?.getString("title") ?: "Permissão de Câmera")
-      setBackgroundColor(permissionColors?.getString("background") ?: "#1F1F1F")
-      setStatusBarColor(permissionColors?.getString("statusBar") ?: "#1F1F1F")
+      setTitle(firstString(permissionTexts, "title") ?: "Permissão de Câmera")
+      setTitleColor(firstString(permissionColors, "titleColor", "title") ?: "#FFFFFF")
+      setSubTitle(firstString(permissionTexts, "caption"))
+      setSubTitleColor(firstString(permissionColors, "captionColor", "caption") ?: "#FFFFFF")
+      setBackgroundColor(firstString(permissionColors, "backgroundColor", "background") ?: "#1F1F1F")
+      setStatusBarColor(firstString(permissionColors, "statusBarColor", "statusBar") ?: "#1F1F1F")
       setStatusBarIsDarkIcons(false)
+      setPermissionButtonText(firstString(permissionTexts, "checkPermissionButton") ?: "Permitir acesso")
+      setPermissionButtonColor(
+        firstString(permissionColors, "checkPermissionButtonBackground", "checkPermissionButtonColor") ?: "#00FF00"
+      )
+      setPermissionButtonTextColor(firstString(permissionColors, "checkPermissionButtonText") ?: "#000000")
+      facetecDrawables[FacetecDrawablesKey.PERMISSION_CAMERA_ICON]?.let { setCameraIcon(it) }
+      facetecDrawables[FacetecDrawablesKey.PERMISSION_BACK_BUTTON_ICON]?.let { setBackButtonIcon(it) }
     }
 
     // Processing Screen
@@ -233,9 +260,9 @@ object FacetecThemeFactory {
     val processingColors = processingTheme?.getMap("colors")
 
     setProcessingTheme {
-      setBackgroundColor(processingColors?.getString("background") ?: "#000000")
-      setLoadingDialogColor(processingColors?.getString("loading") ?: "#FFFFFF")
-      setStatusBarColor(processingColors?.getString("statusBar") ?: "#000000")
+      setBackgroundColor(firstString(processingColors, "backgroundColor", "background") ?: "#000000")
+      setLoadingDialogColor(firstString(processingColors, "loadingDialogColor", "loading") ?: "#FFFFFF")
+      setStatusBarColor(firstString(processingColors, "statusBarColor", "statusBar") ?: "#000000")
       setStatusBarIsDarkIcons(false)
       setLoadingIndicatorSize(80)
     }
@@ -243,22 +270,4 @@ object FacetecThemeFactory {
 
   fun create(isCustom: Boolean, theme: ReadableMap? = null, context: Context? = null): FacetecTheme =
     if (isCustom) buildCustom(theme, context) else buildDefault()
-}
-
-private fun optInt(map: ReadableMap?, key: String, default: Int): Int {
-  map ?: return default
-  if (!map.hasKey(key)) return default
-  return when (map.getType(key)) {
-    ReadableType.Number -> map.getDouble(key).toInt()
-    else -> default
-  }
-}
-
-private fun optBoolean(map: ReadableMap?, key: String, default: Boolean): Boolean {
-  map ?: return default
-  if (!map.hasKey(key)) return default
-  return when (map.getType(key)) {
-    ReadableType.Boolean -> map.getBoolean(key)
-    else -> default
-  }
 }
