@@ -14,6 +14,11 @@
 
 ### Alterado
 
+- FaceTec Android: resolução de fontes via `res/font` antes de `assets/fonts`, evitando `Parâmetros de customização inválidos` quando a fonte está só em `res/font`
+- Leitura de `permission.fonts` no iProov Android com fallback para `iproov.fonts.permission*`
+- Prioridade de fontes individuais no iProov Android quando o asset existe em `fonts/`
+- Suporte a `facetec.sizes` no iOS (FaceTec)
+- Documentação de tema atualizada com coluna de plataforma (Android / iOS)
 - Aplicação de fonte base no iProov Android com `setFontResource(...)` e fallback automático para `setFontPath(...)`
 - Resolução de fonte base no iProov iOS priorizando `fontResource` e fallback por `fontPath`
 - `instructions.configuration.showInstructionScreen` validado para Android e iOS

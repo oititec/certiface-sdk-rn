@@ -5,12 +5,21 @@ import com.facebook.react.bridge.ReadableMap
 
 class IProovFonts(
     private val iproovFonts: ReadableMap?,
-    private val instructionsFonts: ReadableMap? = null
+    private val instructionsFonts: ReadableMap? = null,
+    private val permissionFonts: ReadableMap? = null
 ) {
 
-    private fun resolveFont(iproovKey: String, instructionsKey: String? = null): String {
+    private fun resolveFont(
+        iproovKey: String,
+        instructionsKey: String? = null,
+        permissionKey: String? = null
+    ): String {
         val iproovValue = iproovFonts?.getString(iproovKey)?.trim().orEmpty()
         if (iproovValue.isNotEmpty()) return fontAssetPath(iproovValue)
+        val permissionValue = permissionKey
+            ?.let { permissionFonts?.getString(it)?.trim().orEmpty() }
+            .orEmpty()
+        if (permissionValue.isNotEmpty()) return fontAssetPath(permissionValue)
         val instructionsValue = instructionsKey
             ?.let { instructionsFonts?.getString(it)?.trim().orEmpty() }
             .orEmpty()
@@ -33,11 +42,14 @@ class IProovFonts(
     private val instructionsButtonFont: String =
         resolveFont("instructionsButtonFont", "continueButton")
 
-    private val permissionTitleFont: String = resolveFont("permissionTitleFont")
+    private val permissionTitleFont: String =
+        resolveFont("permissionTitleFont", permissionKey = "title")
 
-    private val permissionCaptionFont: String = resolveFont("permissionCaptionFont")
+    private val permissionCaptionFont: String =
+        resolveFont("permissionCaptionFont", permissionKey = "caption")
 
-    private val permissionButtonFont: String = resolveFont("permissionButtonFont")
+    private val permissionButtonFont: String =
+        resolveFont("permissionButtonFont", permissionKey = "checkPermissionButton")
 
     private val resultMessageFont: String = resolveFont("resultMessageFont")
 

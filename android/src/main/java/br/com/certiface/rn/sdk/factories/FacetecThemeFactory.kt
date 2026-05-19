@@ -10,6 +10,7 @@ import br.com.certiface.manager.exports.FacetecDrawablesKey
 import br.com.certiface.manager.exports.FacetecFontsKey
 import br.com.certiface.manager.exports.FacetecTextKey
 import br.com.certiface.rn.sdk.theme.FacetecFonts
+import br.com.certiface.rn.sdk.theme.FontResolver
 import br.com.certiface.rn.sdk.processors.AssetProcessor
 import com.facebook.react.bridge.ReadableMap
 
@@ -39,29 +40,35 @@ object FacetecThemeFactory {
     val facetecTexts = facetecTheme?.getMap("texts")
     val facetecFontsMap = facetecTheme?.getMap("fonts")
 
-    val facetecFonts = if (facetecFontsMap != null || instructionsFonts != null || permissionFonts != null) {
-      FacetecFonts(instructionsFonts, permissionFonts, facetecFontsMap).apply()
-    } else {
-      hashMapOf(
-        FacetecFontsKey.INSTRUCTIONS_TITLE_FONT to R.font.ubuntu_regular,
-        FacetecFontsKey.INSTRUCTIONS_CAPTION_FONT to R.font.ubuntu_regular,
-        FacetecFontsKey.INSTRUCTIONS_DOCUMENT_TYPES_INSTRUCTIONS_FONT to R.font.ubuntu_regular,
-        FacetecFontsKey.INSTRUCTIONS_DOCUMENT_TIPS_INSTRUCTIONS_FONT to R.font.ubuntu_regular,
-        FacetecFontsKey.INSTRUCTIONS_BUTTON_FONT to R.font.ubuntu_regular,
-        FacetecFontsKey.PERMISSION_TITLE_FONT to R.font.ubuntu_regular,
-        FacetecFontsKey.PERMISSION_CAPTION_FONT to R.font.ubuntu_regular,
-        FacetecFontsKey.PERMISSION_BUTTON_FONT to R.font.ubuntu_regular,
-        FacetecFontsKey.GUIDANCE_CUSTOMIZATION_HEADER_FONT to R.font.ubuntu_regular,
-        FacetecFontsKey.GUIDANCE_CUSTOMIZATION_SUBTEXT_FONT to R.font.ubuntu_regular,
-        FacetecFontsKey.GUIDANCE_CUSTOMIZATION_BUTTON_FONT to R.font.ubuntu_regular,
-        FacetecFontsKey.GUIDANCE_CUSTOMIZATION_READY_SCREEN_HEADER_FONT to R.font.ubuntu_regular,
-        FacetecFontsKey.GUIDANCE_CUSTOMIZATION_READY_SCREEN_SUBTEXT_FONT to R.font.ubuntu_regular,
-        FacetecFontsKey.GUIDANCE_CUSTOMIZATION_RETRY_SCREEN_HEADER_FONT to R.font.ubuntu_regular,
-        FacetecFontsKey.GUIDANCE_CUSTOMIZATION_RETRY_SCREEN_SUBTEXT_FONT to R.font.ubuntu_regular,
-        FacetecFontsKey.RESULT_SCREEN_CUSTOMIZATION_MESSAGE_FONT to R.font.ubuntu_regular,
-        FacetecFontsKey.FEEDBACK_CUSTOMIZATION_TEXT_FONT to R.font.ubuntu_regular
-      )
-    }
+    val facetecFonts: Map<FacetecFontsKey, Any> =
+      if (facetecFontsMap != null || instructionsFonts != null || permissionFonts != null) {
+        val rawFonts = FacetecFonts(instructionsFonts, permissionFonts, facetecFontsMap).apply()
+        if (context != null) {
+          rawFonts.mapValues { (_, path) -> FontResolver.resolveFromAssetPath(context, path) }
+        } else {
+          rawFonts
+        }
+      } else {
+        hashMapOf(
+          FacetecFontsKey.INSTRUCTIONS_TITLE_FONT to FontResolver.defaultFontRes,
+          FacetecFontsKey.INSTRUCTIONS_CAPTION_FONT to FontResolver.defaultFontRes,
+          FacetecFontsKey.INSTRUCTIONS_DOCUMENT_TYPES_INSTRUCTIONS_FONT to FontResolver.defaultFontRes,
+          FacetecFontsKey.INSTRUCTIONS_DOCUMENT_TIPS_INSTRUCTIONS_FONT to FontResolver.defaultFontRes,
+          FacetecFontsKey.INSTRUCTIONS_BUTTON_FONT to FontResolver.defaultFontRes,
+          FacetecFontsKey.PERMISSION_TITLE_FONT to FontResolver.defaultFontRes,
+          FacetecFontsKey.PERMISSION_CAPTION_FONT to FontResolver.defaultFontRes,
+          FacetecFontsKey.PERMISSION_BUTTON_FONT to FontResolver.defaultFontRes,
+          FacetecFontsKey.GUIDANCE_CUSTOMIZATION_HEADER_FONT to FontResolver.defaultFontRes,
+          FacetecFontsKey.GUIDANCE_CUSTOMIZATION_SUBTEXT_FONT to FontResolver.defaultFontRes,
+          FacetecFontsKey.GUIDANCE_CUSTOMIZATION_BUTTON_FONT to FontResolver.defaultFontRes,
+          FacetecFontsKey.GUIDANCE_CUSTOMIZATION_READY_SCREEN_HEADER_FONT to FontResolver.defaultFontRes,
+          FacetecFontsKey.GUIDANCE_CUSTOMIZATION_READY_SCREEN_SUBTEXT_FONT to FontResolver.defaultFontRes,
+          FacetecFontsKey.GUIDANCE_CUSTOMIZATION_RETRY_SCREEN_HEADER_FONT to FontResolver.defaultFontRes,
+          FacetecFontsKey.GUIDANCE_CUSTOMIZATION_RETRY_SCREEN_SUBTEXT_FONT to FontResolver.defaultFontRes,
+          FacetecFontsKey.RESULT_SCREEN_CUSTOMIZATION_MESSAGE_FONT to FontResolver.defaultFontRes,
+          FacetecFontsKey.FEEDBACK_CUSTOMIZATION_TEXT_FONT to FontResolver.defaultFontRes
+        )
+      }
 
     val facetecDrawablesRaw = AssetProcessor.processFacetecAssets(theme)
     val facetecDrawables = AssetProcessor.resolveFacetecDrawables(context, facetecDrawablesRaw)

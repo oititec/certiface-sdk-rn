@@ -178,14 +178,26 @@ final class ThemeFactory {
       with: builder.setCheckPermissionButtonTextFont(_:),
       size: 20
     )
-    setFont(permFonts["bottomSheetTitle"], with: builder.setBottomSheetTitleFont(_:), size: 20)
-    setFont(permFonts["bottomSheetCaption"], with: builder.setBottomSheetCaptionFont(_:), size: 20)
     setFont(
-      permFonts["openSettingsButton"] ?? permFonts["opentSettingsButton"],
+      permFonts["bottomSheetTitle"] ?? iproovFonts["permissionTitleFont"] ?? iproovFontResource,
+      with: builder.setBottomSheetTitleFont(_:),
+      size: 20
+    )
+    setFont(
+      permFonts["bottomSheetCaption"] ?? iproovFonts["permissionCaptionFont"] ?? iproovFontResource,
+      with: builder.setBottomSheetCaptionFont(_:),
+      size: 20
+    )
+    setFont(
+      permFonts["openSettingsButton"] ?? permFonts["opentSettingsButton"] ?? iproovFonts["permissionButtonFont"] ?? iproovFontResource,
       with: builder.setOpenSettingsButtonTextFont(_:),
       size: 20
     )
-    setFont(permFonts["closeButton"], with: builder.setCloseButtonTextFont(_:), size: 20)
+    setFont(
+      permFonts["closeButton"] ?? iproovFonts["permissionButtonFont"] ?? iproovFontResource,
+      with: builder.setCloseButtonTextFont(_:),
+      size: 20
+    )
 
     return builder
   }
@@ -363,6 +375,35 @@ final class ThemeFactory {
     setFont(fonts["guidanceSubtext"], with: builder.setGuidanceSubtextFont(_:), size: 0)
     setFont(fonts["guidanceButton"], with: builder.setGuidanceButtonFont(_:), size: 0)
 
+    let sizes = livenessTheme["sizes"] as? [String: Any] ?? [:]
+    if let width = intThemeValue(sizes["guidanceButtonBorderWidth"]) {
+      _ = builder.setGuidanceButtonBorderWidth(width)
+    }
+    if let radius = intThemeValue(sizes["guidanceButtonCornerRadius"]) {
+      _ = builder.setGuidanceButtonBorderCornerRadius(radius)
+    }
+    if let width = intThemeValue(sizes["guidanceRetryScreenImageBorderWidth"]) {
+      _ = builder.setRetryScreenImageBorderWidth(width)
+    }
+    if let radius = intThemeValue(sizes["guidanceRetryScreenImageCornerRadius"]) {
+      _ = builder.setRetryScreenImageBorderCornerRadius(radius)
+    }
+    if let width = intThemeValue(sizes["frameBorderWidth"]) {
+      _ = builder.setFrameBorderWidth(width)
+    }
+    if let radius = intThemeValue(sizes["frameCornerRadius"]) {
+      _ = builder.setFrameBorderCornerRadius(radius)
+    }
+    if let elevation = intThemeValue(sizes["frameElevation"]) {
+      _ = builder.setFrameShadow(shadowFromElevation(elevation))
+    }
+    if let radius = intThemeValue(sizes["feedbackCornerRadius"]) {
+      _ = builder.setFeedbackBarCornerRadius(radius)
+    }
+    if let elevation = intThemeValue(sizes["feedbackElevation"]) {
+      _ = builder.setFeedbackBarShadow(shadowFromElevation(elevation))
+    }
+
     return builder
   }
 
@@ -437,6 +478,31 @@ final class ThemeFactory {
     if let imageName, let image = RnSdkBundle.getImage(named: imageName) {
       _ = builder(image)
     }
+  }
+
+  private static func intThemeValue(_ value: Any?) -> Int? {
+    switch value {
+    case let intValue as Int:
+      return intValue
+    case let doubleValue as Double:
+      return Int(doubleValue)
+    case let numberValue as NSNumber:
+      return numberValue.intValue
+    default:
+      return nil
+    }
+  }
+
+  private static func shadowFromElevation(_ elevation: Int) -> Liveness3DShadow {
+    let opacity = min(Swift.max(Float(elevation) / 24.0, 0.08), 0.4)
+    let radius = CGFloat(min(Swift.max(elevation, 1), 24))
+    return Liveness3DShadow(
+      color: .black,
+      opacity: opacity,
+      radius: Float(radius),
+      offset: CGSize(width: 0, height: CGFloat(elevation) / 2),
+      insets: .zero
+    )
   }
 
   private static func firstValue(in source: [String: String], keys: String...) -> String? {

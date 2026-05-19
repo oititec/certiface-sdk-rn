@@ -1,0 +1,57 @@
+package br.com.certiface.rn.sdk.theme
+
+import android.content.Context
+import br.com.certiface.designsystem.R
+
+object FontResolver {
+  val defaultFontRes: Int = R.font.ubuntu_regular
+
+  fun resolve(context: Context?, fontName: String?): Any {
+    if (context == null) return fontAssetPath(fontName)
+    val resourceId = resolveFontResourceId(context, fontName)
+    if (resourceId != defaultFontRes) return resourceId
+    val assetPath = fontAssetPath(fontName)
+    if (fontAssetExists(context, assetPath)) return assetPath
+    return defaultFontRes
+  }
+
+  fun resolveFromAssetPath(context: Context?, assetPath: String): Any {
+    val trimmed = assetPath.trim()
+    if (trimmed.isEmpty()) return defaultFontRes
+    val name = trimmed
+      .removePrefix("fonts/")
+      .substringBeforeLast(".ttf")
+      .substringBeforeLast(".otf")
+    return resolve(context, name.ifEmpty { null })
+  }
+
+  fun resolveFontResourceId(context: Context, fontName: String?): Int {
+    val raw = fontName?.trim().orEmpty()
+    if (raw.isEmpty()) return defaultFontRes
+
+    val normalized = raw
+      .substringAfterLast('/')
+      .substringBeforeLast(".ttf")
+      .substringBeforeLast(".otf")
+
+    val packages = listOf(
+      context.packageName,
+      "br.com.certiface.rn.sdk",
+      "br.com.certiface.designsystem"
+    )
+    for (pkg in packages) {
+      val resourceId = context.resources.getIdentifier(normalized, "font", pkg)
+      if (resourceId != 0) return resourceId
+    }
+    return defaultFontRes
+  }
+
+  fun fontAssetExists(context: Context, assetPath: String): Boolean {
+    return try {
+      context.assets.open(assetPath).close()
+      true
+    } catch (_: Exception) {
+      false
+    }
+  }
+}

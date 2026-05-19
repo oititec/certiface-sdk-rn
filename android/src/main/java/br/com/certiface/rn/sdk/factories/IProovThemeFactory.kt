@@ -13,13 +13,14 @@ import br.com.certiface.manager.exports.IProovTheme
 import br.com.certiface.manager.exports.LineDrawingStyle
 import br.com.certiface.manager.exports.NaturalStyle
 import br.com.certiface.rn.sdk.theme.IProovFonts
+import br.com.certiface.rn.sdk.theme.FontResolver
 import br.com.certiface.rn.sdk.theme.fontAssetPath
 import br.com.certiface.rn.sdk.processors.AssetProcessor
 import com.facebook.react.bridge.ReadableMap
 
 object IProovThemeFactory {
   private const val TAG = "IProovThemeFactory"
-  private val DEFAULT_IPROOV_FONT_RES = R.font.ubuntu_regular
+  private val DEFAULT_IPROOV_FONT_RES = FontResolver.defaultFontRes
 
   fun create(isCustom: Boolean, theme: ReadableMap? = null, context: Context? = null): IProovTheme =
     if (isCustom) buildCustom(theme, context) else buildDefault()
@@ -35,6 +36,8 @@ object IProovThemeFactory {
     val texts = iproovTheme?.getMap("texts")
     val instructionsTheme = theme?.getMap("instructions")
     val instructionsFontsMap = instructionsTheme?.getMap("fonts")
+    val permissionTheme = theme?.getMap("permission")
+    val permissionFontsMap = permissionTheme?.getMap("fonts")
     val resultTheme = theme?.getMap("result")
     val resultFontsMap = resultTheme?.getMap("fonts")
     val iproovFontsMap = iproovTheme?.getMap("fonts")
@@ -46,6 +49,7 @@ object IProovThemeFactory {
       context = context,
       iproovFontsMap = iproovFontsMap,
       instructionsFontsMap = instructionsFontsMap,
+      permissionFontsMap = permissionFontsMap,
       resultFontsMap = resultFontsMap,
       resolvedFontResource = resolvedIProovFontResource,
       fontResource = iproovFontResource,
@@ -168,7 +172,6 @@ object IProovThemeFactory {
       iproovDrawables[IProovDrawablesKey.INSTRUCTIONS_SECOND_INSTRUCTION_ICON]?.let { setSecondInstructionIcon(it) }
     }
 
-    val permissionTheme = theme?.getMap("permission")
     val permissionColors = permissionTheme?.getMap("colors")
     val permissionTexts = permissionTheme?.getMap("texts")
 
@@ -237,6 +240,7 @@ object IProovThemeFactory {
     context: Context?,
     iproovFontsMap: ReadableMap?,
     instructionsFontsMap: ReadableMap?,
+    permissionFontsMap: ReadableMap?,
     resultFontsMap: ReadableMap?,
     resolvedFontResource: Int,
     fontResource: String?,
@@ -245,15 +249,15 @@ object IProovThemeFactory {
     val fallback = resolveDefaultIProovFontValue(fontResource, fontPath, resolvedFontResource)
     val baseValue: Any = when {
       resolvedFontResource != DEFAULT_IPROOV_FONT_RES -> resolvedFontResource
-      context != null && fallback is String && fontAssetExists(context, fallback) -> fallback
+      context != null && fallback is String && FontResolver.fontAssetExists(context, fallback) -> fallback
       else -> resolvedFontResource
     }
 
-    if (iproovFontsMap == null && instructionsFontsMap == null && resultFontsMap == null) {
+    if (iproovFontsMap == null && instructionsFontsMap == null && permissionFontsMap == null && resultFontsMap == null) {
       return buildDefaultIProovFonts(baseValue)
     }
 
-    val configuredFonts = IProovFonts(iproovFontsMap, instructionsFontsMap).apply().toMutableMap()
+    val configuredFonts = IProovFonts(iproovFontsMap, instructionsFontsMap, permissionFontsMap).apply().toMutableMap()
     resultFontsMap?.getString("text")?.trim()?.takeIf { it.isNotEmpty() }?.let {
       configuredFonts[IProovFontsKey.RESULT_MESSAGE_FONT] = fontAssetPath(it)
     }
@@ -265,12 +269,10 @@ object IProovThemeFactory {
     }
 
     return configuredFonts.mapValues { (_, fontPathValue) ->
-      when (baseValue) {
-        is Int -> baseValue
-        is String -> {
-          if (fontAssetExists(context, fontPathValue)) fontPathValue else baseValue
-        }
-        else -> baseValue
+      if (fontPathValue is String && FontResolver.fontAssetExists(context, fontPathValue)) {
+        fontPathValue
+      } else {
+        baseValue
       }
     }
   }
@@ -302,35 +304,9 @@ object IProovThemeFactory {
     }.toMap()
   }
 
-  private fun fontAssetExists(context: Context, assetPath: String): Boolean {
-    return try {
-      context.assets.open(assetPath).close()
-      true
-    } catch (_: Exception) {
-      false
-    }
-  }
-
   private fun resolveFontResource(context: Context?, fontResource: String?): Int {
     if (context == null) return DEFAULT_IPROOV_FONT_RES
-    val raw = fontResource?.trim().orEmpty()
-    if (raw.isEmpty()) return DEFAULT_IPROOV_FONT_RES
-
-    val normalized = raw
-      .substringAfterLast('/')
-      .substringBeforeLast(".ttf")
-      .substringBeforeLast(".otf")
-
-    val packages = listOf(
-      context.packageName,
-      "br.com.certiface.rn.sdk",
-      "br.com.certiface.designsystem"
-    )
-    for (pkg in packages) {
-      val resourceId = context.resources.getIdentifier(normalized, "font", pkg)
-      if (resourceId != 0) return resourceId
-    }
-    return DEFAULT_IPROOV_FONT_RES
+    return FontResolver.resolveFontResourceId(context, fontResource)
   }
 
   private fun applyFontPathIfSupported(target: Any, fontPath: String?): Boolean {
