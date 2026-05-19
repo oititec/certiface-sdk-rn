@@ -67,19 +67,7 @@ fi
 "$REPO_ROOT/scripts/sync-ios-version.sh"
 
 echo "[3/8] CocoaPods (example)"
-cd "$REPO_ROOT/example"
-BUNDLER_VER=""
-if [[ -f Gemfile.lock ]]; then
-  BUNDLER_VER=$(grep -A1 'BUNDLED WITH' Gemfile.lock 2>/dev/null | tail -1 | tr -d ' ')
-fi
-if [[ -n "$BUNDLER_VER" ]]; then
-  bundle _${BUNDLER_VER}_ install || bundle install
-else
-  bundle install
-fi
-bundle exec pod repo update --verbose
-bundle exec pod install --project-directory=ios
-cd "$REPO_ROOT"
+"$REPO_ROOT/scripts/pod-install-ci.sh"
 
 echo "[4/8] App Store Connect API key (opcional)"
 APPSTORE_API_KEY_PATH=""
