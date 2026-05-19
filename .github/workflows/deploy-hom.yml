@@ -54,14 +54,12 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Apply deploy version
-        run: |
-          cat > example/deploy-version.env <<EOF
-          VERSION_NAME=${{ needs.resolve-version.outputs.version_name }}
-          VERSION_CODE=${{ needs.resolve-version.outputs.version_code }}
-          BUILD_NUMBER=${{ needs.resolve-version.outputs.build_number }}
-          VERSION_LABEL=${{ needs.resolve-version.outputs.version_label }}
-          EOF
-          cat example/deploy-version.env
+        env:
+          VERSION_NAME: ${{ needs.resolve-version.outputs.version_name }}
+          VERSION_CODE: ${{ needs.resolve-version.outputs.version_code }}
+          BUILD_NUMBER: ${{ needs.resolve-version.outputs.build_number }}
+          VERSION_LABEL: ${{ needs.resolve-version.outputs.version_label }}
+        run: node scripts/write-deploy-version-artifacts.mjs
 
       - name: Setup
         uses: ./.github/actions/setup
@@ -118,14 +116,12 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Apply deploy version
-        run: |
-          cat > example/deploy-version.env <<EOF
-          VERSION_NAME=${{ needs.resolve-version.outputs.version_name }}
-          VERSION_CODE=${{ needs.resolve-version.outputs.version_code }}
-          BUILD_NUMBER=${{ needs.resolve-version.outputs.build_number }}
-          VERSION_LABEL=${{ needs.resolve-version.outputs.version_label }}
-          EOF
-          cat example/deploy-version.env
+        env:
+          VERSION_NAME: ${{ needs.resolve-version.outputs.version_name }}
+          VERSION_CODE: ${{ needs.resolve-version.outputs.version_code }}
+          BUILD_NUMBER: ${{ needs.resolve-version.outputs.build_number }}
+          VERSION_LABEL: ${{ needs.resolve-version.outputs.version_label }}
+        run: node scripts/write-deploy-version-artifacts.mjs
 
       - name: Setup
         uses: ./.github/actions/setup

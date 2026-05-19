@@ -27,26 +27,46 @@ if (existsSync(statePath)) {
 const versionCode = semverBase + buildNumber;
 const versionLabel = `${marketingVersion} (${buildNumber})`;
 
+const shellQuote = (value) => `"${String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+
 mkdirSync(dirname(statePath), { recursive: true });
 writeFileSync(
   statePath,
   JSON.stringify({ version: marketingVersion, buildNumber }, null, 2) + '\n'
 );
 
+const jsonPath = join(repoRoot, 'example/deploy-version.json');
+writeFileSync(
+  jsonPath,
+  JSON.stringify(
+    {
+      versionName: marketingVersion,
+      versionCode,
+      buildNumber,
+      versionLabel,
+      semverBase,
+    },
+    null,
+    2
+  ) + '\n'
+);
+
 const envLines = [
-  `VERSION_NAME=${marketingVersion}`,
+  `VERSION_NAME=${shellQuote(marketingVersion)}`,
   `VERSION_CODE=${versionCode}`,
   `BUILD_NUMBER=${buildNumber}`,
-  `VERSION_LABEL=${versionLabel}`,
+  `VERSION_LABEL=${shellQuote(versionLabel)}`,
   `SEMVER_BASE=${semverBase}`,
 ];
 writeFileSync(envPath, envLines.join('\n') + '\n');
 
 const githubEnv = process.env.GITHUB_ENV;
 if (githubEnv) {
-  for (const line of envLines) {
-    writeFileSync(githubEnv, line + '\n', { flag: 'a' });
-  }
+  writeFileSync(githubEnv, `VERSION_NAME=${marketingVersion}\n`, { flag: 'a' });
+  writeFileSync(githubEnv, `VERSION_CODE=${versionCode}\n`, { flag: 'a' });
+  writeFileSync(githubEnv, `BUILD_NUMBER=${buildNumber}\n`, { flag: 'a' });
+  writeFileSync(githubEnv, `VERSION_LABEL=${versionLabel}\n`, { flag: 'a' });
+  writeFileSync(githubEnv, `SEMVER_BASE=${semverBase}\n`, { flag: 'a' });
 }
 
 if (process.argv.includes('--github-output') && process.env.GITHUB_OUTPUT) {

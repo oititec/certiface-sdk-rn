@@ -88,14 +88,21 @@ def getPackageJson() {
     return new groovy.json.JsonSlurper().parseText(packageJsonFile.text)
 }
 
-def getDeployVersionProps() {
+def getDeployVersion() {
+    def jsonFile = file("../../deploy-version.json")
+    if (jsonFile.exists()) {
+        return new groovy.json.JsonSlurper().parse(jsonFile)
+    }
     def propsFile = file("../../deploy-version.env")
     if (!propsFile.exists()) {
         return null
     }
     def props = new Properties()
     propsFile.withInputStream { props.load(it) }
-    return props
+    return [
+        versionCode: props.VERSION_CODE as Integer,
+        versionLabel: props.VERSION_LABEL,
+    ]
 }
 
 def getSemverBase(String version) {
@@ -107,9 +114,9 @@ def getSemverBase(String version) {
 }
 
 def getVersionCode() {
-    def deployProps = getDeployVersionProps()
-    if (deployProps?.VERSION_CODE) {
-        return deployProps.VERSION_CODE as Integer
+    def deployVersion = getDeployVersion()
+    if (deployVersion?.versionCode != null) {
+        return deployVersion.versionCode as Integer
     }
     def packageJson = getPackageJson()
     def version = packageJson.version ?: "1.0.0"
@@ -121,9 +128,9 @@ def getVersionCode() {
 }
 
 def getVersionName() {
-    def deployProps = getDeployVersionProps()
-    if (deployProps?.VERSION_LABEL) {
-        return deployProps.VERSION_LABEL
+    def deployVersion = getDeployVersion()
+    if (deployVersion?.versionLabel) {
+        return deployVersion.versionLabel as String
     }
     def packageJson = getPackageJson()
     def version = packageJson.version ?: "1.0.0"
