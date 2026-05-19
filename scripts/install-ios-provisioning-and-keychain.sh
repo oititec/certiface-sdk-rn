@@ -58,7 +58,8 @@ if [[ -z "${GITHUB_ACTIONS:-}" ]]; then
   echo "2. Em 'Categoria', selecione 'Certificados'."
   echo "3. Localize o certificado 'Apple Distribution' do seu time."
   echo "4. Expanda e selecione a chave privada → Exportar 2 itens... → .p12 e senha."
-  echo "5. Secret no GitHub: base64 -i seu.p12 | pbcopy → IOS_CERTIFICATES_P12_BASE64"
-  echo "   E crie IOS_CERTIFICATES_P12_PASSWORD com a senha do .p12."
+  echo "5. Secret no GitHub: ./scripts/encode-ios-p12-secret.sh seu.p12"
+  echo "   Cole a linha em IOS_CERTIFICATES_P12_BASE64 (sem quebra de linha no final)."
+  echo "   Crie IOS_CERTIFICATES_P12_PASSWORD com a senha do .p12."
   echo ""
 fi

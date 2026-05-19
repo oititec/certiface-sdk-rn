@@ -20,6 +20,9 @@ if [[ "$(uname)" != "Darwin" ]]; then
   exit 1
 fi
 
+# shellcheck source=load-secrets.sh
+source "$REPO_ROOT/scripts/load-secrets.sh"
+
 TEAM_ID="${APPLE_TEAM_ID:-KRCZ6X7U8S}"
 BUILD_ONLY=false
 UPLOAD_TESTFLIGHT=false
@@ -30,23 +33,21 @@ for arg in "$@"; do
   esac
 done
 
-if [[ -f "$REPO_ROOT/.secrets" && -z "${GITHUB_ACTIONS:-}" ]]; then
-  while IFS= read -r line || [[ -n "$line" ]]; do
-    line="${line%$'\r'}"
-    if [[ "$line" =~ ^([A-Za-z_][A-Za-z0-9_]*)=(.*)$ ]]; then
-      [[ -n "$_cur_key" ]] && { _v="${_cur_val#\"}"; _v="${_v%\"}"; export "${_cur_key}=${_v}"; }
-      _cur_key="${BASH_REMATCH[1]}"
-      _cur_val="${BASH_REMATCH[2]}"
-    elif [[ -n "$_cur_key" ]]; then
-      _cur_val="${_cur_val}"$'\n'"${line}"
+if [[ -z "${GITHUB_ACTIONS:-}" ]]; then
+  if ! load_secrets "$REPO_ROOT"; then
+    if [[ "$UPLOAD_TESTFLIGHT" == "true" ]]; then
+      print_appstore_credentials_help "$REPO_ROOT"
+      exit 1
     fi
-  done < "$REPO_ROOT/.secrets"
-  [[ -n "$_cur_key" ]] && { _v="${_cur_val#\"}"; _v="${_v%\"}"; export "${_cur_key}=${_v}"; }
-  unset _cur_key _cur_val _v
+  elif [[ "$UPLOAD_TESTFLIGHT" == "true" ]] && ! has_appstore_upload_credentials; then
+    echo "Arquivo .secrets encontrado, mas faltam credenciais de upload."
+    print_appstore_credentials_help "$REPO_ROOT"
+    exit 1
+  fi
 fi
 
 if [[ -z "${GITHUB_ACTIONS:-}" ]]; then
-  echo "[1/7] Setup Node e dependências (espelho do .github/actions/setup)"
+  echo "[1/8] Setup Node e dependências (espelho do .github/actions/setup)"
   if [[ -f .nvmrc ]]; then
     export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
     if [[ -s "$NVM_DIR/nvm.sh" ]]; then
@@ -56,10 +57,13 @@ if [[ -z "${GITHUB_ACTIONS:-}" ]]; then
   fi
   yarn install --immutable
 else
-  echo "[1/7] CI: pulando yarn install (já feito pelo Setup)."
+  echo "[1/8] CI: pulando yarn install (já feito pelo Setup)."
 fi
 
-echo "[2/7] CocoaPods (example)"
+echo "[2/8] Versão iOS (package.json → Xcode)"
+"$REPO_ROOT/scripts/sync-ios-version.sh"
+
+echo "[3/8] CocoaPods (example)"
 cd "$REPO_ROOT/example"
 BUNDLER_VER=""
 if [[ -f Gemfile.lock ]]; then
@@ -74,18 +78,24 @@ bundle exec pod repo update --verbose
 bundle exec pod install --project-directory=ios
 cd "$REPO_ROOT"
 
-echo "[3/7] App Store Connect API key (opcional)"
+echo "[4/8] App Store Connect API key (opcional)"
 APPSTORE_API_KEY_PATH=""
-if [[ -n "${APPSTORE_KEY_ID:-}" && -n "${APPSTORE_PRIVATE_KEY:-}" ]]; then
+if [[ -n "${APPSTORE_KEY_ID:-}" && -n "${APPSTORE_PRIVATE_KEY:-}${APPSTORE_PRIVATE_KEY_BASE64:-}" ]]; then
   APPSTORE_API_KEY_PATH="${TMPDIR:-/tmp}/AuthKey_${APPSTORE_KEY_ID}.p8"
-  printf '%s' "$APPSTORE_PRIVATE_KEY" > "$APPSTORE_API_KEY_PATH"
+  if [[ -n "${APPSTORE_PRIVATE_KEY_BASE64:-}" ]]; then
+    echo "$APPSTORE_PRIVATE_KEY_BASE64" | base64 -d > "$APPSTORE_API_KEY_PATH"
+  elif [[ "$APPSTORE_PRIVATE_KEY" == *"BEGIN PRIVATE KEY"* ]]; then
+    printf '%s\n' "$APPSTORE_PRIVATE_KEY" > "$APPSTORE_API_KEY_PATH"
+  else
+    printf '%b' "$APPSTORE_PRIVATE_KEY" > "$APPSTORE_API_KEY_PATH"
+  fi
   chmod 600 "$APPSTORE_API_KEY_PATH"
   echo "Chave API gravada em $APPSTORE_API_KEY_PATH"
 else
   echo "APPSTORE_KEY_ID/APPSTORE_PRIVATE_KEY não definidos; archive/export usarão conta do Xcode."
 fi
 
-echo "[4/7] ExportOptions.plist"
+echo "[5/8] ExportOptions.plist"
 mkdir -p example/ios
 printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -100,7 +110,7 @@ printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>
 </dict>
 </plist>' > example/ios/ExportOptions.plist
 
-echo "[5/7] Build settings (Release)"
+echo "[6/8] Build settings (Release)"
 cd "$REPO_ROOT/example/ios"
 xcodebuild -workspace RnSdkExample.xcworkspace \
   -scheme RnSdkExample \
@@ -109,7 +119,7 @@ xcodebuild -workspace RnSdkExample.xcworkspace \
   DEVELOPMENT_TEAM="$TEAM_ID" 2>/dev/null | grep -E 'PRODUCT_BUNDLE_IDENTIFIER|DEVELOPMENT_TEAM|CODE_SIGN|PROVISIONING_PROFILE|OTHER_CODE_SIGN_FLAGS' || true
 cd "$REPO_ROOT"
 
-echo "[6/7] Build and archive iOS"
+echo "[7/8] Build and archive iOS"
 cd "$REPO_ROOT/example/ios"
 if [[ -n "$APPSTORE_API_KEY_PATH" && -n "${APPSTORE_KEY_ID:-}" && -n "${APPSTORE_ISSUER_ID:-}" ]]; then
   xcodebuild -workspace RnSdkExample.xcworkspace -scheme RnSdkExample -configuration Release \
@@ -132,7 +142,7 @@ if [[ "$BUILD_ONLY" == "true" ]]; then
   exit 0
 fi
 
-echo "[7/7] Export IPA"
+echo "[8/8] Export IPA"
 cd "$REPO_ROOT/example/ios"
 if [[ -n "$APPSTORE_API_KEY_PATH" && -n "${APPSTORE_KEY_ID:-}" && -n "${APPSTORE_ISSUER_ID:-}" ]]; then
   xcodebuild -exportArchive -archivePath build/RnSdkExample.xcarchive -exportPath build \
@@ -159,13 +169,9 @@ fi
 echo "IPA gerado: $IPA_PATH"
 
 if [[ "$UPLOAD_TESTFLIGHT" == "true" ]]; then
-  if [[ -z "${APPSTORE_KEY_ID:-}" || -z "${APPSTORE_ISSUER_ID:-}" || -z "$APPSTORE_API_KEY_PATH" || ! -f "$APPSTORE_API_KEY_PATH" ]]; then
-    echo "Erro: --upload-testflight exige APPSTORE_KEY_ID, APPSTORE_ISSUER_ID e APPSTORE_PRIVATE_KEY (e chave .p8 gerada no passo 3)."
+  if ! has_appstore_upload_credentials; then
+    print_appstore_credentials_help "$REPO_ROOT"
     exit 1
   fi
-  echo "[8/8] Upload para TestFlight"
-  API_KEYS_DIR="$(dirname "$APPSTORE_API_KEY_PATH")"
-  export API_PRIVATE_KEYS_DIR="$API_KEYS_DIR"
-  xcrun altool --upload-app -f "$IPA_PATH" -t ios --apiKey "$APPSTORE_KEY_ID" --apiIssuer "$APPSTORE_ISSUER_ID"
-  echo "Upload concluído. O build deve aparecer em TestFlight em alguns minutos."
+  "$REPO_ROOT/scripts/upload-testflight.sh" "$IPA_PATH"
 fi
