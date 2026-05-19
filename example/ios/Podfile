@@ -34,14 +34,38 @@ target 'RnSdkExample' do
       config[:reactNativePath],
       :mac_catalyst_enabled => false,
     )
+    rn_abs = File.expand_path(config[:reactNativePath], Pod::Config.instance.installation_root)
+    with_env = File.join(rn_abs, 'scripts/xcode/with-environment.sh')
+    script_phases = File.join(rn_abs, 'scripts/react_native_pods_utils/script_phases.sh')
     installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |build_config|
+        build_config.build_settings['REACT_NATIVE_PATH'] = rn_abs
+      end
       target.build_phases.each do |phase|
         next unless phase.respond_to?(:shell_script)
         next if phase.shell_script.nil?
-        phase.shell_script = phase.shell_script.gsub(
+        script = phase.shell_script
+        script = script.gsub(/export RCT_SCRIPT_RN_DIR=.*\n/, "export RCT_SCRIPT_RN_DIR=\"#{rn_abs}\"\n")
+        script = script.gsub(
+          'WITH_ENVIRONMENT="$RCT_SCRIPT_RN_DIR/scripts/xcode/with-environment.sh"',
+          "WITH_ENVIRONMENT=\"#{with_env}\""
+        )
+        script = script.gsub(
+          'SCRIPT_PHASES_SCRIPT="$RCT_SCRIPT_RN_DIR/scripts/react_native_pods_utils/script_phases.sh"',
+          "SCRIPT_PHASES_SCRIPT=\"#{script_phases}\""
+        )
+        script = script.gsub(
           '/bin/sh -c "$WITH_ENVIRONMENT $SCRIPT_PHASES_SCRIPT"',
           '"$WITH_ENVIRONMENT" "$SCRIPT_PHASES_SCRIPT"'
         )
+        phase.shell_script = script
+      end
+    end
+    installer.aggregate_targets.each do |aggregate_target|
+      aggregate_target.user_project.native_targets.each do |native_target|
+        native_target.build_configurations.each do |build_config|
+          build_config.build_settings['REACT_NATIVE_PATH'] = rn_abs
+        end
       end
     end
     fmt_base = File.join(installer.sandbox.root, 'fmt', 'include', 'fmt', 'base.h')

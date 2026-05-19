@@ -2,7 +2,7 @@
 set -e
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PROVISIONING_DEST="$HOME/Library/MobileDevice/Provisioning Profiles"
-PROFILE_ENV_FILE="$REPO_ROOT/example/ios/.provisioning-profile.env"
+PROFILE_JSON_FILE="$REPO_ROOT/example/ios/.provisioning-profile.json"
 mkdir -p "$PROVISIONING_DEST"
 
 if [[ "$(uname)" != "Darwin" ]]; then
@@ -19,15 +19,30 @@ read_profile_metadata() {
   [[ -n "$PROFILE_UUID" && -n "$PROFILE_NAME" ]]
 }
 
+write_profile_json() {
+  local dest="$1"
+  INSTALL_PROFILE_UUID="$PROFILE_UUID" \
+  INSTALL_PROFILE_NAME="$PROFILE_NAME" \
+  INSTALL_PROFILE_PATH="$dest" \
+  node -e "
+const fs = require('fs');
+const path = require('path');
+const repoRoot = $(printf '%q' "$REPO_ROOT");
+const file = path.join(repoRoot, 'example/ios/.provisioning-profile.json');
+fs.writeFileSync(file, JSON.stringify({
+  uuid: process.env.INSTALL_PROFILE_UUID,
+  name: process.env.INSTALL_PROFILE_NAME,
+  path: process.env.INSTALL_PROFILE_PATH,
+}, null, 2) + '\n');
+"
+}
+
 install_profile_file() {
   local source_path="$1"
   read_profile_metadata "$source_path" || return 1
   local dest="$PROVISIONING_DEST/${PROFILE_UUID}.mobileprovision"
   cp "$source_path" "$dest"
-  printf '%s\n' \
-    "PROFILE_UUID=$PROFILE_UUID" \
-    "PROFILE_NAME=$PROFILE_NAME" \
-    "PROFILE_PATH=$dest" > "$PROFILE_ENV_FILE"
+  write_profile_json "$dest"
   echo "  Instalado: $PROFILE_NAME ($PROFILE_UUID)"
 }
 

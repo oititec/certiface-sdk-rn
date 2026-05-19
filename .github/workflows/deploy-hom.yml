@@ -134,7 +134,7 @@ jobs:
             example/vendor/bundle
             ~/Library/Caches/CocoaPods
             ~/.cocoapods/repos
-          key: pods-${{ runner.os }}-${{ hashFiles('example/ios/Podfile.lock', 'example/Gemfile.lock') }}
+          key: pods-${{ runner.os }}-${{ hashFiles('example/ios/Podfile', 'example/ios/Podfile.lock', 'example/Gemfile.lock', 'RnSdk.podspec') }}
           restore-keys: |
             pods-${{ runner.os }}-
 

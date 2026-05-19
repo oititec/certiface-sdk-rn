@@ -16,10 +16,12 @@ else
   bundle install --quiet
 fi
 
-if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
-  echo "CI: pod install (CDN + cache; sem pod repo update do Specs.git)"
-  bundle exec pod install --project-directory=ios
-else
-  echo "Local: pod install"
-  bundle exec pod install --project-directory=ios
+run_pod_install() {
+  bundle exec pod install --project-directory=ios "$@"
+}
+
+echo "pod install (oititec + CDN trunk)"
+if ! run_pod_install; then
+  echo "pod install falhou; sincronizando CertifaceSDK com RnSdk.podspec..."
+  bundle exec pod update CertifaceSDK --project-directory=ios
 fi

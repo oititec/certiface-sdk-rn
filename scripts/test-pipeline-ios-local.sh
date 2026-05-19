@@ -69,6 +69,9 @@ fi
 echo "[3/8] CocoaPods (example)"
 "$REPO_ROOT/scripts/pod-install-ci.sh"
 
+echo "[3b/8] Ambiente Xcode (NODE_BINARY + patches RN)"
+"$REPO_ROOT/scripts/prepare-xcode-env.sh"
+
 echo "[4/8] App Store Connect API key (opcional)"
 APPSTORE_API_KEY_PATH=""
 if [[ -n "${APPSTORE_KEY_ID:-}" && -n "${APPSTORE_PRIVATE_KEY:-}${APPSTORE_PRIVATE_KEY_BASE64:-}" ]]; then
