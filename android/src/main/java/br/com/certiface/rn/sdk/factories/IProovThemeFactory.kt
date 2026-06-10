@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.core.graphics.toColorInt
 import br.com.certiface.designsystem.R
+import br.com.certiface.designsystem.ui.builders.InstructionImageScale
 import br.com.certiface.domain.model.iproov.OrientationGPA
 import br.com.certiface.domain.model.iproov.OrientationLA
 import br.com.certiface.manager.exports.FilterTheme
@@ -161,6 +162,10 @@ object IProovThemeFactory {
       firstString(instructionsTexts, "secondInstruction")?.let { setSecondInstructionText(it) }
       firstString(instructionsColors, "firstInstructionTitle")?.let { setFirstInstructionTextColor(it) }
       firstString(instructionsColors, "secondInstructionTitle")?.let { setSecondInstructionTextColor(it) }
+      firstString(instructionsColors, "firstInstructionIconBackground")?.let { setFirstInstructionIconBackgroundColor(it) }
+      firstString(instructionsColors, "firstInstructionIconBorder")?.let { setFirstInstructionIconBorderColor(it) }
+      firstString(instructionsColors, "secondInstructionIconBackground")?.let { setSecondInstructionIconBackgroundColor(it) }
+      firstString(instructionsColors, "secondInstructionIconBorder")?.let { setSecondInstructionIconBorderColor(it) }
 
       val backButtonDrawableId = iproovDrawables[IProovDrawablesKey.INSTRUCTIONS_BACK_BUTTON_IMG]
       backButtonDrawableId?.let { setBackButtonImg(it) }
@@ -170,6 +175,15 @@ object IProovThemeFactory {
       iproovDrawables[IProovDrawablesKey.INSTRUCTIONS_CONTEXT_IMAGE]?.let { setContextImage(it) }
       iproovDrawables[IProovDrawablesKey.INSTRUCTIONS_FIRST_INSTRUCTION_ICON]?.let { setFirstInstructionIcon(it) }
       iproovDrawables[IProovDrawablesKey.INSTRUCTIONS_SECOND_INSTRUCTION_ICON]?.let { setSecondInstructionIcon(it) }
+      val instructionsAssets = instructionsTheme?.getMap("assets")
+      instructionsAssets?.getString("contextImageScale")
+        ?.let { setContextImageScale(InstructionImageScale.fromString(it)) }
+      if (instructionsAssets?.hasKey("contextImageHeightFraction") == true)
+        setContextImageHeightFraction(instructionsAssets.getDouble("contextImageHeightFraction").toFloat())
+      instructionsAssets?.getString("instructionIconScale")
+        ?.let { setInstructionIconScale(InstructionImageScale.fromString(it)) }
+      if (instructionsAssets?.hasKey("instructionIconSize") == true)
+        setInstructionIconSize(instructionsAssets.getDouble("instructionIconSize").toInt())
     }
 
     val permissionColors = permissionTheme?.getMap("colors")

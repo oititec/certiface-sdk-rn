@@ -2,6 +2,7 @@ package br.com.certiface.rn.sdk.factories
 
 import android.content.Context
 import br.com.certiface.designsystem.R
+import br.com.certiface.designsystem.ui.builders.InstructionImageScale
 import br.com.certiface.domain.model.facetec.FacetecButtonLocation
 import br.com.certiface.domain.model.facetec.FacetecExitAnimationStyle
 import br.com.certiface.domain.model.facetec.FacetecTheme
@@ -176,7 +177,7 @@ object FacetecThemeFactory {
     resultScreenCustomResultAnimationSuccess(R.drawable.success_icon)
     resultScreenResultAnimationUnSuccessBackgroundImage(R.drawable.error_icon)
     resultScreenResultAnimationSuccessBackgroundImage(R.drawable.success_icon)
-    resultScreenOverrideSuccessMessage("Toque para reiniciar")
+    facetecTexts?.getString("resultSuccessMessage")?.let { resultScreenOverrideSuccessMessage(it) }
 
     // Oval
     ovalCustomizationStrokeWidth(4)
@@ -205,7 +206,10 @@ object FacetecThemeFactory {
     feedbackEnablePulsatingText(optBoolean(facetecFlags, "feedbackEnablePulsatingText", true))
 
     // Cancel Button
-    cancelButtonLocation(FacetecButtonLocation.TOP_RIGHT)
+    facetecDrawables[FacetecDrawablesKey.FACETEC_CANCEL_BUTTON_CUSTOM_IMAGE]?.let {
+      cancelButtonCustomImage(it)
+    }
+    cancelButtonLocation(FacetecButtonLocation.TOP_LEFT)
     exitAnimationStyle(FacetecExitAnimationStyle.RIPPLE_IN)
 
     setFacetecFontsMap(facetecFonts)
@@ -236,6 +240,10 @@ object FacetecThemeFactory {
       firstString(instructionsTexts, "secondInstruction")?.let { setSecondInstructionText(it) }
       firstString(instructionsColors, "firstInstructionTitle")?.let { setFirstInstructionTextColor(it) }
       firstString(instructionsColors, "secondInstructionTitle")?.let { setSecondInstructionTextColor(it) }
+      firstString(instructionsColors, "firstInstructionIconBackground")?.let { setFirstInstructionIconBackgroundColor(it) }
+      firstString(instructionsColors, "firstInstructionIconBorder")?.let { setFirstInstructionIconBorderColor(it) }
+      firstString(instructionsColors, "secondInstructionIconBackground")?.let { setSecondInstructionIconBackgroundColor(it) }
+      firstString(instructionsColors, "secondInstructionIconBorder")?.let { setSecondInstructionIconBorderColor(it) }
       val backButtonDrawableId = facetecDrawables[FacetecDrawablesKey.INSTRUCTIONS_BACK_BUTTON_IMG]
       backButtonDrawableId?.let { setBackButtonImg(it) }
       resolveInstructionsBackButtonTintColor(instructionsColors, hasCustomBackButtonImage = backButtonDrawableId != null)
@@ -243,6 +251,15 @@ object FacetecThemeFactory {
       facetecDrawables[FacetecDrawablesKey.INSTRUCTIONS_CONTEXT_IMAGE]?.let { setContextImage(it) }
       facetecDrawables[FacetecDrawablesKey.INSTRUCTIONS_FIRST_INSTRUCTION_ICON]?.let { setFirstInstructionIcon(it) }
       facetecDrawables[FacetecDrawablesKey.INSTRUCTIONS_SECOND_INSTRUCTION_ICON]?.let { setSecondInstructionIcon(it) }
+      val instructionsAssets = instructionsTheme?.getMap("assets")
+      instructionsAssets?.getString("contextImageScale")
+        ?.let { setContextImageScale(InstructionImageScale.fromString(it)) }
+      if (instructionsAssets?.hasKey("contextImageHeightFraction") == true)
+        setContextImageHeightFraction(instructionsAssets.getDouble("contextImageHeightFraction").toFloat())
+      instructionsAssets?.getString("instructionIconScale")
+        ?.let { setInstructionIconScale(InstructionImageScale.fromString(it)) }
+      if (instructionsAssets?.hasKey("instructionIconSize") == true)
+        setInstructionIconSize(instructionsAssets.getDouble("instructionIconSize").toInt())
     }
 
     setPermissionTheme {

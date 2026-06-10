@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.1.3] - 10/06/2026
+
+### Adicionado
+
+- `instructions.colors.backButtonColor` para tint do ícone de voltar (Android e iOS)
+- `instructions.assets.instructionIconScale` e `instructionIconSize` com composição de ícones circulares no iOS
+- Cores de fundo e borda dos ícones de instrução no Android (`firstInstructionIcon*`, `secondInstructionIcon*`)
+- Assets padrão no bundle iOS do SDK (`RnSdkBundle`)
+
+### Corrigido
+
+- iOS: aliases de cores e textos na tela de instruções alinhados ao Android (`title`/`titleColor`, `caption`, `continueButton*`, `statusBar`/`background`)
+- iOS: ícone de voltar nas instruções sem distorção; remoção de `backButtonBackground`/`backButtonBorder` nessa tela
+- iOS: ícones de instrução com escala, tamanho e cores de fundo/borda via bridge
+- iOS: FaceTec com botão cancelar à esquerda, cores padrão da retry screen e frame/oval de captura restaurados
+- Android FaceTec: `facetec.assets.cancelButtonIcon` aplicado corretamente; botão cancelar alinhado ao iOS (`TOP_LEFT`)
+- Android FaceTec: `facetec.texts.resultSuccessMessage` aplicado sem texto hardcoded extra
+- iOS: `facetec.colors.resultScreenForeground` via alias `resultScreenMessage`
+
+### Alterado
+
+- Dependência Android `certifacesdk` atualizada para `1.2.0`
+- Dependência iOS `CertifaceSDK` atualizada para `1.4.0`
+- `result.colors.retryBackground` documentado com semântica distinta por plataforma; preferir `retryButtonBackground` para o botão
+
 ## [1.1.2] - 07/05/2026
 
 ### Adicionado

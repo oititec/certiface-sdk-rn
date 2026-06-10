@@ -191,13 +191,21 @@ export interface InstructionsThemeColors {
   statusBar?: string;
   background?: string;
   backButtonIcon?: string;
+  /** Tint do ícone quando `assets.backButtonIcon` está definido. Android e iOS. */
+  backButtonColor?: string;
+  /** @platform ios permission */
   backButtonBackground?: string;
+  /** @platform ios permission */
   backButtonBorder?: string;
   bottomSheet?: string;
   title?: string;
   caption?: string;
   firstInstructionTitle?: string;
   secondInstructionTitle?: string;
+  firstInstructionIconBackground?: string;
+  firstInstructionIconBorder?: string;
+  secondInstructionIconBackground?: string;
+  secondInstructionIconBorder?: string;
   continueButtonText?: string;
   continueButtonTextColor?: string;
   continueButtonBackground?: string;
@@ -212,11 +220,27 @@ export interface InstructionsThemeTexts {
   continueButton?: string;
 }
 
+export type InstructionsImageScale =
+  | 'fit'
+  | 'fillBounds'
+  | 'crop'
+  | 'inside'
+  | 'none'
+  | 'fillWidth'
+  | 'fillHeight';
+
 export interface InstructionsThemeAssets {
   backButtonIcon?: string;
   contextImage?: string;
+  /** @platform android */
+  contextImageScale?: InstructionsImageScale;
+  /** @platform android */
+  contextImageHeightFraction?: number;
   firstInstructionIcon?: string;
   secondInstructionIcon?: string;
+  instructionIconScale?: InstructionsImageScale;
+  /** Tamanho do círculo em dp/pt. Android: layout nativo. iOS: composição no bridge. */
+  instructionIconSize?: number;
 }
 
 export interface InstructionsThemeFonts {
