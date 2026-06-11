@@ -79,7 +79,7 @@ dependencies {
   implementation "com.facebook.react:react-android"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-  implementation 'br.com.certiface:certifacesdk:1.2.0-snapshot-8'
+  implementation 'br.com.certiface:certifacesdk:1.2.0-snapshot-9'
 }
 
 react {
