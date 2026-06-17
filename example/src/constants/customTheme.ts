@@ -146,7 +146,7 @@ export const customTheme: CertifaceTheme = {
     assets: {
       backButtonIcon: 'fc_arrow_left',
       contextImage: 'woman_liveness_example',
-      contextImageScale: 'fillBounds',
+      contextImageScale: 'fillBounds', // 'fillBounds' | 'fillWidth' | 'fillHeight' | 'fit' | 'crop' | 'inside' | 'none'
       contextImageHeightFraction: 1,
       firstInstructionIcon: 'lamp_example',
       secondInstructionIcon: 'face',
