@@ -35,6 +35,7 @@ object IProovThemeFactory {
     val iproovTheme = theme?.getMap("iproov")
     val colors = iproovTheme?.getMap("colors")
     val texts = iproovTheme?.getMap("texts")
+    val iproovAssets = iproovTheme?.getMap("assets")
     val instructionsTheme = theme?.getMap("instructions")
     val instructionsFontsMap = instructionsTheme?.getMap("fonts")
     val permissionTheme = theme?.getMap("permission")
@@ -59,7 +60,12 @@ object IProovThemeFactory {
 
     setTitle(firstString(texts, "title") ?: "Verificação Facial")
     setTitleColor(firstString(colors, "titleColor", "title") ?: "#FFFFFF")
-    firstString(colors, "closeButtonColor", "closeButtonIcon")?.let { setCloseButtonColor(it) }
+    val closeButtonDrawableId =
+      resolveDrawableResourceId(context, iproovAssets?.getString("closeButtonIcon"))
+    closeButtonDrawableId?.let { setCloseButton(it) }
+    if (closeButtonDrawableId == null) {
+      firstString(colors, "closeButtonColor")?.let { setCloseButtonColor(it) }
+    }
     setHeaderBackgroundColor(firstString(colors, "headerBackgroundColor", "titleBackground") ?: "#121212")
     setPromptTextColor(firstString(colors, "promptTextColor", "promptText") ?: "#FFFFFF")
     setPromptBackgroundColor(firstString(colors, "promptBackgroundColor", "promptBackground") ?: "#1F1F1F")
@@ -111,11 +117,9 @@ object IProovThemeFactory {
     val showInstructionScreen = instructionsConfiguration?.getBoolean("showInstructionScreen") ?: true
     val instructionStatusBarDarkIcons = instructionsFlags?.getBoolean("statusBarIsDarkIcons") ?: false
 
-    val iproovAssets = iproovTheme?.getMap("assets")
     val iproovDrawablesRaw = AssetProcessor.processIProovAssets(theme)
 
     resolveDrawableResourceId(context, iproovAssets?.getString("logoImage"))?.let { setLogo(it) }
-    resolveDrawableResourceId(context, iproovAssets?.getString("closeButtonIcon"))?.let { setCloseButton(it) }
 
     val iproovDrawables = resolveIProovDrawables(context, iproovDrawablesRaw)
 
