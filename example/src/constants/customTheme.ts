@@ -96,7 +96,7 @@ export const customTheme: CertifaceTheme = {
       title: 'Verificação Biométrica',
     },
     assets: {
-      closeButtonIcon: 'cancel_button',
+      closeButtonIcon: 'close_icon',
       logoImage: 'people',
     },
     fonts: {

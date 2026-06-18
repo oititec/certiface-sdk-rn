@@ -42,7 +42,10 @@ local.properties
 android.iml
 example/android/app/key.properties
 example/android/app/keystore-base64.txt
-#example/android/app/release.keystore
+example/android/app/release.keystore
+release.keystore
+example/android/.kotlin/
+example/src/config/credentials.ts
 
 # Cocoapods
 #

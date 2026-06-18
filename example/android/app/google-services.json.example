@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "506835227883",
-    "project_id": "rn-certiface-sdk",
-    "storage_bucket": "rn-certiface-sdk.firebasestorage.app"
+    "project_number": "SEU_PROJECT_NUMBER",
+    "project_id": "seu-projeto-firebase",
+    "storage_bucket": "seu-projeto-firebase.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:506835227883:android:d174ede2854db1d04c1aae",
+        "mobilesdk_app_id": "1:SEU_PROJECT_NUMBER:android:SEU_APP_ID",
         "android_client_info": {
           "package_name": "br.com.oititec.rn.sdk.example"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDS01APrj7XAKtb7YQ5I3o-mEUTRAXn_30"
+          "current_key": "SUA_FIREBASE_API_KEY"
         }
       ],
       "services": {

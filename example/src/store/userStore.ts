@@ -2,6 +2,7 @@ import { Environment, LivenessProvider } from '@certiface/sdk';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { getApiCredentials } from '../config/credentials';
 
 export type FeatureType = 'IPROOV' | 'FACETEC';
 
@@ -36,9 +37,9 @@ export const useUserStore = create<UserStore>()(
   persist(
     (set, get) => ({
       userData: {
-        cpf: '08670833956',
-        nome: 'Teste Mobile Homolog',
-        nascimento: '08/10/1996',
+        cpf: '00000000000',
+        nome: 'Usuário Exemplo',
+        nascimento: '01/01/1990',
       },
       appKey: '',
       selectedFeature: 'FACETEC',
@@ -75,11 +76,7 @@ export const useUserStore = create<UserStore>()(
         const myHeaders = new Headers();
         myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
         const { selectedFeature } = get();
-        const isIProov = selectedFeature === 'IPROOV';
-        const user = isIProov ? 'mobile.demo.app' : 'mobile.hml.apiglobal';
-        const pass = isIProov
-          ? 'ddc0ba9a6a5ab1681108a7e34c914207'
-          : '48667f589a0a56ab74acb5f7da548462';
+        const { user, pass } = getApiCredentials(selectedFeature);
         const urlencoded = new URLSearchParams();
         urlencoded.append('user', user);
         urlencoded.append('pass', pass);
@@ -98,11 +95,7 @@ export const useUserStore = create<UserStore>()(
       generateAppKey: async () => {
         const { userData, selectedFeature, generateCredential } = get();
         const credential = await generateCredential();
-        const credentials = {
-          IPROOV: { user: 'mobile.demo.app' },
-          FACETEC: { user: 'mobile.hml.apiglobal' },
-        };
-        const { user } = credentials[selectedFeature];
+        const { user } = getApiCredentials(selectedFeature);
         const myHeaders = new Headers();
         myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
         const urlencoded = new URLSearchParams();

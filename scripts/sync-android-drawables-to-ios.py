@@ -1,15 +1,26 @@
 #!/usr/bin/env python3
+import os
 import re
 import subprocess
+import sys
 from pathlib import Path
 
-SDK_DRAWABLE = Path(
-    "/Users/gukiub/AndroidStudioProjects/android-certiface-sdk/CertifaceDesignSystem/src/main/res/drawable"
-)
-SDK_APP_DRAWABLE = Path(
-    "/Users/gukiub/AndroidStudioProjects/android-certiface-sdk/app/src/main/res/drawable"
-)
 RN_ROOT = Path(__file__).resolve().parent.parent
+SDK_ANDROID_ROOT = Path(
+    os.environ.get("CERTIFACE_ANDROID_SDK_PATH", "")
+).expanduser()
+
+if not SDK_ANDROID_ROOT.is_dir():
+    print(
+        "Defina CERTIFACE_ANDROID_SDK_PATH com o caminho do repositório android-certiface-sdk.",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+
+SDK_DRAWABLE = (
+    SDK_ANDROID_ROOT / "CertifaceDesignSystem/src/main/res/drawable"
+)
+SDK_APP_DRAWABLE = SDK_ANDROID_ROOT / "app/src/main/res/drawable"
 IOS_TARGETS = [
     RN_ROOT / "example/ios/RnSdkExample/Images.xcassets",
     RN_ROOT / "ios/Resources/Media.xcassets",
@@ -79,7 +90,7 @@ def vector_to_png(xml_path: Path, png_path: Path, pixel_width: int):
         [
             "npx",
             "--yes",
-            "@resvg/resvg-js-cli",
+            "@resvg/resvg-js-cli@2.6.2",
             "--fit-width",
             str(pixel_width),
             str(svg_path),

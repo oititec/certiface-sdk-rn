@@ -272,10 +272,15 @@ final class ThemeFactory {
     }
 
     let colors = instructionsTheme["colors"] as? [String: String] ?? [:]
-    setColor(
-      firstValue(in: colors, keys: "closeButtonColor", "closeButtonIcon"),
-      with: builder.setCloseButtonImageColor(_:)
-    )
+    let assets = instructionsTheme["assets"] as? [String: String] ?? [:]
+    let closeButtonAsset = assets["closeButtonIcon"]
+    setImage(closeButtonAsset, with: builder.setCloseButtonImage(_:))
+    if closeButtonAsset == nil {
+      setColor(
+        firstValue(in: colors, keys: "closeButtonColor"),
+        with: builder.setCloseButtonImageColor(_:)
+      )
+    }
     setColor(firstValue(in: colors, keys: "title", "titleColor"), with: builder.setTitleTextColor(_:))
     setColor(firstValue(in: colors, keys: "titleBackground", "headerBackgroundColor"), with: builder.setTitleBackgroundColor(_:))
     setColor(firstValue(in: colors, keys: "promptText", "promptTextColor"), with: builder.setPromptTextColor(_:))
@@ -291,8 +296,6 @@ final class ThemeFactory {
     let texts = instructionsTheme["texts"] as? [String: String] ?? [:]
     setText(texts["title"], with: builder.setTitle(_:))
 
-    let assets = instructionsTheme["assets"] as? [String: String] ?? [:]
-    setImage(assets["closeButtonIcon"], with: builder.setCloseButtonImage(_:))
     setImage(assets["logoImage"], with: builder.setLogoImage(_:))
     _ = applyIProovBaseFont(in: builder, with: instructionsTheme)
 

@@ -27,9 +27,9 @@ platform :android do
     gradle(task: "generateCodegenArtifactsFromSchema assembleRelease")
     release_notes = options[:release_notes] || "Nenhuma nota adicionada."
     firebase_app_distribution(
-      app: "1:506835227883:android:d174ede2854db1d04c1aae",
+      app: ENV.fetch("FIREBASE_APP_ID"),
       apk_path: "app/build/outputs/apk/release/app-release.apk",
-      groups: "Testers",
+      groups: ENV.fetch("FIREBASE_DISTRIBUTION_GROUPS", "testers"),
       release_notes: release_notes
     )
   end

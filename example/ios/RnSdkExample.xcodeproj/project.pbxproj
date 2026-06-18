@@ -283,7 +283,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = br.com.oititec.rncertifacesdk.example;
 				PRODUCT_NAME = RnSdkExample;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				REACT_NATIVE_PATH = "/Users/gukiub/React native projects/certiface-sdk-rn/example/node_modules/react-native";
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -315,7 +315,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = br.com.oititec.rncertifacesdk.example;
 				PRODUCT_NAME = RnSdkExample;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				REACT_NATIVE_PATH = "/Users/gukiub/React native projects/certiface-sdk-rn/example/node_modules/react-native";
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};

@@ -57,15 +57,16 @@ No Firebase Console:
 Criar arquivo `.env` na pasta example/:
 
 ```
-FIREBASE_APP_ID=1:506835227883:android:d174ede2854db1d04c1aae
-FIREBASE_PROJECT_ID=rn-certiface-sdk
+FIREBASE_APP_ID=1:SEU_PROJECT_NUMBER:android:SEU_APP_ID
+FIREBASE_PROJECT_ID=seu-projeto-firebase
+FIREBASE_DISTRIBUTION_GROUPS=testers
 ```
 
 ## Arquivos Configurados
 
 - `android/build.gradle` - Plugins do Firebase
 - `android/app/build.gradle` - Configuração do App Distribution
-- `android/app/google-services.json` - Configuração do projeto Firebase
+- `android/app/google-services.json` - Configuração do projeto Firebase (copie de `google-services.json.example`)
 - `package.json` - Scripts NPM
 - `scripts/distribute-android.sh` - Script automatizado
 
