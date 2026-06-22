@@ -8,13 +8,13 @@ import com.facebook.react.bridge.ReadableMap
 
 object AssetProcessor {
     private const val TAG = "AssetProcessor"
-    
+
     fun getDrawableResourceId(context: Context, drawableName: String): Int {
         val resourceId = context.resources.getIdentifier(drawableName, "drawable", context.packageName)
         if (resourceId != 0) {
             Log.d(TAG, "Drawable '$drawableName' encontrado com ID: $resourceId")
         } else {
-            Log.w(TAG, "Drawable '$drawableName' NÃO encontrado no package ${context.packageName}")
+            Log.w(TAG, "Drawable '$drawableName' não encontrado no package ${context.packageName}")
         }
         return resourceId
     }
@@ -60,6 +60,10 @@ object AssetProcessor {
         facetecAssets?.getString("resultScreenCustomActivityIndicatorImage")?.let { assetName ->
             facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_ACTIVITY_INDICATOR_IMAGE] = assetName
         } ?: Log.d(TAG, "resultScreenCustomActivityIndicatorImage não encontrado em facetec.assets")
+
+        facetecAssets?.getString("resultScreenCustomActivityIndicatorAnimation")?.let { assetName ->
+            facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_ACTIVITY_INDICATOR_ANIMATION] = assetName
+        } ?: Log.d(TAG, "resultScreenCustomActivityIndicatorAnimation não encontrado em facetec.assets")
         
         instructionsAssets?.getString("firstInstructionIcon")?.let { assetName ->
             facetecDrawables[FacetecDrawablesKey.INSTRUCTIONS_FIRST_INSTRUCTION_ICON] = assetName
@@ -84,7 +88,39 @@ object AssetProcessor {
         permissionAssets?.getString("backButtonIcon")?.let { assetName ->
             facetecDrawables[FacetecDrawablesKey.PERMISSION_BACK_BUTTON_ICON] = assetName
         } ?: Log.d(TAG, "backButtonIcon não encontrado em permission.assets")
-        
+
+        val resultTheme = theme.getMap("result")
+        val resultAssets = resultTheme?.getMap("assets")
+
+        val successImageName = facetecAssets?.getString("resultScreenSuccessImage")
+            ?: resultAssets?.getString("successImage")
+        val errorImageName = facetecAssets?.getString("resultScreenErrorImage")
+            ?: resultAssets?.getString("errorImage")
+
+        successImageName?.let { assetName ->
+            facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_STATIC_RESULT_ANIMATION_SUCCESS] = assetName
+        }
+
+        errorImageName?.let { assetName ->
+            facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_STATIC_RESULT_ANIMATION_UNSUCCESS] = assetName
+        }
+
+        facetecAssets?.getString("resultScreenSuccessBackgroundImage")?.let { assetName ->
+            facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_ANIMATION_SUCCESS_BACKGROUND_IMAGE] = assetName
+        }
+
+        facetecAssets?.getString("resultScreenErrorBackgroundImage")?.let { assetName ->
+            facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_ANIMATION_UNSUCESS_BACKGROUND_IMAGE] = assetName
+        }
+
+        facetecAssets?.getString("resultScreenSuccessAnimation")?.let { assetName ->
+            facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_ANIMATION_SUCCESS] = assetName
+        } ?: Log.d(TAG, "resultScreenSuccessAnimation não encontrado em facetec.assets")
+
+        facetecAssets?.getString("resultScreenErrorAnimation")?.let { assetName ->
+            facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_ANIMATION_UNSUCCESS] = assetName
+        } ?: Log.d(TAG, "resultScreenErrorAnimation não encontrado em facetec.assets")
+
         return facetecDrawables
     }
 

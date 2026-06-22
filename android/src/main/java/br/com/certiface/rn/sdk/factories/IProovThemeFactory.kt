@@ -36,8 +36,11 @@ object IProovThemeFactory {
     val colors = iproovTheme?.getMap("colors")
     val texts = iproovTheme?.getMap("texts")
     val iproovAssets = iproovTheme?.getMap("assets")
+    val iproovConfiguration = iproovTheme?.getMap("configuration")
+    val iproovFlags = iproovTheme?.getMap("flags")
     val instructionsTheme = theme?.getMap("instructions")
     val instructionsFontsMap = instructionsTheme?.getMap("fonts")
+    val instructionsSizes = instructionsTheme?.getMap("sizes")
     val permissionTheme = theme?.getMap("permission")
     val permissionFontsMap = permissionTheme?.getMap("fonts")
     val resultTheme = theme?.getMap("result")
@@ -79,10 +82,10 @@ object IProovThemeFactory {
         resolvedFontResource = resolvedIProovFontResource
       )
     }
-    setIsEnabledScreenShots(true)
-    setDisableExteriorEffects(false)
-    setTimeoutSecs(60)
-    setPromptRoundedCorners(true)
+    setIsEnabledScreenShots(optBoolean(iproovFlags, "isEnabledScreenShots", true))
+    setDisableExteriorEffects(optBoolean(iproovFlags, "disableExteriorEffects", false))
+    setTimeoutSecs(optInt(iproovConfiguration, "timeoutSecs", 60))
+    setPromptRoundedCorners(optBoolean(iproovFlags, "promptRoundedCorners", true))
     setFontsKey(iProovFonts)
     val filterForeground = firstString(colors, "filterLineDrawingForeground")
     val filterBackground = firstString(colors, "filterLineDrawingBackground")
@@ -99,8 +102,8 @@ object IProovThemeFactory {
     )
 
     setOrientation(
-      gpa = OrientationGPA.PORTRAIT,
-      la = OrientationLA.PORTRAIT
+      gpa = parseOrientationGpa(iproovConfiguration, "orientationGpa", OrientationGPA.PORTRAIT),
+      la = parseOrientationLa(iproovConfiguration, "orientationLa", OrientationLA.PORTRAIT)
     )
 
     setOvalColors(
@@ -134,26 +137,26 @@ object IProovThemeFactory {
       setTitleText(
         firstString(instructionsTexts, "title", "titleText")
           ?: firstString(texts, "instructionsTitleText")
-          ?: "Teste title"
+          ?: "Centralize seu rosto"
       )
       setTitleColor(firstString(instructionsColors, "titleColor", "title") ?: "#FFFFFF")
       setCaptionText(
         firstString(instructionsTexts, "caption", "captionText")
           ?: firstString(texts, "instructionsCaptionText")
-          ?: "teste caption."
+          ?: "Mantenha-se dentro do círculo"
       )
       setCaptionColor(firstString(instructionsColors, "captionColor", "caption") ?: "#AAAAAA")
       setBackgroundColor(firstString(instructionsColors, "backgroundColor", "background") ?: "#1F1F1F")
       setStatusBarColor(firstString(instructionsColors, "statusBarColor", "statusBar") ?: "#1F1F1F")
       setStatusBarIsDarkIcons(instructionStatusBarDarkIcons)
       setBottomSheetColor(firstString(instructionsColors, "bottomSheetColor", "bottomSheet") ?: "#333333")
-      setBottomSheetCornerRadius(16f)
+      setBottomSheetCornerRadius(optFloat(instructionsSizes, "bottomSheetCornerRadius", 16f))
       setContinueButtonText(
         instructionsTexts?.getString("continueButton")
           ?: instructionsTexts?.getString("continueButtonText")
           ?: texts?.getString("continueButton")
           ?: texts?.getString("continueButtonText")
-          ?: "Startar"
+          ?: "Começar"
       )
       setContinueButtonColor(
         firstString(instructionsColors, "continueButtonColor", "continueButtonBackground") ?: "#00FF00"
@@ -192,6 +195,7 @@ object IProovThemeFactory {
 
     val permissionColors = permissionTheme?.getMap("colors")
     val permissionTexts = permissionTheme?.getMap("texts")
+    val permissionFlags = permissionTheme?.getMap("flags")
 
     setPermissionTheme {
       setTitle(firstString(permissionTexts, "title") ?: firstString(texts, "permissionTitle") ?: "Permissões Necessárias")
@@ -200,7 +204,7 @@ object IProovThemeFactory {
       setSubTitleColor(firstString(permissionColors, "captionColor", "caption") ?: "#FFFFFF")
       setBackgroundColor(firstString(permissionColors, "backgroundColor", "background") ?: "#1F1F1F")
       setStatusBarColor(firstString(permissionColors, "statusBarColor", "statusBar") ?: "#1F1F1F")
-      setStatusBarIsDarkIcons(false)
+      setStatusBarIsDarkIcons(optBoolean(permissionFlags, "statusBarIsDarkIcons", false))
       setPermissionButtonText(
         firstString(permissionTexts, "checkPermissionButton") ?: "Permitir acesso"
       )
@@ -216,18 +220,21 @@ object IProovThemeFactory {
 
     val processingTheme = theme?.getMap("processing")
     val processingColors = processingTheme?.getMap("colors")
+    val processingFlags = processingTheme?.getMap("flags")
+    val processingSizes = processingTheme?.getMap("sizes")
 
     setProcessingTheme {
       setBackgroundColor(firstString(processingColors, "backgroundColor", "background") ?: "#000000")
       setLoadingDialogColor(firstString(processingColors, "loadingDialogColor", "loading") ?: "#FFFFFF")
       setStatusBarColor(firstString(processingColors, "statusBarColor", "statusBar") ?: "#000000")
-      setStatusBarIsDarkIcons(true)
-      setLoadingIndicatorSize(100)
-      setLoadingIndicatorWidth(10)
+      setStatusBarIsDarkIcons(optBoolean(processingFlags, "statusBarIsDarkIcons", true))
+      setLoadingIndicatorSize(optInt(processingSizes, "loadingIndicatorSize", 100))
+      setLoadingIndicatorWidth(optInt(processingSizes, "loadingIndicatorWidth", 10))
     }
 
     val resultColors = resultTheme?.getMap("colors")
     val resultTexts = resultTheme?.getMap("texts")
+    val resultFlags = resultTheme?.getMap("flags")
 
     val successIconId = iproovDrawables[IProovDrawablesKey.RESULT_SUCCESS_ICON] ?: R.drawable.success_icon
     val errorIconId = iproovDrawables[IProovDrawablesKey.RESULT_ERROR_ICON] ?: R.drawable.error_icon
@@ -240,8 +247,8 @@ object IProovThemeFactory {
 
       setStatusBarSuccessColor(firstString(resultColors, "statusBarSuccessColor", "successStatusBar") ?: "#DFFFD6")
       setStatusBarErrorColor(firstString(resultColors, "statusBarErrorColor", "errorStatusBar") ?: "#FFD6D6")
-      setStatusBarSuccessIsDarkIcons(true)
-      setStatusBarErrorIsDarkIcons(true)
+      setStatusBarSuccessIsDarkIcons(optBoolean(resultFlags, "successStatusBarIsDarkIcons", true))
+      setStatusBarErrorIsDarkIcons(optBoolean(resultFlags, "errorStatusBarIsDarkIcons", true))
 
       setErrorBackgroundColor(firstString(resultColors, "errorBackgroundColor", "errorBackground") ?: "#FFD6D6")
       setErrorIcon(errorIconId)

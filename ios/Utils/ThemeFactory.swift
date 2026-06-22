@@ -78,7 +78,8 @@ final class ThemeFactory {
       with: builder.setBackgroundColor(_:)
     )
     setColor(firstValue(in: colors, keys: "bottomSheet", "bottomSheetColor"), with: builder.setBottomSheetColor(_:))
-    _ = builder.setBottomSheetCornerRadius(16)
+    let instSizes = instructionsTheme["sizes"] as? [String: Any] ?? [:]
+    _ = builder.setBottomSheetCornerRadius(CGFloat(doubleThemeValue(instSizes["bottomSheetCornerRadius"]) ?? 16))
 
     resolveBackButtonTintColor(
       colors: colors,
@@ -160,22 +161,22 @@ final class ThemeFactory {
     let iproovTheme = theme["iproov"] as? [String: Any] ?? [:]
     let iproovFonts = iproovTheme["fonts"] as? [String: String] ?? [:]
     let iproovFontResource = resolveIProovBaseFont(from: iproovTheme)
-    setFont(instFonts["title"] ?? iproovFonts["instructionsTitleFont"] ?? iproovFontResource, with: builder.setTitleFont(_:), size: 20)
-    setFont(instFonts["caption"] ?? iproovFonts["instructionsCaptionFont"] ?? iproovFontResource, with: builder.setCaptionFont(_:), size: 20)
+    setFont(instFonts["title"] ?? iproovFonts["instructionsTitleFont"] ?? iproovFontResource, with: builder.setTitleFont(_:), size: CGFloat(doubleThemeValue(instSizes["titleFontSize"]) ?? 20))
+    setFont(instFonts["caption"] ?? iproovFonts["instructionsCaptionFont"] ?? iproovFontResource, with: builder.setCaptionFont(_:), size: CGFloat(doubleThemeValue(instSizes["captionFontSize"]) ?? 20))
     setFont(
       instFonts["firstInstructionTitle"] ?? iproovFonts["instructionsDocumentTypesInstructionsFont"] ?? iproovFontResource,
       with: builder.setFirstInstructionTitleFont(_:),
-      size: 16
+      size: CGFloat(doubleThemeValue(instSizes["firstInstructionTitleFontSize"]) ?? 16)
     )
     setFont(
       instFonts["secondInstructionTitle"] ?? iproovFonts["instructionsDocumentTipsInstructionsFont"] ?? iproovFontResource,
       with: builder.setSecondInstructionTitleFont(_:),
-      size: 16
+      size: CGFloat(doubleThemeValue(instSizes["secondInstructionTitleFontSize"]) ?? 16)
     )
     setFont(
       instFonts["continueButton"] ?? iproovFonts["instructionsButtonFont"] ?? iproovFontResource,
       with: builder.setContinueButtonFont(_:),
-      size: 20
+      size: CGFloat(doubleThemeValue(instSizes["continueButtonFontSize"]) ?? 20)
     )
 
     return builder
@@ -227,35 +228,36 @@ final class ThemeFactory {
     setImage(assets["cameraImage"], with: builder.setCameraImage(_:))
 
     let permFonts = cameraPermissionTheme["fonts"] as? [String: String] ?? [:]
+    let permSizes = cameraPermissionTheme["sizes"] as? [String: Any] ?? [:]
     let iproovTheme = theme["iproov"] as? [String: Any] ?? [:]
     let iproovFonts = iproovTheme["fonts"] as? [String: String] ?? [:]
     let iproovFontResource = resolveIProovBaseFont(from: iproovTheme)
-    setFont(permFonts["title"] ?? iproovFonts["permissionTitleFont"] ?? iproovFontResource, with: builder.setTitleFont(_:), size: 20)
-    setFont(permFonts["caption"] ?? iproovFonts["permissionCaptionFont"] ?? iproovFontResource, with: builder.setCaptionFont(_:), size: 20)
+    setFont(permFonts["title"] ?? iproovFonts["permissionTitleFont"] ?? iproovFontResource, with: builder.setTitleFont(_:), size: CGFloat(doubleThemeValue(permSizes["titleFontSize"]) ?? 20))
+    setFont(permFonts["caption"] ?? iproovFonts["permissionCaptionFont"] ?? iproovFontResource, with: builder.setCaptionFont(_:), size: CGFloat(doubleThemeValue(permSizes["captionFontSize"]) ?? 20))
     setFont(
       permFonts["checkPermissionButton"] ?? iproovFonts["permissionButtonFont"] ?? iproovFontResource,
       with: builder.setCheckPermissionButtonTextFont(_:),
-      size: 20
+      size: CGFloat(doubleThemeValue(permSizes["checkPermissionButtonFontSize"]) ?? 20)
     )
     setFont(
       permFonts["bottomSheetTitle"] ?? iproovFonts["permissionTitleFont"] ?? iproovFontResource,
       with: builder.setBottomSheetTitleFont(_:),
-      size: 20
+      size: CGFloat(doubleThemeValue(permSizes["bottomSheetTitleFontSize"]) ?? 20)
     )
     setFont(
       permFonts["bottomSheetCaption"] ?? iproovFonts["permissionCaptionFont"] ?? iproovFontResource,
       with: builder.setBottomSheetCaptionFont(_:),
-      size: 20
+      size: CGFloat(doubleThemeValue(permSizes["bottomSheetCaptionFontSize"]) ?? 20)
     )
     setFont(
       permFonts["openSettingsButton"] ?? permFonts["opentSettingsButton"] ?? iproovFonts["permissionButtonFont"] ?? iproovFontResource,
       with: builder.setOpenSettingsButtonTextFont(_:),
-      size: 20
+      size: CGFloat(doubleThemeValue(permSizes["openSettingsButtonFontSize"]) ?? 20)
     )
     setFont(
       permFonts["closeButton"] ?? iproovFonts["permissionButtonFont"] ?? iproovFontResource,
       with: builder.setCloseButtonTextFont(_:),
-      size: 20
+      size: CGFloat(doubleThemeValue(permSizes["closeButtonFontSize"]) ?? 20)
     )
 
     return builder
@@ -313,6 +315,13 @@ final class ThemeFactory {
       with: builder.setBackgroundColor(_:)
     )
     setColor(firstValue(in: colors, keys: "loading", "loadingDialogColor"), with: builder.setSpinnerColor(_:))
+    let processingSizes = loadingTheme["sizes"] as? [String: Any] ?? [:]
+    _ = builder.setSpinnerWidth(
+      CGFloat(doubleThemeValue(processingSizes["spinnerWidth"] ?? processingSizes["loadingIndicatorWidth"]) ?? 10)
+    )
+    _ = builder.setSpinnerScaleFactor(
+      intThemeValue(processingSizes["spinnerSize"] ?? processingSizes["loadingIndicatorSize"]) ?? 100
+    )
 
     return builder
   }
@@ -347,18 +356,19 @@ final class ThemeFactory {
     setImage(assets["retryImage"], with: builder.setRetryImage(_:))
 
     let resultFonts = resultTheme["fonts"] as? [String: String] ?? [:]
+    let resultSizes = resultTheme["sizes"] as? [String: Any] ?? [:]
     let iproovTheme = theme["iproov"] as? [String: Any] ?? [:]
     let iproovFonts = iproovTheme["fonts"] as? [String: String] ?? [:]
     let iproovFontResource = resolveIProovBaseFont(from: iproovTheme)
     setFont(
       resultFonts["text"] ?? iproovFonts["resultMessageFont"] ?? iproovFontResource,
       with: builder.setMessageFont(_:),
-      size: 20
+      size: CGFloat(doubleThemeValue(resultSizes["textFontSize"]) ?? 20)
     )
     setFont(
       resultFonts["retryButton"] ?? iproovFonts["resultRetryButtonFont"] ?? iproovFontResource,
       with: builder.setRetryButtonTextFont(_:),
-      size: 20
+      size: CGFloat(doubleThemeValue(resultSizes["retryButtonFontSize"]) ?? 20)
     )
 
     return builder
@@ -380,6 +390,13 @@ final class ThemeFactory {
       with: builder.setBackgroundColor(_:)
     )
     setColor(firstValue(in: colors, keys: "loading", "loadingDialogColor"), with: builder.setSpinnerColor(_:))
+    let processingSizes = loadingTheme["sizes"] as? [String: Any] ?? [:]
+    _ = builder.setSpinnerWidth(
+      CGFloat(doubleThemeValue(processingSizes["spinnerWidth"] ?? processingSizes["loadingIndicatorWidth"]) ?? 80)
+    )
+    _ = builder.setSpinnerScaleFactor(
+      intThemeValue(processingSizes["spinnerSize"] ?? processingSizes["loadingIndicatorSize"]) ?? 80
+    )
 
     return builder
   }
@@ -393,6 +410,8 @@ final class ThemeFactory {
     }
 
     let colors = livenessTheme["colors"] as? [String: String] ?? [:]
+    let sizes = livenessTheme["sizes"] as? [String: Any] ?? [:]
+    let configuration = livenessTheme["configuration"] as? [String: String] ?? [:]
     setColor(colors["readyScreenHeader"], with: builder.setReadyScreenHeaderColor(_:))
     setColor(colors["readyScreenSubtext"], with: builder.setReadyScreenMessageColor(_:))
     setColor(colors["readyScreenTextBackground"], with: builder.setReadyScreenTextBackgroundColor(_:))
@@ -429,11 +448,11 @@ final class ThemeFactory {
     setColor(colors["frameBorder"], with: builder.setFrameBorderColor(_:))
     setColor(colors["frameBackground"], with: builder.setFrameBackgroundColor(_:))
     setColor(colors["ovalStroke"], with: builder.setOvalStrokeColor(_:))
-    _ = builder.setOvalStrokeWidth(4)
+    _ = builder.setOvalStrokeWidth(intThemeValue(sizes["ovalStrokeWidth"]) ?? 4)
     setColor(colors["ovalProgressFirst"], with: builder.setOvalProgressFirstColor(_:))
     setColor(colors["ovalProgressSecond"], with: builder.setOvalProgressSecondColor(_:))
-    _ = builder.setOvalProgressWidth(6)
-    _ = builder.setOvalProgressOffset(8)
+    _ = builder.setOvalProgressWidth(intThemeValue(sizes["ovalProgressStrokeWidth"] ?? sizes["ovalProgressWidth"]) ?? 6)
+    _ = builder.setOvalProgressOffset(intThemeValue(sizes["ovalProgressRadialOffset"] ?? sizes["ovalProgressOffset"]) ?? 8)
     setColor(colors["overlayBackground"], with: builder.setOverlayBackgroundColor(_:))
 
     let flags = livenessTheme["flags"] as? [String: Any] ?? [:]
@@ -442,7 +461,15 @@ final class ThemeFactory {
     if showBrandingImage {
       setImage(assets["overlayBrandImage"], with: builder.setOverlayBrandImage(_:))
     }
-    _ = builder.setCancelButtonLocation(.topLeft)
+    let cancelButtonLocationKey = configuration["cancelButtonLocation"]?
+      .uppercased()
+      .replacingOccurrences(of: " ", with: "_")
+    switch cancelButtonLocationKey {
+    case "TOP_RIGHT", "TOPRIGHT":
+      _ = builder.setCancelButtonLocation(.topRight)
+    default:
+      _ = builder.setCancelButtonLocation(.topLeft)
+    }
     setImage(assets["cancelButtonIcon"], with: builder.setCancelButtonIcon(_:))
 
     let fonts = livenessTheme["fonts"] as? [String: String] ?? [:]
@@ -456,7 +483,6 @@ final class ThemeFactory {
     setFont(fonts["guidanceSubtext"], with: builder.setGuidanceSubtextFont(_:), size: 0)
     setFont(fonts["guidanceButton"], with: builder.setGuidanceButtonFont(_:), size: 0)
 
-    let sizes = livenessTheme["sizes"] as? [String: Any] ?? [:]
     if let width = intThemeValue(sizes["guidanceButtonBorderWidth"]) {
       _ = builder.setGuidanceButtonBorderWidth(width)
     }

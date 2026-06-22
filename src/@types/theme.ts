@@ -12,6 +12,14 @@ export enum Environment {
  * Facetec Theme
  */
 
+export type FacetecButtonLocation = 'TOP_LEFT' | 'TOP_RIGHT';
+
+export type FacetecExitAnimationStyle =
+  | 'CIRCLE_FADE'
+  | 'RIPPLE_OUT'
+  | 'RIPPLE_IN'
+  | 'NONE';
+
 export interface FacetecSizes {
   guidanceButtonBorderWidth?: number;
   guidanceRetryScreenImageBorderWidth?: number;
@@ -22,11 +30,34 @@ export interface FacetecSizes {
   feedbackCornerRadius?: number;
   guidanceButtonCornerRadius?: number;
   guidanceRetryScreenImageCornerRadius?: number;
+  /** @platform android */
+  readyScreenTextBackgroundCornerRadius?: number;
+  /** @platform android */
+  ovalStrokeWidth?: number;
+  /** @platform android */
+  ovalProgressStrokeWidth?: number;
+  /** @platform android */
+  ovalProgressRadialOffset?: number;
+  /** @platform ios */
+  ovalProgressWidth?: number;
+  /** @platform ios */
+  ovalProgressOffset?: number;
+  /** @platform android */
+  resultScreenAnimationRelativeScale?: number;
+  /** @platform android */
+  resultScreenCustomActivityIndicatorRotationInterval?: number;
+}
+
+export interface FacetecConfiguration {
+  cancelButtonLocation?: FacetecButtonLocation;
+  exitAnimationStyle?: FacetecExitAnimationStyle;
 }
 
 export interface FacetecFlags {
   overlayShowBrandingImage?: boolean;
   feedbackEnablePulsatingText?: boolean;
+  /** @platform android */
+  resultScreenShowUploadProgressBar?: boolean;
 }
 
 export interface FacetecColors {
@@ -121,6 +152,20 @@ export interface FacetecAssets {
   overlayBrandImage?: string;
   cancelButtonIcon?: string;
   resultScreenCustomActivityIndicatorImage?: string;
+  /** @platform android */
+  resultScreenCustomActivityIndicatorAnimation?: string;
+  /** @platform android */
+  resultScreenSuccessImage?: string;
+  /** @platform android */
+  resultScreenErrorImage?: string;
+  /** @platform android */
+  resultScreenSuccessBackgroundImage?: string;
+  /** @platform android */
+  resultScreenErrorBackgroundImage?: string;
+  /** @platform android */
+  resultScreenSuccessAnimation?: string;
+  /** @platform android */
+  resultScreenErrorAnimation?: string;
 }
 
 export interface FacetecTheme {
@@ -130,6 +175,7 @@ export interface FacetecTheme {
   assets?: FacetecAssets;
   sizes?: FacetecSizes;
   flags?: FacetecFlags;
+  configuration?: FacetecConfiguration;
 }
 
 /**
@@ -174,6 +220,26 @@ export interface IProovFonts {
   resultRetryButtonFont?: string;
 }
 
+export type IProovOrientationGPA =
+  | 'PORTRAIT'
+  | 'REVERSE_PORTRAIT'
+  | 'LANDSCAPE'
+  | 'REVERSE_LANDSCAPE';
+
+export type IProovOrientationLA = 'PORTRAIT' | 'REVERSE_PORTRAIT';
+
+export interface IProovConfiguration {
+  timeoutSecs?: number;
+  orientationGpa?: IProovOrientationGPA;
+  orientationLa?: IProovOrientationLA;
+}
+
+export interface IProovFlags {
+  isEnabledScreenShots?: boolean;
+  disableExteriorEffects?: boolean;
+  promptRoundedCorners?: boolean;
+}
+
 export interface IProovTheme {
   colors?: IProovColors;
   texts?: IProovTexts;
@@ -181,6 +247,8 @@ export interface IProovTheme {
   fonts?: IProovFonts;
   fontResource?: string;
   fontPath?: string;
+  configuration?: IProovConfiguration;
+  flags?: IProovFlags;
 }
 
 /**
@@ -251,6 +319,15 @@ export interface InstructionsThemeFonts {
   continueButton?: string;
 }
 
+export interface InstructionsThemeSizes {
+  bottomSheetCornerRadius?: number;
+  titleFontSize?: number;
+  captionFontSize?: number;
+  firstInstructionTitleFontSize?: number;
+  secondInstructionTitleFontSize?: number;
+  continueButtonFontSize?: number;
+}
+
 export interface InstructionsConfiguration {
   showInstructionScreen?: boolean;
 }
@@ -266,6 +343,7 @@ export interface InstructionsTheme {
   texts?: InstructionsThemeTexts;
   assets?: InstructionsThemeAssets;
   fonts?: InstructionsThemeFonts;
+  sizes?: InstructionsThemeSizes;
 }
 
 /**
@@ -321,11 +399,27 @@ export interface PermissionThemeFonts {
   closeButton?: string;
 }
 
+export interface PermissionThemeFlags {
+  statusBarIsDarkIcons?: boolean;
+}
+
+export interface PermissionThemeSizes {
+  titleFontSize?: number;
+  captionFontSize?: number;
+  checkPermissionButtonFontSize?: number;
+  bottomSheetTitleFontSize?: number;
+  bottomSheetCaptionFontSize?: number;
+  openSettingsButtonFontSize?: number;
+  closeButtonFontSize?: number;
+}
+
 export interface PermissionTheme {
   colors?: PermissionThemeColors;
   texts?: PermissionThemeTexts;
   assets?: PermissionThemeAssets;
   fonts?: PermissionThemeFonts;
+  flags?: PermissionThemeFlags;
+  sizes?: PermissionThemeSizes;
 }
 
 /**
@@ -338,8 +432,24 @@ export interface ProcessingThemeColors {
   loading?: string;
 }
 
+export interface ProcessingThemeFlags {
+  statusBarIsDarkIcons?: boolean;
+}
+
+export interface ProcessingThemeSizes {
+  loadingIndicatorSize?: number;
+  /** @platform android iproov */
+  loadingIndicatorWidth?: number;
+  /** @platform ios */
+  spinnerSize?: number;
+  /** @platform ios */
+  spinnerWidth?: number;
+}
+
 export interface ProcessingTheme {
   colors?: ProcessingThemeColors;
+  flags?: ProcessingThemeFlags;
+  sizes?: ProcessingThemeSizes;
 }
 
 /**
@@ -377,11 +487,23 @@ export interface ResultThemeFonts {
   retryButton?: string;
 }
 
+export interface ResultThemeFlags {
+  successStatusBarIsDarkIcons?: boolean;
+  errorStatusBarIsDarkIcons?: boolean;
+}
+
+export interface ResultThemeSizes {
+  textFontSize?: number;
+  retryButtonFontSize?: number;
+}
+
 export interface ResultTheme {
   colors?: ResultThemeColors;
   texts?: ResultThemeTexts;
   assets?: ResultThemeAssets;
   fonts?: ResultThemeFonts;
+  flags?: ResultThemeFlags;
+  sizes?: ResultThemeSizes;
 }
 
 export interface CertifaceTheme {

@@ -7,8 +7,13 @@ export const customTheme: CertifaceTheme = {
       readyScreenSubtext: '#9CA3AF',
       readyScreenOvalFill: '#FF6B35',
       readyScreenTextBackground: '#444444',
-      resultScreenForeground: '#FF6B35',
-      resultScreenBackground: '#F0F8FF',
+      resultScreenForeground: '#EEF6F8',
+      resultScreenBackground: '#1A1A1A',
+      resultScreenActivityIndicator: '#EEF6F8',
+      resultScreenUploadProgressBarFill: '#EEF6F8',
+      resultScreenUploadProgressBarTrack: '#444444',
+      resultScreenResultAnimationBackground: '#2E2E2E',
+      resultScreenResultAnimationForeground: '#EEF6F8',
       ovalStroke: '#FF6B35',
       ovalProgressFirst: '#FF6B35',
       ovalProgressSecond: '#FFD700',
@@ -48,7 +53,10 @@ export const customTheme: CertifaceTheme = {
     },
     assets: {
       cancelButtonIcon: 'cancel_button',
-      resultScreenCustomActivityIndicatorImage: 'cancel_button',
+      resultScreenCustomActivityIndicatorAnimation:
+        'animated_activity_indicator_offwhite',
+      resultScreenSuccessAnimation: 'animated_success_offwhite',
+      resultScreenErrorAnimation: 'animated_unsuccess_offwhite',
     },
     fonts: {
       readyScreenHeader: 'sixty',
