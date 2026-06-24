@@ -70,56 +70,113 @@ final class ThemeFactory {
     }
 
     let colors = instructionsTheme["colors"] as? [String: String] ?? [:]
-    setColor(colors["background"], with: builder.setBackgroundColor(_:))
-    setColor(colors["backButtonIcon"], with: builder.setBackButtonIconColor(_:))
-    setColor(colors["backButtonBackground"], with: builder.setBackButtonBackgroundColor(_:))
-    setColor(colors["backButtonBorder"], with: builder.setBackButtonBorderColor(_:))
-    setColor(colors["bottomSheet"], with: builder.setBottomSheetColor(_:))
+    let assets = instructionsTheme["assets"] as? [String: Any] ?? [:]
+    let assetStrings = assets.compactMapValues { $0 as? String }
 
-    setColor(colors["title"], with: builder.setTitleColor)
-    setColor(colors["caption"], with: builder.setCaptionColor(_:))
-    setColor(colors["firstInstructionTitle"], with: builder.setFirstInstructionTitleColor(_:))
-    setColor(colors["secondInstructionTitle"], with: builder.setSecondInstructionTitleColor(_:))
     setColor(
-      colors["continueButtonTextColor"] ?? colors["continueButtonText"],
+      firstValue(in: colors, keys: "background", "backgroundColor", "statusBar", "statusBarColor"),
+      with: builder.setBackgroundColor(_:)
+    )
+    setColor(firstValue(in: colors, keys: "bottomSheet", "bottomSheetColor"), with: builder.setBottomSheetColor(_:))
+    let instSizes = instructionsTheme["sizes"] as? [String: Any] ?? [:]
+    _ = builder.setBottomSheetCornerRadius(CGFloat(doubleThemeValue(instSizes["bottomSheetCornerRadius"]) ?? 16))
+
+    resolveBackButtonTintColor(
+      colors: colors,
+      hasCustomBackButtonImage: assetStrings["backButtonIcon"] != nil
+    ).map { builder.setBackButtonIconColor($0) }
+
+    setColor(firstValue(in: colors, keys: "title", "titleColor"), with: builder.setTitleColor(_:))
+    setColor(firstValue(in: colors, keys: "caption", "captionColor"), with: builder.setCaptionColor(_:))
+    setColor(
+      firstValue(in: colors, keys: "firstInstructionTitle", "firstInstructionTextColor"),
+      with: builder.setFirstInstructionTitleColor(_:)
+    )
+    setColor(
+      firstValue(in: colors, keys: "secondInstructionTitle", "secondInstructionTextColor"),
+      with: builder.setSecondInstructionTitleColor(_:)
+    )
+    setColor(
+      firstValue(in: colors, keys: "continueButtonTextColor", "continueButtonText"),
       with: builder.setContinueButtonTextColor(_:)
     )
-    setColor(colors["continueButtonBackground"], with: builder.setContinueButtonBackgroundColor(_:))
+    setColor(
+      firstValue(in: colors, keys: "continueButtonBackground", "continueButtonColor"),
+      with: builder.setContinueButtonBackgroundColor(_:)
+    )
     setColor(colors["continueButtonBorder"], with: builder.setContinueButtonBorderColor(_:))
 
     let texts = instructionsTheme["texts"] as? [String: String] ?? [:]
-    setText(texts["title"], with: builder.setTitle(_:))
-    setText(texts["caption"], with: builder.setCaption(_:))
-    setText(texts["firstInstruction"], with: builder.setFirstInstructionTitle(_:))
-    setText(texts["secondInstruction"], with: builder.setSecondInstructionTitle(_:))
-    setText(texts["continueButton"] ?? texts["continueButtonText"], with: builder.setContinueButtonText(_:))
+    setText(firstValue(in: texts, keys: "title", "titleText"), with: builder.setTitle(_:))
+    setText(firstValue(in: texts, keys: "caption", "captionText"), with: builder.setCaption(_:))
+    setText(
+      firstValue(in: texts, keys: "firstInstruction", "firstInstructionText"),
+      with: builder.setFirstInstructionTitle(_:)
+    )
+    setText(
+      firstValue(in: texts, keys: "secondInstruction", "secondInstructionText"),
+      with: builder.setSecondInstructionTitle(_:)
+    )
+    setText(
+      firstValue(in: texts, keys: "continueButton", "continueButtonText"),
+      with: builder.setContinueButtonText(_:)
+    )
 
-    let assets = instructionsTheme["assets"] as? [String: String] ?? [:]
-    setImage(assets["backButtonIcon"], with: builder.setBackButtonIcon(_:))
-    setImage(assets["contextImage"], with: builder.setContextImage(_:))
-    setImage(assets["firstInstructionIcon"], with: builder.setFirstInstructionIcon(_:))
-    setImage(assets["secondInstructionIcon"], with: builder.setSecondInstructionIcon(_:))
+    setBackButtonImage(assetStrings["backButtonIcon"], with: builder.setBackButtonIcon(_:))
+    setImage(assetStrings["contextImage"], with: builder.setContextImage(_:))
+
+    let iconScale = InstructionIconScaleMode.from(assets["instructionIconScale"] as? String)
+    let iconSize = CGFloat(doubleThemeValue(assets["instructionIconSize"]) ?? 60)
+
+    setInstructionIcon(
+      assetStrings["firstInstructionIcon"],
+      backgroundHex: firstValue(
+        in: colors,
+        keys: "firstInstructionIconBackground", "firstInstructionIconBackgroundColor"
+      ),
+      borderHex: firstValue(
+        in: colors,
+        keys: "firstInstructionIconBorder", "firstInstructionIconBorderColor"
+      ),
+      scaleMode: iconScale,
+      size: iconSize,
+      with: builder.setFirstInstructionIcon(_:)
+    )
+    setInstructionIcon(
+      assetStrings["secondInstructionIcon"],
+      backgroundHex: firstValue(
+        in: colors,
+        keys: "secondInstructionIconBackground", "secondInstructionIconBackgroundColor"
+      ),
+      borderHex: firstValue(
+        in: colors,
+        keys: "secondInstructionIconBorder", "secondInstructionIconBorderColor"
+      ),
+      scaleMode: iconScale,
+      size: iconSize,
+      with: builder.setSecondInstructionIcon(_:)
+    )
 
     let instFonts = instructionsTheme["fonts"] as? [String: String] ?? [:]
     let iproovTheme = theme["iproov"] as? [String: Any] ?? [:]
     let iproovFonts = iproovTheme["fonts"] as? [String: String] ?? [:]
     let iproovFontResource = resolveIProovBaseFont(from: iproovTheme)
-    setFont(instFonts["title"] ?? iproovFonts["instructionsTitleFont"] ?? iproovFontResource, with: builder.setTitleFont(_:), size: 20)
-    setFont(instFonts["caption"] ?? iproovFonts["instructionsCaptionFont"] ?? iproovFontResource, with: builder.setCaptionFont(_:), size: 20)
+    setFont(instFonts["title"] ?? iproovFonts["instructionsTitleFont"] ?? iproovFontResource, with: builder.setTitleFont(_:), size: CGFloat(doubleThemeValue(instSizes["titleFontSize"]) ?? 20))
+    setFont(instFonts["caption"] ?? iproovFonts["instructionsCaptionFont"] ?? iproovFontResource, with: builder.setCaptionFont(_:), size: CGFloat(doubleThemeValue(instSizes["captionFontSize"]) ?? 20))
     setFont(
       instFonts["firstInstructionTitle"] ?? iproovFonts["instructionsDocumentTypesInstructionsFont"] ?? iproovFontResource,
       with: builder.setFirstInstructionTitleFont(_:),
-      size: 20
+      size: CGFloat(doubleThemeValue(instSizes["firstInstructionTitleFontSize"]) ?? 16)
     )
     setFont(
       instFonts["secondInstructionTitle"] ?? iproovFonts["instructionsDocumentTipsInstructionsFont"] ?? iproovFontResource,
       with: builder.setSecondInstructionTitleFont(_:),
-      size: 20
+      size: CGFloat(doubleThemeValue(instSizes["secondInstructionTitleFontSize"]) ?? 16)
     )
     setFont(
       instFonts["continueButton"] ?? iproovFonts["instructionsButtonFont"] ?? iproovFontResource,
       with: builder.setContinueButtonFont(_:),
-      size: 20
+      size: CGFloat(doubleThemeValue(instSizes["continueButtonFontSize"]) ?? 20)
     )
 
     return builder
@@ -134,7 +191,10 @@ final class ThemeFactory {
     }
 
     let colors = cameraPermissionTheme["colors"] as? [String: String] ?? [:]
-    setColor(colors["background"], with: builder.setBackgroundColor(_:))
+    setColor(
+      firstValue(in: colors, keys: "background", "backgroundColor", "statusBar", "statusBarColor"),
+      with: builder.setBackgroundColor(_:)
+    )
     setColor(colors["backButtonIcon"], with: builder.setBackButtonIconColor(_:))
     setColor(colors["backButtonBackground"], with: builder.setBackButtonBackgroundColor(_:))
     setColor(colors["backButtonBorder"], with: builder.setBackButtonBorderColor(_:))
@@ -164,39 +224,40 @@ final class ThemeFactory {
     setText(texts["closeButton"], with: builder.setCloseButtonText(_:))
 
     let assets = cameraPermissionTheme["assets"] as? [String: String] ?? [:]
-    setImage(assets["backButtonIcon"], with: builder.setBackButtonIcon(_:))
+    setBackButtonImage(assets["backButtonIcon"], with: builder.setBackButtonIcon(_:))
     setImage(assets["cameraImage"], with: builder.setCameraImage(_:))
 
     let permFonts = cameraPermissionTheme["fonts"] as? [String: String] ?? [:]
+    let permSizes = cameraPermissionTheme["sizes"] as? [String: Any] ?? [:]
     let iproovTheme = theme["iproov"] as? [String: Any] ?? [:]
     let iproovFonts = iproovTheme["fonts"] as? [String: String] ?? [:]
     let iproovFontResource = resolveIProovBaseFont(from: iproovTheme)
-    setFont(permFonts["title"] ?? iproovFonts["permissionTitleFont"] ?? iproovFontResource, with: builder.setTitleFont(_:), size: 20)
-    setFont(permFonts["caption"] ?? iproovFonts["permissionCaptionFont"] ?? iproovFontResource, with: builder.setCaptionFont(_:), size: 20)
+    setFont(permFonts["title"] ?? iproovFonts["permissionTitleFont"] ?? iproovFontResource, with: builder.setTitleFont(_:), size: CGFloat(doubleThemeValue(permSizes["titleFontSize"]) ?? 20))
+    setFont(permFonts["caption"] ?? iproovFonts["permissionCaptionFont"] ?? iproovFontResource, with: builder.setCaptionFont(_:), size: CGFloat(doubleThemeValue(permSizes["captionFontSize"]) ?? 20))
     setFont(
       permFonts["checkPermissionButton"] ?? iproovFonts["permissionButtonFont"] ?? iproovFontResource,
       with: builder.setCheckPermissionButtonTextFont(_:),
-      size: 20
+      size: CGFloat(doubleThemeValue(permSizes["checkPermissionButtonFontSize"]) ?? 20)
     )
     setFont(
       permFonts["bottomSheetTitle"] ?? iproovFonts["permissionTitleFont"] ?? iproovFontResource,
       with: builder.setBottomSheetTitleFont(_:),
-      size: 20
+      size: CGFloat(doubleThemeValue(permSizes["bottomSheetTitleFontSize"]) ?? 20)
     )
     setFont(
       permFonts["bottomSheetCaption"] ?? iproovFonts["permissionCaptionFont"] ?? iproovFontResource,
       with: builder.setBottomSheetCaptionFont(_:),
-      size: 20
+      size: CGFloat(doubleThemeValue(permSizes["bottomSheetCaptionFontSize"]) ?? 20)
     )
     setFont(
       permFonts["openSettingsButton"] ?? permFonts["opentSettingsButton"] ?? iproovFonts["permissionButtonFont"] ?? iproovFontResource,
       with: builder.setOpenSettingsButtonTextFont(_:),
-      size: 20
+      size: CGFloat(doubleThemeValue(permSizes["openSettingsButtonFontSize"]) ?? 20)
     )
     setFont(
       permFonts["closeButton"] ?? iproovFonts["permissionButtonFont"] ?? iproovFontResource,
       with: builder.setCloseButtonTextFont(_:),
-      size: 20
+      size: CGFloat(doubleThemeValue(permSizes["closeButtonFontSize"]) ?? 20)
     )
 
     return builder
@@ -213,10 +274,19 @@ final class ThemeFactory {
     }
 
     let colors = instructionsTheme["colors"] as? [String: String] ?? [:]
-    setColor(
-      firstValue(in: colors, keys: "closeButtonColor", "closeButtonIcon"),
-      with: builder.setCloseButtonImageColor(_:)
-    )
+    let assets = instructionsTheme["assets"] as? [String: String] ?? [:]
+    let closeButtonImageName = assets["closeButtonIcon"]
+    let hasCloseButtonImage = closeButtonImageName.flatMap { RnSdkBundle.getImage(named: $0) } != nil
+
+    if hasCloseButtonImage {
+      setImage(closeButtonImageName, with: builder.setCloseButtonImage(_:))
+    } else {
+      setColor(
+        firstValue(in: colors, keys: "closeButtonColor", "closeButtonIcon"),
+        with: builder.setCloseButtonImageColor(_:)
+      )
+    }
+
     setColor(firstValue(in: colors, keys: "title", "titleColor"), with: builder.setTitleTextColor(_:))
     setColor(firstValue(in: colors, keys: "titleBackground", "headerBackgroundColor"), with: builder.setTitleBackgroundColor(_:))
     setColor(firstValue(in: colors, keys: "promptText", "promptTextColor"), with: builder.setPromptTextColor(_:))
@@ -232,8 +302,6 @@ final class ThemeFactory {
     let texts = instructionsTheme["texts"] as? [String: String] ?? [:]
     setText(texts["title"], with: builder.setTitle(_:))
 
-    let assets = instructionsTheme["assets"] as? [String: String] ?? [:]
-    setImage(assets["closeButtonIcon"], with: builder.setCloseButtonImage(_:))
     setImage(assets["logoImage"], with: builder.setLogoImage(_:))
     _ = applyIProovBaseFont(in: builder, with: instructionsTheme)
 
@@ -249,8 +317,18 @@ final class ThemeFactory {
     }
 
     let colors = loadingTheme["colors"] as? [String: String] ?? [:]
-    setColor(colors["background"], with: builder.setBackgroundColor(_:))
-    setColor(colors["loading"], with: builder.setSpinnerColor(_:))
+    setColor(
+      firstValue(in: colors, keys: "background", "backgroundColor", "statusBar", "statusBarColor"),
+      with: builder.setBackgroundColor(_:)
+    )
+    setColor(firstValue(in: colors, keys: "loading", "loadingDialogColor"), with: builder.setSpinnerColor(_:))
+    let processingSizes = loadingTheme["sizes"] as? [String: Any] ?? [:]
+    _ = builder.setSpinnerWidth(
+      CGFloat(doubleThemeValue(processingSizes["spinnerWidth"] ?? processingSizes["loadingIndicatorWidth"]) ?? 10)
+    )
+    _ = builder.setSpinnerScaleFactor(
+      intThemeValue(processingSizes["spinnerSize"] ?? processingSizes["loadingIndicatorSize"]) ?? 100
+    )
 
     return builder
   }
@@ -263,40 +341,81 @@ final class ThemeFactory {
        return builder
     }
 
-    let colors = resultTheme["colors"] as? [String: String] ?? [:]
-    setColor(colors["successBackground"], with: builder.setSuccessBackgroundColor(_:))
-    setColor(colors["successText"], with: builder.setSuccessMessageColor(_:))
-    setColor(colors["errorBackground"], with: builder.setErrorBackgroundColor(_:))
-    setColor(colors["errorText"], with: builder.setErrorMessageColor(_:))
-    setColor(colors["retryBackground"], with: builder.setRetryBackgroundColor(_:))
-    setColor(colors["retryText"], with: builder.setRetryMessageColor(_:))
-    setColor(colors["retryButtonText"], with: builder.setRetryButtonTextColor(_:))
-    setColor(colors["retryButtonBackground"], with: builder.setRetryButtonBackgroundColor(_:))
-    setColor(colors["retryButtonBorder"], with: builder.setRetryButtonBorderColor(_:))
+    let colorsMap = resultTheme["colors"] as? [String: Any] ?? [:]
+    setColor(
+      firstValue(in: colorsMap, keys: "successBackground", "successBackgroundColor"),
+      with: builder.setSuccessBackgroundColor(_:)
+    )
+    setColor(
+      firstValue(in: colorsMap, keys: "successText", "successTextColor"),
+      with: builder.setSuccessMessageColor(_:)
+    )
+    _ = IProovResultBackgroundPatcher.applyErrorAndRetryBackgrounds(
+      to: builder,
+      errorBackground: colorFromHex(
+        firstValue(in: colorsMap, keys: "errorBackground", "errorBackgroundColor")
+      ),
+      retryBackground: colorFromHex(
+        firstValue(in: colorsMap, keys: "retryBackground", "retryBackgroundColor")
+      )
+    )
+    setColor(
+      firstValue(in: colorsMap, keys: "errorText", "errorTextColor"),
+      with: builder.setErrorMessageColor(_:)
+    )
+    setColor(
+      firstValue(in: colorsMap, keys: "retryText", "retryTextColor"),
+      with: builder.setRetryMessageColor(_:)
+    )
+    setColor(
+      firstValue(
+        in: colorsMap,
+        keys: "retryButtonText",
+        "retryButtonTextColor",
+        "retryTextColor"
+      ),
+      with: builder.setRetryButtonTextColor(_:)
+    )
+    setColor(
+      firstValue(in: colorsMap, keys: "retryButtonBackground", "retryButtonColor"),
+      with: builder.setRetryButtonBackgroundColor(_:)
+    )
+    setColor(
+      firstValue(in: colorsMap, keys: "retryButtonBorder", "retryButtonBorderColor"),
+      with: builder.setRetryButtonBorderColor(_:)
+    )
 
-    let texts = resultTheme["texts"] as? [String: String] ?? [:]
-    setText(texts["success"], with: builder.setSuccessMessage(_:))
-    setText(texts["error"], with: builder.setErrorMessage(_:))
-    setText(texts["retryButton"], with: builder.setRetryButtonText(_:))
+    let textsMap = resultTheme["texts"] as? [String: Any] ?? [:]
+    setText(firstValue(in: textsMap, keys: "success", "successText"), with: builder.setSuccessMessage(_:))
+    setText(firstValue(in: textsMap, keys: "error", "errorText"), with: builder.setErrorMessage(_:))
+    setText(
+      firstValue(in: textsMap, keys: "retryButton", "retryButtonText"),
+      with: builder.setRetryButtonText(_:)
+    )
 
-    let assets = resultTheme["assets"] as? [String: String] ?? [:]
-    setImage(assets["successImage"], with: builder.setSuccessImage(_:))
-    setImage(assets["errorImage"], with: builder.setErrorImage(_:))
-    setImage(assets["retryImage"], with: builder.setRetryImage(_:))
+    let assetsMap = resultTheme["assets"] as? [String: Any] ?? [:]
+    setImage(firstValue(in: assetsMap, keys: "successImage"), with: builder.setSuccessImage(_:))
+    setImage(firstValue(in: assetsMap, keys: "errorImage"), with: builder.setErrorImage(_:))
+    setImage(firstValue(in: assetsMap, keys: "retryImage"), with: builder.setRetryImage(_:))
 
-    let resultFonts = resultTheme["fonts"] as? [String: String] ?? [:]
+    let resultFontsMap = resultTheme["fonts"] as? [String: Any] ?? [:]
+    let resultSizes = resultTheme["sizes"] as? [String: Any] ?? [:]
     let iproovTheme = theme["iproov"] as? [String: Any] ?? [:]
     let iproovFonts = iproovTheme["fonts"] as? [String: String] ?? [:]
     let iproovFontResource = resolveIProovBaseFont(from: iproovTheme)
     setFont(
-      resultFonts["text"] ?? iproovFonts["resultMessageFont"] ?? iproovFontResource,
+      firstValue(in: resultFontsMap, keys: "text")
+        ?? iproovFonts["resultMessageFont"]
+        ?? iproovFontResource,
       with: builder.setMessageFont(_:),
-      size: 20
+      size: CGFloat(doubleThemeValue(resultSizes["textFontSize"]) ?? 20)
     )
     setFont(
-      resultFonts["retryButton"] ?? iproovFonts["resultRetryButtonFont"] ?? iproovFontResource,
+      firstValue(in: resultFontsMap, keys: "retryButton")
+        ?? iproovFonts["resultRetryButtonFont"]
+        ?? iproovFontResource,
       with: builder.setRetryButtonTextFont(_:),
-      size: 20
+      size: CGFloat(doubleThemeValue(resultSizes["retryButtonFontSize"]) ?? 20)
     )
 
     return builder
@@ -313,8 +432,18 @@ final class ThemeFactory {
     }
 
     let colors = loadingTheme["colors"] as? [String: String] ?? [:]
-    setColor(colors["background"], with: builder.setBackgroundColor(_:))
-    setColor(colors["loading"], with: builder.setSpinnerColor(_:))
+    setColor(
+      firstValue(in: colors, keys: "background", "backgroundColor", "statusBar", "statusBarColor"),
+      with: builder.setBackgroundColor(_:)
+    )
+    setColor(firstValue(in: colors, keys: "loading", "loadingDialogColor"), with: builder.setSpinnerColor(_:))
+    let processingSizes = loadingTheme["sizes"] as? [String: Any] ?? [:]
+    _ = builder.setSpinnerWidth(
+      CGFloat(doubleThemeValue(processingSizes["spinnerWidth"] ?? processingSizes["loadingIndicatorWidth"]) ?? 80)
+    )
+    _ = builder.setSpinnerScaleFactor(
+      intThemeValue(processingSizes["spinnerSize"] ?? processingSizes["loadingIndicatorSize"]) ?? 80
+    )
 
     return builder
   }
@@ -328,10 +457,15 @@ final class ThemeFactory {
     }
 
     let colors = livenessTheme["colors"] as? [String: String] ?? [:]
+    let sizes = livenessTheme["sizes"] as? [String: Any] ?? [:]
+    let configuration = livenessTheme["configuration"] as? [String: String] ?? [:]
     setColor(colors["readyScreenHeader"], with: builder.setReadyScreenHeaderColor(_:))
     setColor(colors["readyScreenSubtext"], with: builder.setReadyScreenMessageColor(_:))
     setColor(colors["readyScreenTextBackground"], with: builder.setReadyScreenTextBackgroundColor(_:))
-    setColor(colors["resultScreenMessage"], with: builder.setResultScreenMessageColor(_:))
+    setColor(
+      firstValue(in: colors, keys: "resultScreenMessage", "resultScreenForeground"),
+      with: builder.setResultScreenMessageColor(_:)
+    )
     setColor(
       firstValue(in: colors, keys: "resultScreenUploadProgressBarFill", "resultScreenUploadProgressFill"),
       with: builder.setResultScreenUploadProgressBarFillColor(_:)
@@ -341,9 +475,14 @@ final class ThemeFactory {
       with: builder.setResultScreenUploadProgressBarTrackColor(_:)
     )
     builder.setResultScreenAnimationStyle(.blob(appearance: getResultStyleApperance(from: colors)))
-    setColor(colors["retryScreenHeader"], with: builder.setRetryScreenHeaderColor(_:))
-    setColor(colors["retryScreenSubtext"], with: builder.setRetryScreenCaptionColor(_:))
-    setColor(colors["retryScreenImageBorder"], with: builder.setRetryScreenImageBorderColor(_:))
+    setColor(
+      firstValue(in: colors, keys: "retryScreenHeader") ?? "#FF5252",
+      with: builder.setRetryScreenHeaderColor(_:)
+    )
+    setColor(
+      firstValue(in: colors, keys: "retryScreenSubtext") ?? "#DD3333",
+      with: builder.setRetryScreenCaptionColor(_:)
+    )
     setColor(colors["feedbackMessage"], with: builder.setFeedbackMessageColor(_:))
     setColor(colors["feedbackBarBackground"], with: builder.setFeedbackBarBackgroundColor(_:))
     setColor(colors["guidanceButtonTextNormal"], with: builder.setGuidanceButtonTextNormalColor(_:))
@@ -356,12 +495,28 @@ final class ThemeFactory {
     setColor(colors["frameBorder"], with: builder.setFrameBorderColor(_:))
     setColor(colors["frameBackground"], with: builder.setFrameBackgroundColor(_:))
     setColor(colors["ovalStroke"], with: builder.setOvalStrokeColor(_:))
+    _ = builder.setOvalStrokeWidth(intThemeValue(sizes["ovalStrokeWidth"]) ?? 4)
     setColor(colors["ovalProgressFirst"], with: builder.setOvalProgressFirstColor(_:))
     setColor(colors["ovalProgressSecond"], with: builder.setOvalProgressSecondColor(_:))
+    _ = builder.setOvalProgressWidth(intThemeValue(sizes["ovalProgressStrokeWidth"] ?? sizes["ovalProgressWidth"]) ?? 6)
+    _ = builder.setOvalProgressOffset(intThemeValue(sizes["ovalProgressRadialOffset"] ?? sizes["ovalProgressOffset"]) ?? 8)
     setColor(colors["overlayBackground"], with: builder.setOverlayBackgroundColor(_:))
 
+    let flags = livenessTheme["flags"] as? [String: Any] ?? [:]
+    let showBrandingImage = flags["overlayShowBrandingImage"] as? Bool ?? true
     let assets = livenessTheme["assets"] as? [String: String] ?? [:]
-    setImage(assets["overlayBrandImage"], with: builder.setOverlayBrandImage(_:))
+    if showBrandingImage {
+      setImage(assets["overlayBrandImage"], with: builder.setOverlayBrandImage(_:))
+    }
+    let cancelButtonLocationKey = configuration["cancelButtonLocation"]?
+      .uppercased()
+      .replacingOccurrences(of: " ", with: "_")
+    switch cancelButtonLocationKey {
+    case "TOP_RIGHT", "TOPRIGHT":
+      _ = builder.setCancelButtonLocation(.topRight)
+    default:
+      _ = builder.setCancelButtonLocation(.topLeft)
+    }
     setImage(assets["cancelButtonIcon"], with: builder.setCancelButtonIcon(_:))
 
     let fonts = livenessTheme["fonts"] as? [String: String] ?? [:]
@@ -375,27 +530,17 @@ final class ThemeFactory {
     setFont(fonts["guidanceSubtext"], with: builder.setGuidanceSubtextFont(_:), size: 0)
     setFont(fonts["guidanceButton"], with: builder.setGuidanceButtonFont(_:), size: 0)
 
-    let sizes = livenessTheme["sizes"] as? [String: Any] ?? [:]
     if let width = intThemeValue(sizes["guidanceButtonBorderWidth"]) {
       _ = builder.setGuidanceButtonBorderWidth(width)
     }
     if let radius = intThemeValue(sizes["guidanceButtonCornerRadius"]) {
       _ = builder.setGuidanceButtonBorderCornerRadius(radius)
     }
-    if let width = intThemeValue(sizes["guidanceRetryScreenImageBorderWidth"]) {
-      _ = builder.setRetryScreenImageBorderWidth(width)
-    }
-    if let radius = intThemeValue(sizes["guidanceRetryScreenImageCornerRadius"]) {
-      _ = builder.setRetryScreenImageBorderCornerRadius(radius)
-    }
     if let width = intThemeValue(sizes["frameBorderWidth"]) {
-      _ = builder.setFrameBorderWidth(width)
+      _ = builder.setFrameBorderWidth(Swift.max(width, 4))
     }
     if let radius = intThemeValue(sizes["frameCornerRadius"]) {
       _ = builder.setFrameBorderCornerRadius(radius)
-    }
-    if let elevation = intThemeValue(sizes["frameElevation"]) {
-      _ = builder.setFrameShadow(shadowFromElevation(elevation))
     }
     if let radius = intThemeValue(sizes["feedbackCornerRadius"]) {
       _ = builder.setFeedbackBarCornerRadius(radius)
@@ -463,9 +608,14 @@ final class ThemeFactory {
   // MARK: - Utils
 
   private static func setColor<T>(_ colorHex: String?, with builder: @escaping (UIColor) -> T) {
-    if let colorHex, let color = UIColor(hex: colorHex) {
+    if let color = colorFromHex(colorHex) {
       _ = builder(color)
     }
+  }
+
+  private static func colorFromHex(_ colorHex: String?) -> UIColor? {
+    guard let colorHex else { return nil }
+    return UIColor(hex: colorHex)
   }
 
   private static func setText<T>(_ text: String?, with builder: @escaping (String) -> T) {
@@ -478,6 +628,67 @@ final class ThemeFactory {
     if let imageName, let image = RnSdkBundle.getImage(named: imageName) {
       _ = builder(image)
     }
+  }
+
+  private static func setBackButtonImage<T>(_ imageName: String?, with builder: @escaping (UIImage) -> T) {
+    if let imageName, let image = RnSdkBundle.getImage(named: imageName) {
+      _ = builder(BackButtonIconComposer.prepare(image))
+    }
+  }
+
+  private static func doubleThemeValue(_ value: Any?) -> Double? {
+    switch value {
+    case let doubleValue as Double:
+      return doubleValue
+    case let intValue as Int:
+      return Double(intValue)
+    case let numberValue as NSNumber:
+      return numberValue.doubleValue
+    default:
+      return nil
+    }
+  }
+
+  private static func resolveBackButtonTintColor(
+    colors: [String: String],
+    hasCustomBackButtonImage: Bool
+  ) -> UIColor? {
+    if let explicit = firstValue(in: colors, keys: "backButtonColor", "backButtonIconColor") {
+      return UIColor(hex: explicit)
+    }
+    if hasCustomBackButtonImage {
+      return nil
+    }
+    guard let fallback = firstValue(in: colors, keys: "backButtonIcon") else {
+      return nil
+    }
+    return UIColor(hex: fallback)
+  }
+
+  private static func setInstructionIcon<T>(
+    _ imageName: String?,
+    backgroundHex: String?,
+    borderHex: String?,
+    scaleMode: InstructionIconScaleMode,
+    size: CGFloat,
+    with builder: @escaping (UIImage) -> T
+  ) {
+    guard let imageName, let icon = RnSdkBundle.getImage(named: imageName) else { return }
+
+    if let backgroundHex, let backgroundColor = UIColor(hex: backgroundHex) {
+      let borderColor = borderHex.flatMap { UIColor(hex: $0) }
+      let composed = InstructionIconComposer.compose(
+        icon: icon,
+        backgroundColor: backgroundColor,
+        borderColor: borderColor,
+        size: size,
+        scaleMode: scaleMode
+      )
+      _ = builder(composed)
+      return
+    }
+
+    _ = builder(icon)
   }
 
   private static func intThemeValue(_ value: Any?) -> Int? {
@@ -510,6 +721,17 @@ final class ThemeFactory {
       guard let value = source[key]?.trimmingCharacters(in: .whitespacesAndNewlines) else { continue }
       if !value.isEmpty {
         return value
+      }
+    }
+    return nil
+  }
+
+  private static func firstValue(in source: [String: Any], keys: String...) -> String? {
+    for key in keys {
+      guard let value = source[key] as? String else { continue }
+      let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+      if !trimmed.isEmpty {
+        return trimmed
       }
     }
     return nil

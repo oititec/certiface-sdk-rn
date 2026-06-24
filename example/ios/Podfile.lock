@@ -1,8 +1,10 @@
 PODS:
   - boost (1.84.0)
-  - CertifaceSDK (1.4.0):
+  - CertifaceModules (1.7.0)
+  - CertifaceSDK (1.7.0):
+    - CertifaceModules (= 1.7.0)
     - iProov (= 12.5.0)
-    - OILiveness3D_FT (= 9.7.110)
+    - OILiveness3D_FT (= 9.7.121)
   - DoubleConversion (1.1.6)
   - fast_float (6.1.4)
   - FBLazyVector (0.79.2)
@@ -12,7 +14,7 @@ PODS:
     - hermes-engine/Pre-built (= 0.79.2)
   - hermes-engine/Pre-built (0.79.2)
   - iProov (12.5.0)
-  - OILiveness3D_FT (9.7.110)
+  - OILiveness3D_FT (9.7.121)
   - RCT-Folly (2024.11.18.00):
     - boost
     - DoubleConversion
@@ -1857,8 +1859,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RnSdk (1.1.2):
-    - CertifaceSDK (= 1.4.0)
+  - RnSdk (1.1.3):
+    - CertifaceSDK (= 1.7.0)
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1994,6 +1996,7 @@ SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
     - SocketRocket
   https://github.com/oititec/ios-artifactory.git:
+    - CertifaceModules
     - CertifaceSDK
     - OILiveness3D_FT
   trunk:
@@ -2158,7 +2161,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
-  CertifaceSDK: a524fb206e3091fb7ba18a6d1fa44f6dd8a2085d
+  CertifaceModules: 2d8dfe1dca3e76093561f6594b3d14513b104518
+  CertifaceSDK: e159fa19a9b1d4802d84d2a6b07124b6e6fc0014
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
   FBLazyVector: 84b955f7b4da8b895faf5946f73748267347c975
@@ -2166,7 +2170,7 @@ SPEC CHECKSUMS:
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   hermes-engine: 314be5250afa5692b57b4dd1705959e1973a8ebe
   iProov: 17b75b5b2ceb6615cf6f7e835f30a773f28b1644
-  OILiveness3D_FT: b5ce81463120c54dde2d5f9975b00b0116a798db
+  OILiveness3D_FT: 6ceb05be7e1574d8918d6f633e5e3e14ab889c89
   RCT-Folly: e78785aa9ba2ed998ea4151e314036f6c49e6d82
   RCTDeprecation: 83ffb90c23ee5cea353bd32008a7bca100908f8c
   RCTRequired: eb7c0aba998009f47a540bec9e9d69a54f68136e
@@ -2234,11 +2238,11 @@ SPEC CHECKSUMS:
   RNCClipboard: ea6045252d5c0753cf17f62290f647dc0096f6ac
   RNGestureHandler: 0397fea67f39d5a2d17fcf4a028e206f7ba098ba
   RNScreens: 7e56b051227a1a11c3068849d1a9a5dd457537df
-  RnSdk: 84b1fddca96ee3fd5ba83a2463851acd3a1ac085
+  RnSdk: 33ff4400bfe3c960b6b653f96a5d9403f562fdff
   RNVectorIcons: 1fe59cfa2d3ac94ceb9d373a59c54609471b8d56
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: c758bfb934100bb4bf9cbaccb52557cee35e8bdf
 
 PODFILE CHECKSUM: c6449e48e58db1cc4693177bcb9baa6bcab380e4
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2

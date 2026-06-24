@@ -2,6 +2,7 @@ package br.com.certiface.rn.sdk.factories
 
 import android.content.Context
 import br.com.certiface.designsystem.R
+import br.com.certiface.designsystem.ui.builders.InstructionImageScale
 import br.com.certiface.domain.model.facetec.FacetecButtonLocation
 import br.com.certiface.domain.model.facetec.FacetecExitAnimationStyle
 import br.com.certiface.domain.model.facetec.FacetecTheme
@@ -32,13 +33,16 @@ object FacetecThemeFactory {
     val permissionColors = permissionTheme?.getMap("colors")
     val permissionTexts = permissionTheme?.getMap("texts")
     val permissionFonts = permissionTheme?.getMap("fonts")
+    val permissionFlags = permissionTheme?.getMap("flags")
 
     val facetecTheme = theme?.getMap("facetec")
     val facetecColors = facetecTheme?.getMap("colors")
     val facetecSizes = facetecTheme?.getMap("sizes")
     val facetecFlags = facetecTheme?.getMap("flags")
+    val facetecConfiguration = facetecTheme?.getMap("configuration")
     val facetecTexts = facetecTheme?.getMap("texts")
     val facetecFontsMap = facetecTheme?.getMap("fonts")
+    val instructionsSizes = instructionsTheme?.getMap("sizes")
 
     val facetecFonts: Map<FacetecFontsKey, Any> =
       if (facetecFontsMap != null || instructionsFonts != null || permissionFonts != null) {
@@ -123,7 +127,9 @@ object FacetecThemeFactory {
     guidanceReadyScreenSubtextTextColor(facetecColors?.getString("readyScreenSubtext") ?: "#BBBBBB")
     guidanceReadyScreenTextBackgroundColor(facetecColors?.getString("readyScreenTextBackground") ?: "#BBBBBB")
     guidanceReadyScreenOvalFillColor(facetecColors?.getString("readyScreenOvalFill") ?: "#00FF00")
-    guidanceReadyScreenTextBackgroundCornerRadius(12)
+    guidanceReadyScreenTextBackgroundCornerRadius(
+      optInt(facetecSizes, "readyScreenTextBackgroundCornerRadius", 12)
+    )
 
     // Guidance
     guidanceForegroundColor(facetecColors?.getString("guidanceForeground") ?: "#FFFFFF")
@@ -166,25 +172,54 @@ object FacetecThemeFactory {
     resultScreenActivityIndicatorColor(facetecColors?.getString("resultScreenActivityIndicator") ?: "#0F9D58")
     resultScreenResultAnimationBackgroundColor(facetecColors?.getString("resultScreenResultAnimationBackground") ?: "#417FB2")
     resultScreenResultAnimationForegroundColor(facetecColors?.getString("resultScreenResultAnimationForeground") ?: "#FFFFFF")
-    resultScreenCustomActivityIndicatorAnimation(br.com.certiface.facetecsdk.R.drawable.animated_activity_indicator)
-    resultScreenCustomActivityIndicatorRotationInterval(1000)
-    resultScreenAnimationRelativeScale(1f)
-    resultScreenShowUploadProgressBar(true)
-    resultScreenCustomStaticResultAnimationUnSuccess(R.drawable.error_icon)
-    resultScreenCustomStaticResultAnimationSuccess(R.drawable.success_icon)
-    resultScreenCustomResultAnimationUnSuccess(R.drawable.error_icon)
-    resultScreenCustomResultAnimationSuccess(R.drawable.success_icon)
-    resultScreenResultAnimationUnSuccessBackgroundImage(R.drawable.error_icon)
-    resultScreenResultAnimationSuccessBackgroundImage(R.drawable.success_icon)
-    resultScreenOverrideSuccessMessage("Toque para reiniciar")
+    facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_ACTIVITY_INDICATOR_IMAGE]?.let {
+      resultScreenCustomActivityIndicatorImage(it)
+    }
+    resultScreenCustomActivityIndicatorAnimation(
+      facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_ACTIVITY_INDICATOR_ANIMATION]
+        ?: br.com.certiface.facetecsdk.R.drawable.animated_activity_indicator
+    )
+    resultScreenCustomActivityIndicatorRotationInterval(
+      optInt(facetecSizes, "resultScreenCustomActivityIndicatorRotationInterval", 1000)
+    )
+    resultScreenAnimationRelativeScale(
+      optFloat(facetecSizes, "resultScreenAnimationRelativeScale", 1f)
+    )
+    resultScreenShowUploadProgressBar(
+      optBoolean(facetecFlags, "resultScreenShowUploadProgressBar", true)
+    )
+    val resultSuccessStaticIconId =
+      facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_STATIC_RESULT_ANIMATION_SUCCESS]
+        ?: R.drawable.success_icon
+    val resultErrorStaticIconId =
+      facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_STATIC_RESULT_ANIMATION_UNSUCCESS]
+        ?: R.drawable.error_icon
+    val resultSuccessAnimatedIconId =
+      facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_ANIMATION_SUCCESS]
+        ?: resultSuccessStaticIconId
+    val resultErrorAnimatedIconId =
+      facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_ANIMATION_UNSUCCESS]
+        ?: resultErrorStaticIconId
+
+    resultScreenCustomStaticResultAnimationUnSuccess(resultErrorStaticIconId)
+    resultScreenCustomStaticResultAnimationSuccess(resultSuccessStaticIconId)
+    resultScreenCustomResultAnimationUnSuccess(resultErrorAnimatedIconId)
+    resultScreenCustomResultAnimationSuccess(resultSuccessAnimatedIconId)
+    facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_ANIMATION_SUCCESS_BACKGROUND_IMAGE]?.let {
+      resultScreenResultAnimationSuccessBackgroundImage(it)
+    }
+    facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_ANIMATION_UNSUCESS_BACKGROUND_IMAGE]?.let {
+      resultScreenResultAnimationUnSuccessBackgroundImage(it)
+    }
+    facetecTexts?.getString("resultSuccessMessage")?.let { resultScreenOverrideSuccessMessage(it) }
 
     // Oval
-    ovalCustomizationStrokeWidth(4)
+    ovalCustomizationStrokeWidth(optInt(facetecSizes, "ovalStrokeWidth", 4))
     ovalCustomizationStrokeColor(facetecColors?.getString("ovalStroke") ?: "#00FF00")
-    ovalCustomizationProgressStrokeWidth(6)
+    ovalCustomizationProgressStrokeWidth(optInt(facetecSizes, "ovalProgressStrokeWidth", 6))
     ovalCustomizationProgressColor1(facetecColors?.getString("ovalProgressFirst") ?: "#00FF00")
     ovalCustomizationProgressColor2(facetecColors?.getString("ovalProgressSecond") ?: "#FF0000")
-    ovalCustomizationProgressRadialOffset(8)
+    ovalCustomizationProgressRadialOffset(optInt(facetecSizes, "ovalProgressRadialOffset", 8))
 
     // Frame
     frameBackgroundColor(facetecColors?.getString("frameBackground") ?: "#121212")
@@ -205,8 +240,15 @@ object FacetecThemeFactory {
     feedbackEnablePulsatingText(optBoolean(facetecFlags, "feedbackEnablePulsatingText", true))
 
     // Cancel Button
-    cancelButtonLocation(FacetecButtonLocation.TOP_RIGHT)
-    exitAnimationStyle(FacetecExitAnimationStyle.RIPPLE_IN)
+    facetecDrawables[FacetecDrawablesKey.FACETEC_CANCEL_BUTTON_CUSTOM_IMAGE]?.let {
+      cancelButtonCustomImage(it)
+    }
+    cancelButtonLocation(
+      parseFacetecButtonLocation(facetecConfiguration, "cancelButtonLocation", FacetecButtonLocation.TOP_LEFT)
+    )
+    exitAnimationStyle(
+      parseFacetecExitAnimationStyle(facetecConfiguration, "exitAnimationStyle", FacetecExitAnimationStyle.RIPPLE_IN)
+    )
 
     setFacetecFontsMap(facetecFonts)
     setFacetecTextMap(customFacetecTexts)
@@ -222,7 +264,7 @@ object FacetecThemeFactory {
       setStatusBarIsDarkIcons(optBoolean(instructionsFlags, "statusBarIsDarkIcons", false))
       setBackgroundColor(firstString(instructionsColors, "backgroundColor", "background") ?: "#121212")
       setBottomSheetColor(firstString(instructionsColors, "bottomSheetColor", "bottomSheet") ?: "#333333")
-      setBottomSheetCornerRadius(16f)
+      setBottomSheetCornerRadius(optFloat(instructionsSizes, "bottomSheetCornerRadius", 16f))
       setContinueButtonText(
         firstString(instructionsTexts, "continueButton", "continueButtonText") ?: "Começar"
       )
@@ -236,6 +278,10 @@ object FacetecThemeFactory {
       firstString(instructionsTexts, "secondInstruction")?.let { setSecondInstructionText(it) }
       firstString(instructionsColors, "firstInstructionTitle")?.let { setFirstInstructionTextColor(it) }
       firstString(instructionsColors, "secondInstructionTitle")?.let { setSecondInstructionTextColor(it) }
+      firstString(instructionsColors, "firstInstructionIconBackground")?.let { setFirstInstructionIconBackgroundColor(it) }
+      firstString(instructionsColors, "firstInstructionIconBorder")?.let { setFirstInstructionIconBorderColor(it) }
+      firstString(instructionsColors, "secondInstructionIconBackground")?.let { setSecondInstructionIconBackgroundColor(it) }
+      firstString(instructionsColors, "secondInstructionIconBorder")?.let { setSecondInstructionIconBorderColor(it) }
       val backButtonDrawableId = facetecDrawables[FacetecDrawablesKey.INSTRUCTIONS_BACK_BUTTON_IMG]
       backButtonDrawableId?.let { setBackButtonImg(it) }
       resolveInstructionsBackButtonTintColor(instructionsColors, hasCustomBackButtonImage = backButtonDrawableId != null)
@@ -243,6 +289,15 @@ object FacetecThemeFactory {
       facetecDrawables[FacetecDrawablesKey.INSTRUCTIONS_CONTEXT_IMAGE]?.let { setContextImage(it) }
       facetecDrawables[FacetecDrawablesKey.INSTRUCTIONS_FIRST_INSTRUCTION_ICON]?.let { setFirstInstructionIcon(it) }
       facetecDrawables[FacetecDrawablesKey.INSTRUCTIONS_SECOND_INSTRUCTION_ICON]?.let { setSecondInstructionIcon(it) }
+      val instructionsAssets = instructionsTheme?.getMap("assets")
+      instructionsAssets?.getString("contextImageScale")
+        ?.let { setContextImageScale(InstructionImageScale.fromString(it)) }
+      if (instructionsAssets?.hasKey("contextImageHeightFraction") == true)
+        setContextImageHeightFraction(instructionsAssets.getDouble("contextImageHeightFraction").toFloat())
+      instructionsAssets?.getString("instructionIconScale")
+        ?.let { setInstructionIconScale(InstructionImageScale.fromString(it)) }
+      if (instructionsAssets?.hasKey("instructionIconSize") == true)
+        setInstructionIconSize(instructionsAssets.getDouble("instructionIconSize").toInt())
     }
 
     setPermissionTheme {
@@ -252,7 +307,7 @@ object FacetecThemeFactory {
       setSubTitleColor(firstString(permissionColors, "captionColor", "caption") ?: "#FFFFFF")
       setBackgroundColor(firstString(permissionColors, "backgroundColor", "background") ?: "#1F1F1F")
       setStatusBarColor(firstString(permissionColors, "statusBarColor", "statusBar") ?: "#1F1F1F")
-      setStatusBarIsDarkIcons(false)
+      setStatusBarIsDarkIcons(optBoolean(permissionFlags, "statusBarIsDarkIcons", false))
       setPermissionButtonText(firstString(permissionTexts, "checkPermissionButton") ?: "Permitir acesso")
       setPermissionButtonColor(
         firstString(permissionColors, "checkPermissionButtonBackground", "checkPermissionButtonColor") ?: "#00FF00"
@@ -265,13 +320,15 @@ object FacetecThemeFactory {
     // Processing Screen
     val processingTheme = theme?.getMap("processing")
     val processingColors = processingTheme?.getMap("colors")
+    val processingFlags = processingTheme?.getMap("flags")
+    val processingSizes = processingTheme?.getMap("sizes")
 
     setProcessingTheme {
       setBackgroundColor(firstString(processingColors, "backgroundColor", "background") ?: "#000000")
       setLoadingDialogColor(firstString(processingColors, "loadingDialogColor", "loading") ?: "#FFFFFF")
       setStatusBarColor(firstString(processingColors, "statusBarColor", "statusBar") ?: "#000000")
-      setStatusBarIsDarkIcons(false)
-      setLoadingIndicatorSize(80)
+      setStatusBarIsDarkIcons(optBoolean(processingFlags, "statusBarIsDarkIcons", false))
+      setLoadingIndicatorSize(optInt(processingSizes, "loadingIndicatorSize", 80))
     }
   }
 

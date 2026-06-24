@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.core.graphics.toColorInt
 import br.com.certiface.designsystem.R
+import br.com.certiface.designsystem.ui.builders.InstructionImageScale
 import br.com.certiface.domain.model.iproov.OrientationGPA
 import br.com.certiface.domain.model.iproov.OrientationLA
 import br.com.certiface.manager.exports.FilterTheme
@@ -34,8 +35,12 @@ object IProovThemeFactory {
     val iproovTheme = theme?.getMap("iproov")
     val colors = iproovTheme?.getMap("colors")
     val texts = iproovTheme?.getMap("texts")
+    val iproovAssets = iproovTheme?.getMap("assets")
+    val iproovConfiguration = iproovTheme?.getMap("configuration")
+    val iproovFlags = iproovTheme?.getMap("flags")
     val instructionsTheme = theme?.getMap("instructions")
     val instructionsFontsMap = instructionsTheme?.getMap("fonts")
+    val instructionsSizes = instructionsTheme?.getMap("sizes")
     val permissionTheme = theme?.getMap("permission")
     val permissionFontsMap = permissionTheme?.getMap("fonts")
     val resultTheme = theme?.getMap("result")
@@ -58,7 +63,13 @@ object IProovThemeFactory {
 
     setTitle(firstString(texts, "title") ?: "Verificação Facial")
     setTitleColor(firstString(colors, "titleColor", "title") ?: "#FFFFFF")
-    firstString(colors, "closeButtonColor", "closeButtonIcon")?.let { setCloseButtonColor(it) }
+    IProovCloseButtonApplier.apply(
+      context = context,
+      iproovAssets = iproovAssets,
+      colors = colors,
+      setCloseButton = { setCloseButton(it) },
+      setCloseButtonColor = { setCloseButtonColor(it) }
+    )
     setHeaderBackgroundColor(firstString(colors, "headerBackgroundColor", "titleBackground") ?: "#121212")
     setPromptTextColor(firstString(colors, "promptTextColor", "promptText") ?: "#FFFFFF")
     setPromptBackgroundColor(firstString(colors, "promptBackgroundColor", "promptBackground") ?: "#1F1F1F")
@@ -72,10 +83,10 @@ object IProovThemeFactory {
         resolvedFontResource = resolvedIProovFontResource
       )
     }
-    setIsEnabledScreenShots(true)
-    setDisableExteriorEffects(false)
-    setTimeoutSecs(60)
-    setPromptRoundedCorners(true)
+    setIsEnabledScreenShots(optBoolean(iproovFlags, "isEnabledScreenShots", true))
+    setDisableExteriorEffects(optBoolean(iproovFlags, "disableExteriorEffects", false))
+    setTimeoutSecs(optInt(iproovConfiguration, "timeoutSecs", 60))
+    setPromptRoundedCorners(optBoolean(iproovFlags, "promptRoundedCorners", true))
     setFontsKey(iProovFonts)
     val filterForeground = firstString(colors, "filterLineDrawingForeground")
     val filterBackground = firstString(colors, "filterLineDrawingBackground")
@@ -92,8 +103,8 @@ object IProovThemeFactory {
     )
 
     setOrientation(
-      gpa = OrientationGPA.PORTRAIT,
-      la = OrientationLA.PORTRAIT
+      gpa = parseOrientationGpa(iproovConfiguration, "orientationGpa", OrientationGPA.PORTRAIT),
+      la = parseOrientationLa(iproovConfiguration, "orientationLa", OrientationLA.PORTRAIT)
     )
 
     setOvalColors(
@@ -110,11 +121,9 @@ object IProovThemeFactory {
     val showInstructionScreen = instructionsConfiguration?.getBoolean("showInstructionScreen") ?: true
     val instructionStatusBarDarkIcons = instructionsFlags?.getBoolean("statusBarIsDarkIcons") ?: false
 
-    val iproovAssets = iproovTheme?.getMap("assets")
     val iproovDrawablesRaw = AssetProcessor.processIProovAssets(theme)
 
     resolveDrawableResourceId(context, iproovAssets?.getString("logoImage"))?.let { setLogo(it) }
-    resolveDrawableResourceId(context, iproovAssets?.getString("closeButtonIcon"))?.let { setCloseButton(it) }
 
     val iproovDrawables = resolveIProovDrawables(context, iproovDrawablesRaw)
 
@@ -129,26 +138,26 @@ object IProovThemeFactory {
       setTitleText(
         firstString(instructionsTexts, "title", "titleText")
           ?: firstString(texts, "instructionsTitleText")
-          ?: "Teste title"
+          ?: "Centralize seu rosto"
       )
       setTitleColor(firstString(instructionsColors, "titleColor", "title") ?: "#FFFFFF")
       setCaptionText(
         firstString(instructionsTexts, "caption", "captionText")
           ?: firstString(texts, "instructionsCaptionText")
-          ?: "teste caption."
+          ?: "Mantenha-se dentro do círculo"
       )
       setCaptionColor(firstString(instructionsColors, "captionColor", "caption") ?: "#AAAAAA")
       setBackgroundColor(firstString(instructionsColors, "backgroundColor", "background") ?: "#1F1F1F")
       setStatusBarColor(firstString(instructionsColors, "statusBarColor", "statusBar") ?: "#1F1F1F")
       setStatusBarIsDarkIcons(instructionStatusBarDarkIcons)
       setBottomSheetColor(firstString(instructionsColors, "bottomSheetColor", "bottomSheet") ?: "#333333")
-      setBottomSheetCornerRadius(16f)
+      setBottomSheetCornerRadius(optFloat(instructionsSizes, "bottomSheetCornerRadius", 16f))
       setContinueButtonText(
         instructionsTexts?.getString("continueButton")
           ?: instructionsTexts?.getString("continueButtonText")
           ?: texts?.getString("continueButton")
           ?: texts?.getString("continueButtonText")
-          ?: "Startar"
+          ?: "Começar"
       )
       setContinueButtonColor(
         firstString(instructionsColors, "continueButtonColor", "continueButtonBackground") ?: "#00FF00"
@@ -161,6 +170,10 @@ object IProovThemeFactory {
       firstString(instructionsTexts, "secondInstruction")?.let { setSecondInstructionText(it) }
       firstString(instructionsColors, "firstInstructionTitle")?.let { setFirstInstructionTextColor(it) }
       firstString(instructionsColors, "secondInstructionTitle")?.let { setSecondInstructionTextColor(it) }
+      firstString(instructionsColors, "firstInstructionIconBackground")?.let { setFirstInstructionIconBackgroundColor(it) }
+      firstString(instructionsColors, "firstInstructionIconBorder")?.let { setFirstInstructionIconBorderColor(it) }
+      firstString(instructionsColors, "secondInstructionIconBackground")?.let { setSecondInstructionIconBackgroundColor(it) }
+      firstString(instructionsColors, "secondInstructionIconBorder")?.let { setSecondInstructionIconBorderColor(it) }
 
       val backButtonDrawableId = iproovDrawables[IProovDrawablesKey.INSTRUCTIONS_BACK_BUTTON_IMG]
       backButtonDrawableId?.let { setBackButtonImg(it) }
@@ -170,10 +183,20 @@ object IProovThemeFactory {
       iproovDrawables[IProovDrawablesKey.INSTRUCTIONS_CONTEXT_IMAGE]?.let { setContextImage(it) }
       iproovDrawables[IProovDrawablesKey.INSTRUCTIONS_FIRST_INSTRUCTION_ICON]?.let { setFirstInstructionIcon(it) }
       iproovDrawables[IProovDrawablesKey.INSTRUCTIONS_SECOND_INSTRUCTION_ICON]?.let { setSecondInstructionIcon(it) }
+      val instructionsAssets = instructionsTheme?.getMap("assets")
+      instructionsAssets?.getString("contextImageScale")
+        ?.let { setContextImageScale(InstructionImageScale.fromString(it)) }
+      if (instructionsAssets?.hasKey("contextImageHeightFraction") == true)
+        setContextImageHeightFraction(instructionsAssets.getDouble("contextImageHeightFraction").toFloat())
+      instructionsAssets?.getString("instructionIconScale")
+        ?.let { setInstructionIconScale(InstructionImageScale.fromString(it)) }
+      if (instructionsAssets?.hasKey("instructionIconSize") == true)
+        setInstructionIconSize(instructionsAssets.getDouble("instructionIconSize").toInt())
     }
 
     val permissionColors = permissionTheme?.getMap("colors")
     val permissionTexts = permissionTheme?.getMap("texts")
+    val permissionFlags = permissionTheme?.getMap("flags")
 
     setPermissionTheme {
       setTitle(firstString(permissionTexts, "title") ?: firstString(texts, "permissionTitle") ?: "Permissões Necessárias")
@@ -182,7 +205,7 @@ object IProovThemeFactory {
       setSubTitleColor(firstString(permissionColors, "captionColor", "caption") ?: "#FFFFFF")
       setBackgroundColor(firstString(permissionColors, "backgroundColor", "background") ?: "#1F1F1F")
       setStatusBarColor(firstString(permissionColors, "statusBarColor", "statusBar") ?: "#1F1F1F")
-      setStatusBarIsDarkIcons(false)
+      setStatusBarIsDarkIcons(optBoolean(permissionFlags, "statusBarIsDarkIcons", false))
       setPermissionButtonText(
         firstString(permissionTexts, "checkPermissionButton") ?: "Permitir acesso"
       )
@@ -198,18 +221,21 @@ object IProovThemeFactory {
 
     val processingTheme = theme?.getMap("processing")
     val processingColors = processingTheme?.getMap("colors")
+    val processingFlags = processingTheme?.getMap("flags")
+    val processingSizes = processingTheme?.getMap("sizes")
 
     setProcessingTheme {
       setBackgroundColor(firstString(processingColors, "backgroundColor", "background") ?: "#000000")
       setLoadingDialogColor(firstString(processingColors, "loadingDialogColor", "loading") ?: "#FFFFFF")
       setStatusBarColor(firstString(processingColors, "statusBarColor", "statusBar") ?: "#000000")
-      setStatusBarIsDarkIcons(true)
-      setLoadingIndicatorSize(100)
-      setLoadingIndicatorWidth(10)
+      setStatusBarIsDarkIcons(optBoolean(processingFlags, "statusBarIsDarkIcons", true))
+      setLoadingIndicatorSize(optInt(processingSizes, "loadingIndicatorSize", 100))
+      setLoadingIndicatorWidth(optInt(processingSizes, "loadingIndicatorWidth", 10))
     }
 
     val resultColors = resultTheme?.getMap("colors")
     val resultTexts = resultTheme?.getMap("texts")
+    val resultFlags = resultTheme?.getMap("flags")
 
     val successIconId = iproovDrawables[IProovDrawablesKey.RESULT_SUCCESS_ICON] ?: R.drawable.success_icon
     val errorIconId = iproovDrawables[IProovDrawablesKey.RESULT_ERROR_ICON] ?: R.drawable.error_icon
@@ -222,8 +248,8 @@ object IProovThemeFactory {
 
       setStatusBarSuccessColor(firstString(resultColors, "statusBarSuccessColor", "successStatusBar") ?: "#DFFFD6")
       setStatusBarErrorColor(firstString(resultColors, "statusBarErrorColor", "errorStatusBar") ?: "#FFD6D6")
-      setStatusBarSuccessIsDarkIcons(true)
-      setStatusBarErrorIsDarkIcons(true)
+      setStatusBarSuccessIsDarkIcons(optBoolean(resultFlags, "successStatusBarIsDarkIcons", true))
+      setStatusBarErrorIsDarkIcons(optBoolean(resultFlags, "errorStatusBarIsDarkIcons", true))
 
       setErrorBackgroundColor(firstString(resultColors, "errorBackgroundColor", "errorBackground") ?: "#FFD6D6")
       setErrorIcon(errorIconId)

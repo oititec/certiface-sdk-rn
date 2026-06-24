@@ -1,0 +1,13 @@
+{
+  "images": [
+    {
+      "filename": "lamp_example.png",
+      "idiom": "universal",
+      "scale": "1x"
+    }
+  ],
+  "info": {
+    "author": "xcode",
+    "version": 1
+  }
+}
