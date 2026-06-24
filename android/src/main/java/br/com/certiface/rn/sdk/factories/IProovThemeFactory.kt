@@ -63,12 +63,13 @@ object IProovThemeFactory {
 
     setTitle(firstString(texts, "title") ?: "Verificação Facial")
     setTitleColor(firstString(colors, "titleColor", "title") ?: "#FFFFFF")
-    val closeButtonDrawableId =
-      resolveDrawableResourceId(context, iproovAssets?.getString("closeButtonIcon"))
-    closeButtonDrawableId?.let { setCloseButton(it) }
-    if (closeButtonDrawableId == null) {
-      firstString(colors, "closeButtonColor")?.let { setCloseButtonColor(it) }
-    }
+    IProovCloseButtonApplier.apply(
+      context = context,
+      iproovAssets = iproovAssets,
+      colors = colors,
+      setCloseButton = { setCloseButton(it) },
+      setCloseButtonColor = { setCloseButtonColor(it) }
+    )
     setHeaderBackgroundColor(firstString(colors, "headerBackgroundColor", "titleBackground") ?: "#121212")
     setPromptTextColor(firstString(colors, "promptTextColor", "promptText") ?: "#FFFFFF")
     setPromptBackgroundColor(firstString(colors, "promptBackgroundColor", "promptBackground") ?: "#1F1F1F")

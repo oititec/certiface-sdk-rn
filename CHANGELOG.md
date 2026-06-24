@@ -1,29 +1,31 @@
 # Changelog
 
-## [1.1.3] - 10/06/2026
+## [1.1.3] - 24/06/2026
 
 ### Adicionado
 
 - `instructions.colors.backButtonColor` para tint do ícone de voltar (Android e iOS)
-- `instructions.assets.instructionIconScale` e `instructionIconSize` com composição de ícones circulares no iOS
+- `instructions.assets.instructionIconScale` e `instructionIconSize` para ícones circulares de instrução (iOS)
 - Cores de fundo e borda dos ícones de instrução no Android (`firstInstructionIcon*`, `secondInstructionIcon*`)
-- Assets padrão no bundle iOS do SDK (`RnSdkBundle`)
+- Assets padrão incluídos no pacote iOS do SDK para facilitar customização inicial
+- Customização de ícones da tela de resultado via `result.assets.successImage` e `result.assets.errorImage` (Android e iOS); `result.assets.retryImage` (iOS)
 
 ### Corrigido
 
-- iOS: aliases de cores e textos na tela de instruções alinhados ao Android (`title`/`titleColor`, `caption`, `continueButton*`, `statusBar`/`background`)
-- iOS: ícone de voltar nas instruções sem distorção; remoção de `backButtonBackground`/`backButtonBorder` nessa tela
-- iOS: ícones de instrução com escala, tamanho e cores de fundo/borda via bridge
-- iOS: FaceTec com botão cancelar à esquerda, cores padrão da retry screen e frame/oval de captura restaurados
-- Android FaceTec: `facetec.assets.cancelButtonIcon` aplicado corretamente; botão cancelar alinhado ao iOS (`TOP_LEFT`)
-- Android FaceTec: `facetec.texts.resultSuccessMessage` aplicado sem texto hardcoded extra
+- iOS: aliases de cores e textos na tela de instruções alinhados ao Android
+- iOS: ícone de voltar nas instruções sem distorção
+- iOS: ícones de instrução com escala, tamanho e cores de fundo/borda
+- iOS: customização FaceTec (botão cancelar, tela de retry, frame/oval de captura e mensagem de resultado)
+- Android FaceTec: `facetec.assets.cancelButtonIcon` e `facetec.texts.resultSuccessMessage`
 - iOS: `facetec.colors.resultScreenForeground` via alias `resultScreenMessage`
+- Android e iOS: `iproov.assets.closeButtonIcon` com `iproov.colors.closeButtonColor` na captura iProov
+- iOS: fundos das telas de erro e retry no iProov (`result.colors.errorBackground`, `result.colors.retryBackground`)
 
 ### Alterado
 
 - Dependência Android `certifacesdk` atualizada para `1.2.0`
-- Dependência iOS `CertifaceSDK` atualizada para `1.4.0`
-- `result.colors.retryBackground` documentado com semântica distinta por plataforma; preferir `retryButtonBackground` para o botão
+- Dependência iOS `CertifaceSDK` atualizada para `1.7.0`
+- Documentação de `result.colors.retryBackground` (semântica distinta por plataforma); prefira `retryButtonBackground` para o botão de tentar novamente
 
 ## [1.1.2] - 07/05/2026
 

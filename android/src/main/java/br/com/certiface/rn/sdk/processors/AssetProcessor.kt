@@ -9,14 +9,23 @@ import com.facebook.react.bridge.ReadableMap
 object AssetProcessor {
     private const val TAG = "AssetProcessor"
 
+    private const val SDK_PACKAGE = "br.com.certiface.rn.sdk"
+
     fun getDrawableResourceId(context: Context, drawableName: String): Int {
-        val resourceId = context.resources.getIdentifier(drawableName, "drawable", context.packageName)
-        if (resourceId != 0) {
-            Log.d(TAG, "Drawable '$drawableName' encontrado com ID: $resourceId")
-        } else {
-            Log.w(TAG, "Drawable '$drawableName' não encontrado no package ${context.packageName}")
+        val appResourceId = context.resources.getIdentifier(drawableName, "drawable", context.packageName)
+        if (appResourceId != 0) {
+            Log.d(TAG, "Drawable '$drawableName' encontrado no app com ID: $appResourceId")
+            return appResourceId
         }
-        return resourceId
+
+        val sdkResourceId = context.resources.getIdentifier(drawableName, "drawable", SDK_PACKAGE)
+        if (sdkResourceId != 0) {
+            Log.d(TAG, "Drawable '$drawableName' encontrado no SDK com ID: $sdkResourceId")
+            return sdkResourceId
+        }
+
+        Log.w(TAG, "Drawable '$drawableName' não encontrado no app nem no SDK")
+        return 0
     }
 
     fun resolveDrawableResourceId(context: Context?, value: Any?): Int? {

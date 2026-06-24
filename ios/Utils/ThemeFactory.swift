@@ -274,10 +274,19 @@ final class ThemeFactory {
     }
 
     let colors = instructionsTheme["colors"] as? [String: String] ?? [:]
-    setColor(
-      firstValue(in: colors, keys: "closeButtonColor", "closeButtonIcon"),
-      with: builder.setCloseButtonImageColor(_:)
-    )
+    let assets = instructionsTheme["assets"] as? [String: String] ?? [:]
+    let closeButtonImageName = assets["closeButtonIcon"]
+    let hasCloseButtonImage = closeButtonImageName.flatMap { RnSdkBundle.getImage(named: $0) } != nil
+
+    if hasCloseButtonImage {
+      setImage(closeButtonImageName, with: builder.setCloseButtonImage(_:))
+    } else {
+      setColor(
+        firstValue(in: colors, keys: "closeButtonColor", "closeButtonIcon"),
+        with: builder.setCloseButtonImageColor(_:)
+      )
+    }
+
     setColor(firstValue(in: colors, keys: "title", "titleColor"), with: builder.setTitleTextColor(_:))
     setColor(firstValue(in: colors, keys: "titleBackground", "headerBackgroundColor"), with: builder.setTitleBackgroundColor(_:))
     setColor(firstValue(in: colors, keys: "promptText", "promptTextColor"), with: builder.setPromptTextColor(_:))
@@ -293,8 +302,6 @@ final class ThemeFactory {
     let texts = instructionsTheme["texts"] as? [String: String] ?? [:]
     setText(texts["title"], with: builder.setTitle(_:))
 
-    let assets = instructionsTheme["assets"] as? [String: String] ?? [:]
-    setImage(assets["closeButtonIcon"], with: builder.setCloseButtonImage(_:))
     setImage(assets["logoImage"], with: builder.setLogoImage(_:))
     _ = applyIProovBaseFont(in: builder, with: instructionsTheme)
 
@@ -334,39 +341,79 @@ final class ThemeFactory {
        return builder
     }
 
-    let colors = resultTheme["colors"] as? [String: String] ?? [:]
-    setColor(colors["successBackground"], with: builder.setSuccessBackgroundColor(_:))
-    setColor(colors["successText"], with: builder.setSuccessMessageColor(_:))
-    setColor(colors["errorBackground"], with: builder.setErrorBackgroundColor(_:))
-    setColor(colors["errorText"], with: builder.setErrorMessageColor(_:))
-    setColor(colors["retryBackground"], with: builder.setRetryBackgroundColor(_:))
-    setColor(colors["retryText"], with: builder.setRetryMessageColor(_:))
-    setColor(colors["retryButtonText"], with: builder.setRetryButtonTextColor(_:))
-    setColor(colors["retryButtonBackground"], with: builder.setRetryButtonBackgroundColor(_:))
-    setColor(colors["retryButtonBorder"], with: builder.setRetryButtonBorderColor(_:))
+    let colorsMap = resultTheme["colors"] as? [String: Any] ?? [:]
+    setColor(
+      firstValue(in: colorsMap, keys: "successBackground", "successBackgroundColor"),
+      with: builder.setSuccessBackgroundColor(_:)
+    )
+    setColor(
+      firstValue(in: colorsMap, keys: "successText", "successTextColor"),
+      with: builder.setSuccessMessageColor(_:)
+    )
+    _ = IProovResultBackgroundPatcher.applyErrorAndRetryBackgrounds(
+      to: builder,
+      errorBackground: colorFromHex(
+        firstValue(in: colorsMap, keys: "errorBackground", "errorBackgroundColor")
+      ),
+      retryBackground: colorFromHex(
+        firstValue(in: colorsMap, keys: "retryBackground", "retryBackgroundColor")
+      )
+    )
+    setColor(
+      firstValue(in: colorsMap, keys: "errorText", "errorTextColor"),
+      with: builder.setErrorMessageColor(_:)
+    )
+    setColor(
+      firstValue(in: colorsMap, keys: "retryText", "retryTextColor"),
+      with: builder.setRetryMessageColor(_:)
+    )
+    setColor(
+      firstValue(
+        in: colorsMap,
+        keys: "retryButtonText",
+        "retryButtonTextColor",
+        "retryTextColor"
+      ),
+      with: builder.setRetryButtonTextColor(_:)
+    )
+    setColor(
+      firstValue(in: colorsMap, keys: "retryButtonBackground", "retryButtonColor"),
+      with: builder.setRetryButtonBackgroundColor(_:)
+    )
+    setColor(
+      firstValue(in: colorsMap, keys: "retryButtonBorder", "retryButtonBorderColor"),
+      with: builder.setRetryButtonBorderColor(_:)
+    )
 
-    let texts = resultTheme["texts"] as? [String: String] ?? [:]
-    setText(texts["success"], with: builder.setSuccessMessage(_:))
-    setText(texts["error"], with: builder.setErrorMessage(_:))
-    setText(texts["retryButton"], with: builder.setRetryButtonText(_:))
+    let textsMap = resultTheme["texts"] as? [String: Any] ?? [:]
+    setText(firstValue(in: textsMap, keys: "success", "successText"), with: builder.setSuccessMessage(_:))
+    setText(firstValue(in: textsMap, keys: "error", "errorText"), with: builder.setErrorMessage(_:))
+    setText(
+      firstValue(in: textsMap, keys: "retryButton", "retryButtonText"),
+      with: builder.setRetryButtonText(_:)
+    )
 
-    let assets = resultTheme["assets"] as? [String: String] ?? [:]
-    setImage(assets["successImage"], with: builder.setSuccessImage(_:))
-    setImage(assets["errorImage"], with: builder.setErrorImage(_:))
-    setImage(assets["retryImage"], with: builder.setRetryImage(_:))
+    let assetsMap = resultTheme["assets"] as? [String: Any] ?? [:]
+    setImage(firstValue(in: assetsMap, keys: "successImage"), with: builder.setSuccessImage(_:))
+    setImage(firstValue(in: assetsMap, keys: "errorImage"), with: builder.setErrorImage(_:))
+    setImage(firstValue(in: assetsMap, keys: "retryImage"), with: builder.setRetryImage(_:))
 
-    let resultFonts = resultTheme["fonts"] as? [String: String] ?? [:]
+    let resultFontsMap = resultTheme["fonts"] as? [String: Any] ?? [:]
     let resultSizes = resultTheme["sizes"] as? [String: Any] ?? [:]
     let iproovTheme = theme["iproov"] as? [String: Any] ?? [:]
     let iproovFonts = iproovTheme["fonts"] as? [String: String] ?? [:]
     let iproovFontResource = resolveIProovBaseFont(from: iproovTheme)
     setFont(
-      resultFonts["text"] ?? iproovFonts["resultMessageFont"] ?? iproovFontResource,
+      firstValue(in: resultFontsMap, keys: "text")
+        ?? iproovFonts["resultMessageFont"]
+        ?? iproovFontResource,
       with: builder.setMessageFont(_:),
       size: CGFloat(doubleThemeValue(resultSizes["textFontSize"]) ?? 20)
     )
     setFont(
-      resultFonts["retryButton"] ?? iproovFonts["resultRetryButtonFont"] ?? iproovFontResource,
+      firstValue(in: resultFontsMap, keys: "retryButton")
+        ?? iproovFonts["resultRetryButtonFont"]
+        ?? iproovFontResource,
       with: builder.setRetryButtonTextFont(_:),
       size: CGFloat(doubleThemeValue(resultSizes["retryButtonFontSize"]) ?? 20)
     )
@@ -561,9 +608,14 @@ final class ThemeFactory {
   // MARK: - Utils
 
   private static func setColor<T>(_ colorHex: String?, with builder: @escaping (UIColor) -> T) {
-    if let colorHex, let color = UIColor(hex: colorHex) {
+    if let color = colorFromHex(colorHex) {
       _ = builder(color)
     }
+  }
+
+  private static func colorFromHex(_ colorHex: String?) -> UIColor? {
+    guard let colorHex else { return nil }
+    return UIColor(hex: colorHex)
   }
 
   private static func setText<T>(_ text: String?, with builder: @escaping (String) -> T) {
@@ -669,6 +721,17 @@ final class ThemeFactory {
       guard let value = source[key]?.trimmingCharacters(in: .whitespacesAndNewlines) else { continue }
       if !value.isEmpty {
         return value
+      }
+    }
+    return nil
+  }
+
+  private static func firstValue(in source: [String: Any], keys: String...) -> String? {
+    for key in keys {
+      guard let value = source[key] as? String else { continue }
+      let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+      if !trimmed.isEmpty {
+        return trimmed
       }
     }
     return nil
