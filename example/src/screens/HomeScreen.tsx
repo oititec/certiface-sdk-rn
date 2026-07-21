@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -10,15 +9,25 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { CertifaceSDK, Environment, type LivenessResult } from '@certiface/sdk';
+import {
+  CertifaceError,
+  CertifaceSDK,
+  Environment,
+  type LivenessResult,
+} from '@certiface/sdk';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { RootTabParamList } from '../navigation/AppNavigator';
 import { useUserStore } from '../store/userStore';
 import { customTheme } from '../constants/customTheme';
+import { invalidCustomTheme } from '../constants/invalidCustomTheme';
 
 type HomeNavigationProp = BottomTabNavigationProp<RootTabParamList, 'Home'>;
-type JourneyVariant = 'DEFAULT' | 'CUSTOM' | 'NO_INSTRUCTIONS';
+type JourneyVariant =
+  | 'DEFAULT'
+  | 'CUSTOM'
+  | 'NO_INSTRUCTIONS'
+  | 'INVALID_THEME';
 
 const HomeScreen = () => {
   const navigation = useNavigation<HomeNavigationProp>();
@@ -35,10 +44,6 @@ const HomeScreen = () => {
 
   const runJourney = async (variant: JourneyVariant) => {
     if (!appKey) {
-      Alert.alert(
-        'App Key ausente',
-        'Informe ou gere a App Key na aba Credencial.'
-      );
       addResult('ERRO: App Key não configurada');
       return;
     }
@@ -47,20 +52,26 @@ const HomeScreen = () => {
       return;
     }
 
-    const themeEnabled = variant === 'CUSTOM' || variant === 'NO_INSTRUCTIONS';
+    const themeEnabled =
+      variant === 'CUSTOM' ||
+      variant === 'NO_INSTRUCTIONS' ||
+      variant === 'INVALID_THEME';
     const hideInstructions = variant === 'NO_INSTRUCTIONS';
 
-    const selectedTheme = hideInstructions
-      ? {
-          ...customTheme,
-          instructions: {
-            ...customTheme.instructions,
-            configuration: {
-              showInstructionScreen: false,
-            },
-          },
-        }
-      : customTheme;
+    const selectedTheme =
+      variant === 'INVALID_THEME'
+        ? invalidCustomTheme
+        : hideInstructions
+          ? {
+              ...customTheme,
+              instructions: {
+                ...customTheme.instructions,
+                configuration: {
+                  showInstructionScreen: false,
+                },
+              },
+            }
+          : customTheme;
 
     try {
       setLoading(true);
@@ -81,7 +92,16 @@ const HomeScreen = () => {
       );
       navigation.navigate('Results');
     } catch (error) {
-      addResult(`ERRO: ${error}`);
+      if (error instanceof CertifaceError) {
+        const invalidParam = error.invalidParam
+          ? ` invalidParam=${error.invalidParam}`
+          : '';
+        addResult(
+          `ERRO: code=${error.code} message=${error.message}${invalidParam}`
+        );
+      } else {
+        addResult(`ERRO: ${error}`);
+      }
       navigation.navigate('Results');
     } finally {
       setLoading(false);
@@ -234,6 +254,21 @@ const HomeScreen = () => {
               Com tema customizado
             </Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.actionCard,
+              styles.dangerAction,
+              (!appKey || loading) && styles.actionDisabled,
+            ]}
+            onPress={() => runJourney('INVALID_THEME')}
+            disabled={!appKey || loading}
+          >
+            <Text style={styles.dangerActionTitle}>Tema inválido</Text>
+            <Text style={styles.dangerActionDescription}>
+              Testa INVALID_PARAMS
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {loading ? (
@@ -378,17 +413,11 @@ const styles = StyleSheet.create({
   secondaryAction: {
     backgroundColor: '#FFF7ED',
   },
+  dangerAction: {
+    backgroundColor: '#FEE2E2',
+  },
   actionDisabled: {
     opacity: 0.5,
-  },
-  actionTitle: {
-    color: '#1F2937',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  actionDescription: {
-    color: '#6B7280',
-    fontSize: 13,
   },
   primaryActionTitle: {
     color: '#1E3A8A',
@@ -406,6 +435,15 @@ const styles = StyleSheet.create({
   },
   secondaryActionDescription: {
     color: '#C2410C',
+    fontSize: 13,
+  },
+  dangerActionTitle: {
+    color: '#991B1B',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  dangerActionDescription: {
+    color: '#DC2626',
     fontSize: 13,
   },
   loadingRow: {

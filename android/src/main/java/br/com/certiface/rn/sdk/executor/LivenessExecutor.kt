@@ -8,11 +8,13 @@ import br.com.certiface.manager.exports.LivenessResult
 import br.com.certiface.manager.exports.ResultCallback
 import br.com.certiface.manager.exports.SDKConfig
 import br.com.certiface.manager.main.CertifaceSDK
+import br.com.certiface.rn.sdk.exceptions.CustomThemeException
 import br.com.certiface.rn.sdk.model.Features
 import br.com.certiface.rn.sdk.strategy.FacetecStrategy
 import br.com.certiface.rn.sdk.strategy.IProovStrategy
 import br.com.certiface.rn.sdk.strategy.LivenessProviderStrategy
 import com.facebook.react.bridge.ReadableMap
+import org.json.JSONObject
 
 class LivenessExecutor(val appkey: String, val feature: Features) {
 
@@ -52,15 +54,31 @@ class LivenessExecutor(val appkey: String, val feature: Features) {
       }
 
       override fun onError(result: LivenessResponse) {
-        val errorResponse = result.errorResponse
-        val errorMessage = if (errorResponse != null) {
-          "[${errorResponse.errorType}]: ${errorResponse.errorMessage}"
-        } else {
-          "Unknown error occurred"
-        }
-        execOnError(errorMessage)
+        execOnError(serializeErrorResponse(result.errorResponse))
       }
     }
-    strategy.start(context, appkey, isCustomEnabled, theme, callback)
+
+    try {
+      strategy.start(context, appkey, isCustomEnabled, theme, callback)
+    } catch (e: CustomThemeException) {
+      execOnError(e.toErrorPayloadJson())
+    }
+  }
+
+  private fun serializeErrorResponse(errorResponse: ErrorResponse?): String {
+    if (errorResponse == null) {
+      return JSONObject()
+        .put("code", "UNKNOWN_ERROR")
+        .put("message", "Unknown error occurred")
+        .toString()
+    }
+
+    val json = JSONObject()
+      .put("code", errorResponse.errorType.name)
+      .put("message", errorResponse.errorMessage)
+    if (!errorResponse.invalidParam.isNullOrEmpty()) {
+      json.put("invalidParam", errorResponse.invalidParam)
+    }
+    return json.toString()
   }
 }

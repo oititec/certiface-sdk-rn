@@ -56,17 +56,17 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
     val customEnabled = isCustomEnabled ?: false
 
     if (appKey.isNullOrEmpty()) {
-      onError?.invoke("APP_KEY_NULO")
+      onError?.invoke(serializeBridgeError("APP_KEY_NULO", "APP_KEY_NULO"))
       return
     }
 
     if (environment.isNullOrEmpty()) {
-      onError?.invoke("ENVIRONMENT_NULO")
+      onError?.invoke(serializeBridgeError("ENVIRONMENT_NULO", "ENVIRONMENT_NULO"))
       return
     }
 
     if (provider.isNullOrEmpty()) {
-      onError?.invoke("PROVIDER_NULO")
+      onError?.invoke(serializeBridgeError("PROVIDER_NULO", "PROVIDER_NULO"))
       return
     }
 
@@ -74,13 +74,13 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
       "FACETEC" -> Features.Facetec
       "IPROOV" -> Features.IProov
       else -> {
-        onError?.invoke("PROVIDER_INVALIDO: $provider")
+        onError?.invoke(serializeBridgeError("PROVIDER_INVALIDO", "PROVIDER_INVALIDO: $provider"))
         return
       }
     }
 
     val activity = reactApplicationContext ?: run {
-      onError?.invoke("NO_ACTIVITY")
+      onError?.invoke(serializeBridgeError("NO_ACTIVITY", "NO_ACTIVITY"))
       return
     }
 
@@ -116,9 +116,17 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
     } catch (e: Exception) {
       val errorObject = JSONObject()
       errorObject.put("status", "error")
+      errorObject.put("code", "PARSE_ERROR")
       errorObject.put("message", "Failed to serialize result: ${e.message}")
       errorObject.toString()
     }
+  }
+
+  private fun serializeBridgeError(code: String, message: String): String {
+    return JSONObject()
+      .put("code", code)
+      .put("message", message)
+      .toString()
   }
 
   companion object {

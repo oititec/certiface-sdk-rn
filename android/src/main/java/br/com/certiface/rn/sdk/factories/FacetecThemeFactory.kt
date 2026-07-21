@@ -83,6 +83,8 @@ object FacetecThemeFactory {
       Log.d(TAG, "Nenhum drawable customizado encontrado, usando padrões")
     }
 
+    fun drawableRes(key: FacetecDrawablesKey): Int? = facetecDrawables[key] as? Int
+
     val customFacetecTexts = hashMapOf<FacetecTextKey, String>()
 
     facetecTexts?.getString("readyHeader1")?.let { customFacetecTexts[FacetecTextKey.READY_HEADER_1] = it }
@@ -172,11 +174,11 @@ object FacetecThemeFactory {
     resultScreenActivityIndicatorColor(facetecColors?.getString("resultScreenActivityIndicator") ?: "#0F9D58")
     resultScreenResultAnimationBackgroundColor(facetecColors?.getString("resultScreenResultAnimationBackground") ?: "#417FB2")
     resultScreenResultAnimationForegroundColor(facetecColors?.getString("resultScreenResultAnimationForeground") ?: "#FFFFFF")
-    facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_ACTIVITY_INDICATOR_IMAGE]?.let {
+    drawableRes(FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_ACTIVITY_INDICATOR_IMAGE)?.let {
       resultScreenCustomActivityIndicatorImage(it)
     }
     resultScreenCustomActivityIndicatorAnimation(
-      facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_ACTIVITY_INDICATOR_ANIMATION]
+      drawableRes(FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_ACTIVITY_INDICATOR_ANIMATION)
         ?: br.com.certiface.facetecsdk.R.drawable.animated_activity_indicator
     )
     resultScreenCustomActivityIndicatorRotationInterval(
@@ -189,26 +191,26 @@ object FacetecThemeFactory {
       optBoolean(facetecFlags, "resultScreenShowUploadProgressBar", true)
     )
     val resultSuccessStaticIconId =
-      facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_STATIC_RESULT_ANIMATION_SUCCESS]
+      drawableRes(FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_STATIC_RESULT_ANIMATION_SUCCESS)
         ?: R.drawable.success_icon
     val resultErrorStaticIconId =
-      facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_STATIC_RESULT_ANIMATION_UNSUCCESS]
+      drawableRes(FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_STATIC_RESULT_ANIMATION_UNSUCCESS)
         ?: R.drawable.error_icon
     val resultSuccessAnimatedIconId =
-      facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_ANIMATION_SUCCESS]
+      drawableRes(FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_ANIMATION_SUCCESS)
         ?: resultSuccessStaticIconId
     val resultErrorAnimatedIconId =
-      facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_ANIMATION_UNSUCCESS]
+      drawableRes(FacetecDrawablesKey.FACETEC_RESULT_CUSTOM_ANIMATION_UNSUCCESS)
         ?: resultErrorStaticIconId
 
     resultScreenCustomStaticResultAnimationUnSuccess(resultErrorStaticIconId)
     resultScreenCustomStaticResultAnimationSuccess(resultSuccessStaticIconId)
     resultScreenCustomResultAnimationUnSuccess(resultErrorAnimatedIconId)
     resultScreenCustomResultAnimationSuccess(resultSuccessAnimatedIconId)
-    facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_ANIMATION_SUCCESS_BACKGROUND_IMAGE]?.let {
+    drawableRes(FacetecDrawablesKey.FACETEC_RESULT_ANIMATION_SUCCESS_BACKGROUND_IMAGE)?.let {
       resultScreenResultAnimationSuccessBackgroundImage(it)
     }
-    facetecDrawables[FacetecDrawablesKey.FACETEC_RESULT_ANIMATION_UNSUCESS_BACKGROUND_IMAGE]?.let {
+    drawableRes(FacetecDrawablesKey.FACETEC_RESULT_ANIMATION_UNSUCESS_BACKGROUND_IMAGE)?.let {
       resultScreenResultAnimationUnSuccessBackgroundImage(it)
     }
     facetecTexts?.getString("resultSuccessMessage")?.let { resultScreenOverrideSuccessMessage(it) }
@@ -240,7 +242,7 @@ object FacetecThemeFactory {
     feedbackEnablePulsatingText(optBoolean(facetecFlags, "feedbackEnablePulsatingText", true))
 
     // Cancel Button
-    facetecDrawables[FacetecDrawablesKey.FACETEC_CANCEL_BUTTON_CUSTOM_IMAGE]?.let {
+    drawableRes(FacetecDrawablesKey.FACETEC_CANCEL_BUTTON_CUSTOM_IMAGE)?.let {
       cancelButtonCustomImage(it)
     }
     cancelButtonLocation(
@@ -282,13 +284,15 @@ object FacetecThemeFactory {
       firstString(instructionsColors, "firstInstructionIconBorder")?.let { setFirstInstructionIconBorderColor(it) }
       firstString(instructionsColors, "secondInstructionIconBackground")?.let { setSecondInstructionIconBackgroundColor(it) }
       firstString(instructionsColors, "secondInstructionIconBorder")?.let { setSecondInstructionIconBorderColor(it) }
-      val backButtonDrawableId = facetecDrawables[FacetecDrawablesKey.INSTRUCTIONS_BACK_BUTTON_IMG]
+      val backButtonDrawableId = drawableRes(FacetecDrawablesKey.INSTRUCTIONS_BACK_BUTTON_IMG)
       backButtonDrawableId?.let { setBackButtonImg(it) }
-      resolveInstructionsBackButtonTintColor(instructionsColors, hasCustomBackButtonImage = backButtonDrawableId != null)
-        ?.let { setBackButtonColor(it) }
-      facetecDrawables[FacetecDrawablesKey.INSTRUCTIONS_CONTEXT_IMAGE]?.let { setContextImage(it) }
-      facetecDrawables[FacetecDrawablesKey.INSTRUCTIONS_FIRST_INSTRUCTION_ICON]?.let { setFirstInstructionIcon(it) }
-      facetecDrawables[FacetecDrawablesKey.INSTRUCTIONS_SECOND_INSTRUCTION_ICON]?.let { setSecondInstructionIcon(it) }
+      resolveInstructionsBackButtonTintColor(
+        instructionsColors,
+        hasCustomBackButtonImage = facetecDrawables.containsKey(FacetecDrawablesKey.INSTRUCTIONS_BACK_BUTTON_IMG)
+      )?.let { setBackButtonColor(it) }
+      drawableRes(FacetecDrawablesKey.INSTRUCTIONS_CONTEXT_IMAGE)?.let { setContextImage(it) }
+      drawableRes(FacetecDrawablesKey.INSTRUCTIONS_FIRST_INSTRUCTION_ICON)?.let { setFirstInstructionIcon(it) }
+      drawableRes(FacetecDrawablesKey.INSTRUCTIONS_SECOND_INSTRUCTION_ICON)?.let { setSecondInstructionIcon(it) }
       val instructionsAssets = instructionsTheme?.getMap("assets")
       instructionsAssets?.getString("contextImageScale")
         ?.let { setContextImageScale(InstructionImageScale.fromString(it)) }
@@ -313,8 +317,8 @@ object FacetecThemeFactory {
         firstString(permissionColors, "checkPermissionButtonBackground", "checkPermissionButtonColor") ?: "#00FF00"
       )
       setPermissionButtonTextColor(firstString(permissionColors, "checkPermissionButtonText") ?: "#000000")
-      facetecDrawables[FacetecDrawablesKey.PERMISSION_CAMERA_ICON]?.let { setCameraIcon(it) }
-      facetecDrawables[FacetecDrawablesKey.PERMISSION_BACK_BUTTON_ICON]?.let { setBackButtonIcon(it) }
+      drawableRes(FacetecDrawablesKey.PERMISSION_CAMERA_ICON)?.let { setCameraIcon(it) }
+      drawableRes(FacetecDrawablesKey.PERMISSION_BACK_BUTTON_ICON)?.let { setBackButtonIcon(it) }
     }
 
     // Processing Screen
@@ -333,5 +337,10 @@ object FacetecThemeFactory {
   }
 
   fun create(isCustom: Boolean, theme: ReadableMap? = null, context: Context? = null): FacetecTheme =
-    if (isCustom) buildCustom(theme, context) else buildDefault()
+    if (isCustom) {
+      ThemeColorValidator.validate(theme, "facetec")
+      buildCustom(theme, context)
+    } else {
+      buildDefault()
+    }
 }
