@@ -305,7 +305,6 @@ enum ThemeCustomizationValidator {
       mapping: [
         "overlayBrandImage": "FACETEC_OVERLAY_SHOW_BRANDING_IMAGE",
         "cancelButtonIcon": "FACETEC_CANCEL_BUTTON_CUSTOM_IMAGE",
-        "resultScreenCustomActivityIndicatorImage": "FACETEC_RESULT_CUSTOM_ACTIVITY_INDICATOR_IMAGE",
         "resultScreenSuccessImage": "FACETEC_RESULT_CUSTOM_STATIC_RESULT_ANIMATION_SUCCESS",
         "resultScreenErrorImage": "FACETEC_RESULT_CUSTOM_STATIC_RESULT_ANIMATION_UNSUCCESS",
       ]
