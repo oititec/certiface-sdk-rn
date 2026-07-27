@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.1.4] - 27/07/2026
+
+### Alterado
+
+- Dependência Android `certifacesdk` atualizada para `1.2.2`
+- Dependência iOS `CertifaceSDK` atualizada para `1.8.0` (`OILiveness3D_FT` `9.7.130`)
+
+### Corrigido
+
+- iOS: validação de theme FaceTec não exige mais `resultScreenCustomActivityIndicatorImage` (asset exclusivo Android)
+
 ## [1.1.3] - 24/06/2026
 
 ### Adicionado
