@@ -22,8 +22,8 @@ end
 target 'RnSdkExample' do
   config = use_native_modules!
 
-  pod 'OILiveness3D_FT', git: 'https://github.com/oititec/ios-liveness3d-ft.git', branch: 'feature/31194-framework-update'
-  pod 'CertifaceSDK', git: 'https://github.com/oititec/ios-oiti-sdk.git', branch: 'chore/31194-facetec-update'
+  # pod 'OILiveness3D_FT', git: 'https://github.com/oititec/ios-liveness3d-ft.git', branch: 'feature/31194-framework-update'
+  # pod 'CertifaceSDK', git: 'https://github.com/oititec/ios-oiti-sdk.git', branch: 'chore/31194-facetec-update'
 
   use_react_native!(
     :path => config[:reactNativePath],
