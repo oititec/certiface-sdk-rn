@@ -41,7 +41,7 @@ if (reactNativeNodeModulesDirPath != null) {
 
 allprojects {
     repositories {
-        //mavenLocal()
+        mavenLocal()
         google()
         mavenCentral()
         maven {

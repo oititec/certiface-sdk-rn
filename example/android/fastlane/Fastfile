@@ -24,12 +24,12 @@ platform :android do
   desc "Enviar um novo build Beta para o Firebase App Distribution"
   lane :deploy do |options|
     kill_java_processes
-    gradle(task: "clean assembleRelease")
+    gradle(task: "generateCodegenArtifactsFromSchema assembleRelease")
     release_notes = options[:release_notes] || "Nenhuma nota adicionada."
     firebase_app_distribution(
-      app: "1:943099415715:android:fecb32e295f6878c500316",
+      app: "1:506835227883:android:d174ede2854db1d04c1aae",
       apk_path: "app/build/outputs/apk/release/app-release.apk",
-      groups: "mobile-android",
+      groups: "Testers",
       release_notes: release_notes
     )
   end

@@ -11,9 +11,17 @@ export interface LivenessSuccessResponse {
   result: LivenessResult;
 }
 
+export interface LivenessErrorPayload {
+  code: string;
+  message: string;
+  invalidParam?: string;
+}
+
 export interface LivenessErrorResponse {
   status: 'error';
   message: string;
+  code?: string;
+  invalidParam?: string;
 }
 
 export type LivenessResponse = LivenessSuccessResponse | LivenessErrorResponse;

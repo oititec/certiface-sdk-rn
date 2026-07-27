@@ -44,7 +44,12 @@ import UIKit
     } else if provider == "IPROOV" {
       livenessProvider = .iproov
     } else {
-      onError("Invalid provider: \(provider)")
+      onError(
+        NativeErrorPayload.serialize(
+          code: "PROVIDER_INVALIDO",
+          message: "Invalid provider: \(provider)"
+        )
+      )
       return
     }
 
@@ -54,13 +59,26 @@ import UIKit
     var showInstructionsScreen = true
 
     if isCustomEnabled {
-      switch livenessProvider {
-      case .facetec:
-        facetecCustomization = ThemeFactory.createFacetecCustomization(from: theme)
-      case .iproov:
-        iproovCustomization = ThemeFactory.createIProovCustomization(from: theme)
-      @unknown default:
-        break
+      do {
+        switch livenessProvider {
+        case .facetec:
+          facetecCustomization = try ThemeFactory.createFacetecCustomization(from: theme)
+        case .iproov:
+          iproovCustomization = try ThemeFactory.createIProovCustomization(from: theme)
+        @unknown default:
+          break
+        }
+      } catch let error as ThemeCustomizationError {
+        onError(NativeErrorPayload.fromThemeError(error))
+        return
+      } catch {
+        onError(
+          NativeErrorPayload.serialize(
+            code: "INVALID_PARAMS",
+            message: "Parâmetros de customização inválidos."
+          )
+        )
+        return
       }
 
       if let themeData = theme,
@@ -81,7 +99,12 @@ import UIKit
 
     DispatchQueue.main.async { [weak self] in
       guard let self, let viewController = getRootViewController() else {
-        onError("Cannot get rootViewController")
+        onError(
+          NativeErrorPayload.serialize(
+            code: "NO_ACTIVITY",
+            message: "Cannot get rootViewController"
+          )
+        )
         return
       }
 
