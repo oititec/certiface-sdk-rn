@@ -25,7 +25,12 @@ extension RnSdkImpl: LivenessCallback {
     {
       onSuccessCallback?(jsonString)
     } else {
-      onErrorCallback?("Failed to serialize response")
+      onErrorCallback?(
+        NativeErrorPayload.serialize(
+          code: "PARSE_ERROR",
+          message: "Failed to serialize response"
+        )
+      )
     }
 
     onSuccessCallback = nil
@@ -33,18 +38,12 @@ extension RnSdkImpl: LivenessCallback {
   }
 
   public func onError(_ error: LivenessError) {
-    let response: [String: Any] = [
-      "status": "error",
-      "message": "[\(error.code)]: \(error.message)",
-    ]
-
-    if let jsonData = try? JSONSerialization.data(withJSONObject: response),
-      let jsonString = String(data: jsonData, encoding: .utf8)
-    {
-      onErrorCallback?(jsonString)
-    } else {
-      onErrorCallback?("Failed to serialize error response")
-    }
+    onErrorCallback?(
+      NativeErrorPayload.serialize(
+        code: "\(error.code)",
+        message: error.message
+      )
+    )
 
     onSuccessCallback = nil
     onErrorCallback = nil

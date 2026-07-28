@@ -2,7 +2,6 @@ package br.com.certiface.rn.sdk.factories
 
 import android.content.Context
 import android.util.Log
-import androidx.core.graphics.toColorInt
 import br.com.certiface.designsystem.R
 import br.com.certiface.designsystem.ui.builders.InstructionImageScale
 import br.com.certiface.domain.model.iproov.OrientationGPA
@@ -13,6 +12,7 @@ import br.com.certiface.manager.exports.IProovFontsKey
 import br.com.certiface.manager.exports.IProovTheme
 import br.com.certiface.manager.exports.LineDrawingStyle
 import br.com.certiface.manager.exports.NaturalStyle
+import br.com.certiface.rn.sdk.exceptions.CustomThemeException
 import br.com.certiface.rn.sdk.theme.IProovFonts
 import br.com.certiface.rn.sdk.theme.FontResolver
 import br.com.certiface.rn.sdk.theme.fontAssetPath
@@ -24,7 +24,12 @@ object IProovThemeFactory {
   private val DEFAULT_IPROOV_FONT_RES = FontResolver.defaultFontRes
 
   fun create(isCustom: Boolean, theme: ReadableMap? = null, context: Context? = null): IProovTheme =
-    if (isCustom) buildCustom(theme, context) else buildDefault()
+    if (isCustom) {
+      ThemeColorValidator.validate(theme, "iproov")
+      buildCustom(theme, context)
+    } else {
+      buildDefault()
+    }
 
   private fun buildDefault() = IProovTheme.build {
     setIsEnabledScreenShots(true)
@@ -94,8 +99,12 @@ object IProovThemeFactory {
       if (filterForeground != null || filterBackground != null) {
         FilterTheme.LineDrawing(
           style = LineDrawingStyle.CLASSIC,
-          background = filterBackground?.toColorInt(),
-          foreground = filterForeground?.toColorInt()
+          background = filterBackground?.let {
+            ThemeColorValidator.parseColorOrThrow(it, "filterLineDrawingBackground")
+          },
+          foreground = filterForeground?.let {
+            ThemeColorValidator.parseColorOrThrow(it, "filterLineDrawingForeground")
+          }
         )
       } else {
         FilterTheme.Natural(NaturalStyle.CLEAR)
@@ -108,10 +117,22 @@ object IProovThemeFactory {
     )
 
     setOvalColors(
-      ready = (firstString(colors, "ovalReadyColor", "ovalReady") ?: "#00FF00").toColorInt(),
-      notReady = (firstString(colors, "ovalNotReadyColor", "ovalNotReady") ?: "#FF0000").toColorInt(),
-      stroke = (firstString(colors, "ovalStrokeColor", "ovalCapturing") ?: "#FFFFFF").toColorInt(),
-      completed = (firstString(colors, "ovalCompletedColor", "ovalCompleted") ?: "#00FF00").toColorInt()
+      ready = ThemeColorValidator.parseColorOrThrow(
+        firstString(colors, "ovalReadyColor", "ovalReady") ?: "#00FF00",
+        "ovalReady"
+      ),
+      notReady = ThemeColorValidator.parseColorOrThrow(
+        firstString(colors, "ovalNotReadyColor", "ovalNotReady") ?: "#FF0000",
+        "ovalNotReady"
+      ),
+      stroke = ThemeColorValidator.parseColorOrThrow(
+        firstString(colors, "ovalStrokeColor", "ovalCapturing") ?: "#FFFFFF",
+        "ovalCapturing"
+      ),
+      completed = ThemeColorValidator.parseColorOrThrow(
+        firstString(colors, "ovalCompletedColor", "ovalCompleted") ?: "#00FF00",
+        "ovalCompleted"
+      )
     )
 
     val instructionsColors = instructionsTheme?.getMap("colors")
@@ -122,16 +143,21 @@ object IProovThemeFactory {
     val instructionStatusBarDarkIcons = instructionsFlags?.getBoolean("statusBarIsDarkIcons") ?: false
 
     val iproovDrawablesRaw = AssetProcessor.processIProovAssets(theme)
-
-    resolveDrawableResourceId(context, iproovAssets?.getString("logoImage"))?.let { setLogo(it) }
-
     val iproovDrawables = resolveIProovDrawables(context, iproovDrawablesRaw)
+
+    resolveRequiredDrawable(
+      context = context,
+      value = iproovAssets?.getString("logoImage"),
+      invalidParam = IProovDrawablesKey.IPROOV_LOGO.name
+    )?.let { setLogo(it) }
 
     if (iproovDrawables.isNotEmpty()) {
       setDrawablesKey(iproovDrawables)
     } else {
       Log.d(TAG, "Nenhum drawable customizado encontrado, usando padrões")
     }
+
+    fun drawableRes(key: IProovDrawablesKey): Int? = iproovDrawables[key] as? Int
 
     setInstructionsTheme {
       setShowInstructionScreen(showInstructionScreen)
@@ -175,14 +201,14 @@ object IProovThemeFactory {
       firstString(instructionsColors, "secondInstructionIconBackground")?.let { setSecondInstructionIconBackgroundColor(it) }
       firstString(instructionsColors, "secondInstructionIconBorder")?.let { setSecondInstructionIconBorderColor(it) }
 
-      val backButtonDrawableId = iproovDrawables[IProovDrawablesKey.INSTRUCTIONS_BACK_BUTTON_IMG]
-      backButtonDrawableId?.let { setBackButtonImg(it) }
-      resolveInstructionsBackButtonTintColor(instructionsColors, hasCustomBackButtonImage = backButtonDrawableId != null)
+      val hasCustomBackButton = iproovDrawables.containsKey(IProovDrawablesKey.INSTRUCTIONS_BACK_BUTTON_IMG)
+      drawableRes(IProovDrawablesKey.INSTRUCTIONS_BACK_BUTTON_IMG)?.let { setBackButtonImg(it) }
+      resolveInstructionsBackButtonTintColor(instructionsColors, hasCustomBackButtonImage = hasCustomBackButton)
         ?.let { setBackButtonColor(it) }
 
-      iproovDrawables[IProovDrawablesKey.INSTRUCTIONS_CONTEXT_IMAGE]?.let { setContextImage(it) }
-      iproovDrawables[IProovDrawablesKey.INSTRUCTIONS_FIRST_INSTRUCTION_ICON]?.let { setFirstInstructionIcon(it) }
-      iproovDrawables[IProovDrawablesKey.INSTRUCTIONS_SECOND_INSTRUCTION_ICON]?.let { setSecondInstructionIcon(it) }
+      drawableRes(IProovDrawablesKey.INSTRUCTIONS_CONTEXT_IMAGE)?.let { setContextImage(it) }
+      drawableRes(IProovDrawablesKey.INSTRUCTIONS_FIRST_INSTRUCTION_ICON)?.let { setFirstInstructionIcon(it) }
+      drawableRes(IProovDrawablesKey.INSTRUCTIONS_SECOND_INSTRUCTION_ICON)?.let { setSecondInstructionIcon(it) }
       val instructionsAssets = instructionsTheme?.getMap("assets")
       instructionsAssets?.getString("contextImageScale")
         ?.let { setContextImageScale(InstructionImageScale.fromString(it)) }
@@ -215,8 +241,8 @@ object IProovThemeFactory {
       setPermissionButtonTextColor(
         firstString(permissionColors, "checkPermissionButtonText") ?: "#000000"
       )
-      iproovDrawables[IProovDrawablesKey.PERMISSION_CAMERA_ICON]?.let { setCameraIcon(it) }
-      iproovDrawables[IProovDrawablesKey.PERMISSION_BACK_BUTTON_ICON]?.let { setBackButtonIcon(it) }
+      drawableRes(IProovDrawablesKey.PERMISSION_CAMERA_ICON)?.let { setCameraIcon(it) }
+      drawableRes(IProovDrawablesKey.PERMISSION_BACK_BUTTON_ICON)?.let { setBackButtonIcon(it) }
     }
 
     val processingTheme = theme?.getMap("processing")
@@ -237,8 +263,8 @@ object IProovThemeFactory {
     val resultTexts = resultTheme?.getMap("texts")
     val resultFlags = resultTheme?.getMap("flags")
 
-    val successIconId = iproovDrawables[IProovDrawablesKey.RESULT_SUCCESS_ICON] ?: R.drawable.success_icon
-    val errorIconId = iproovDrawables[IProovDrawablesKey.RESULT_ERROR_ICON] ?: R.drawable.error_icon
+    val successIconId = drawableRes(IProovDrawablesKey.RESULT_SUCCESS_ICON) ?: R.drawable.success_icon
+    val errorIconId = drawableRes(IProovDrawablesKey.RESULT_ERROR_ICON) ?: R.drawable.error_icon
 
     setResultTheme {
       setSuccessBackgroundColor(firstString(resultColors, "successBackgroundColor", "successBackground") ?: "#DFFFD6")
@@ -276,6 +302,7 @@ object IProovThemeFactory {
     val baseValue: Any = when {
       resolvedFontResource != DEFAULT_IPROOV_FONT_RES -> resolvedFontResource
       context != null && fallback is String && FontResolver.fontAssetExists(context, fallback) -> fallback
+      fallback is String && !fallback.contains("ubuntu_regular") -> fallback
       else -> resolvedFontResource
     }
 
@@ -295,21 +322,28 @@ object IProovThemeFactory {
     }
 
     return configuredFonts.mapValues { (_, fontPathValue) ->
-      if (fontPathValue is String && FontResolver.fontAssetExists(context, fontPathValue)) {
-        fontPathValue
-      } else {
-        baseValue
-      }
+      FontResolver.resolveFromAssetPath(context, fontPathValue)
     }
   }
 
   private fun resolveDrawableResourceId(context: Context?, value: Any?): Int? =
     AssetProcessor.resolveDrawableResourceId(context, value)
 
+  private fun resolveRequiredDrawable(
+    context: Context?,
+    value: String?,
+    invalidParam: String
+  ): Int? {
+    val name = value?.trim().orEmpty()
+    if (name.isEmpty()) return null
+    return resolveDrawableResourceId(context, name)
+      ?: throw CustomThemeException(invalidParam, "drawable")
+  }
+
   private fun resolveIProovDrawables(
     context: Context?,
     drawables: Map<IProovDrawablesKey, Any>
-  ): Map<IProovDrawablesKey, Int> {
+  ): Map<IProovDrawablesKey, Any> {
     if (context == null || drawables.isEmpty()) return emptyMap()
 
     val reservedForDirectSetters = setOf(
@@ -320,13 +354,7 @@ object IProovThemeFactory {
     return drawables.mapNotNull { (key, value) ->
       if (key in reservedForDirectSetters) return@mapNotNull null
       val resourceId = resolveDrawableResourceId(context, value)
-      if (resourceId == null) {
-        if (value is String) {
-          Log.w(TAG, "Drawable '$value' ignorado: recurso não encontrado")
-        }
-        return@mapNotNull null
-      }
-      key to resourceId
+      key to (resourceId ?: value)
     }.toMap()
   }
 

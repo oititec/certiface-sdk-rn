@@ -10,7 +10,12 @@ import CertifaceIProov
 import UIKit
 
 final class ThemeFactory {
-  static func createIProovCustomization(from theme: [String: Any]?) -> IProovCustomization {
+  static func validate(_ theme: [String: Any]?, provider: ThemeValidationProvider) throws {
+    try ThemeCustomizationValidator.validate(theme, provider: provider)
+  }
+
+  static func createIProovCustomization(from theme: [String: Any]?) throws -> IProovCustomization {
+    try validate(theme, provider: .iproov)
     let builder = IProovCustomization.builder()
     guard let theme else { return builder.build() }
 
@@ -33,7 +38,8 @@ final class ThemeFactory {
       .build()
   }
 
-  static func createFacetecCustomization(from theme: [String: Any]?) -> FacetecCustomization {
+  static func createFacetecCustomization(from theme: [String: Any]?) throws -> FacetecCustomization {
+    try validate(theme, provider: .facetec)
     let builder = FacetecCustomization.builder()
     guard let theme else { return builder.build() }
 

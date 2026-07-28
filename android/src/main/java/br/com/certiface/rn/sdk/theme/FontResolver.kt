@@ -5,6 +5,7 @@ import br.com.certiface.designsystem.R
 
 object FontResolver {
   val defaultFontRes: Int = R.font.ubuntu_regular
+  private const val DEFAULT_ASSET_MARKER = "ubuntu_regular"
 
   fun resolve(context: Context?, fontName: String?): Any {
     if (context == null) return fontAssetPath(fontName)
@@ -22,7 +23,16 @@ object FontResolver {
       .removePrefix("fonts/")
       .substringBeforeLast(".ttf")
       .substringBeforeLast(".otf")
-    return resolve(context, name.ifEmpty { null })
+    return resolveExplicit(context, name.ifEmpty { null }, trimmed)
+  }
+
+  fun resolveExplicit(context: Context?, fontName: String?, assetPath: String): Any {
+    if (context == null) return assetPath
+    val resourceId = resolveFontResourceId(context, fontName)
+    if (resourceId != defaultFontRes) return resourceId
+    if (fontAssetExists(context, assetPath)) return assetPath
+    if (assetPath.contains(DEFAULT_ASSET_MARKER)) return defaultFontRes
+    return assetPath
   }
 
   fun resolveFontResourceId(context: Context, fontName: String?): Int {
@@ -53,5 +63,10 @@ object FontResolver {
     } catch (_: Exception) {
       false
     }
+  }
+
+  fun isResolvedDefault(value: Any): Boolean {
+    return value == defaultFontRes ||
+      (value is String && value.contains(DEFAULT_ASSET_MARKER))
   }
 }
