@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.1.5] - 29/07/2026
+
+### Adicionado
+
+- iProov: `configuration.filterStyle` (`natural` | `lineDrawing`), `naturalStyle` (`clear` | `blur`) e `lineDrawingStyle` (`classic` | `shaded` | `vibrant`)
+
+### Corrigido
+
+- iOS iProov: `setFilterStyle` aplicado (paridade com Android Natural/LineDrawing)
+- iOS iProov: `timeoutSecs` e `promptRoundedCorners` bridged
+- iOS iProov: close button aplica ícone + tint juntos (`.alwaysTemplate`)
+- iOS: tint do back button nas instruções (composer com template)
+- iOS: escala do spinner — `loadingIndicatorSize` (1–300) convertido para scale 1–10 (não mais usado como scale bruto)
+- Android iProov: botão retry sem fallback enganoso de `retryBackground` / `retryText`
+- Android FaceTec: prioridade `resultScreenMessage` antes de `resultScreenForeground`
+- Android FaceTec: aliases `ovalProgressWidth` / `ovalProgressOffset`
+
+### Alterado
+
+- Types: `@platform` alinhados (orientation, screenshots, exterior effects, props FaceTec Android-only, retry iOS-only)
+- Example `customTheme`: Natural CLEAR por padrão; comentários de plataforma e assets de close/error ajustados
+
 ## [1.1.4] - 27/07/2026
 
 ### Alterado
