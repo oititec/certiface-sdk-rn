@@ -391,7 +391,8 @@ export const customTheme: CertifaceTheme = {
     },
     assets: {
       // retryImage é iOS; Android usa successImage/errorImage.
-      // error_icon no example é X vermelho sem círculo branco.
+      // Não sobrescreva error_icon/success_icon no app com glifo sem círculo:
+      // no tema default o Android mergeia o drawable e o ícone some no fundo rosa.
       successImage: 'success_icon',
       errorImage: 'error_icon',
       retryImage: 'return_button',

@@ -1859,7 +1859,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RnSdk (1.1.4):
+  - RnSdk (1.1.5):
     - CertifaceSDK (= 1.8.0)
     - DoubleConversion
     - glog
@@ -2238,7 +2238,7 @@ SPEC CHECKSUMS:
   RNCClipboard: ea6045252d5c0753cf17f62290f647dc0096f6ac
   RNGestureHandler: 0397fea67f39d5a2d17fcf4a028e206f7ba098ba
   RNScreens: 7e56b051227a1a11c3068849d1a9a5dd457537df
-  RnSdk: 149d971e2b9f414e23ff858293b4364e3f2ca9a7
+  RnSdk: 2a01b81f1e365f62eac92b18f37c53e9b321588d
   RNVectorIcons: 1fe59cfa2d3ac94ceb9d373a59c54609471b8d56
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: c758bfb934100bb4bf9cbaccb52557cee35e8bdf
