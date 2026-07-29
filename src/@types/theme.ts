@@ -25,22 +25,23 @@ export interface FacetecSizes {
   guidanceRetryScreenImageBorderWidth?: number;
   frameBorderWidth?: number;
   frameCornerRadius?: number;
+  /** @platform android */
   frameElevation?: number;
   feedbackElevation?: number;
   feedbackCornerRadius?: number;
   guidanceButtonCornerRadius?: number;
+  /** @platform android */
   guidanceRetryScreenImageCornerRadius?: number;
   /** @platform android */
   readyScreenTextBackgroundCornerRadius?: number;
-  /** @platform android */
   ovalStrokeWidth?: number;
-  /** @platform android */
+  /** Android canônico; iOS também aceita via alias ovalProgressWidth */
   ovalProgressStrokeWidth?: number;
-  /** @platform android */
+  /** Android canônico; iOS também aceita via alias ovalProgressOffset */
   ovalProgressRadialOffset?: number;
-  /** @platform ios */
+  /** Alias de ovalProgressStrokeWidth (ambos) */
   ovalProgressWidth?: number;
-  /** @platform ios */
+  /** Alias de ovalProgressRadialOffset (ambos) */
   ovalProgressOffset?: number;
   /** @platform android */
   resultScreenAnimationRelativeScale?: number;
@@ -50,11 +51,13 @@ export interface FacetecSizes {
 
 export interface FacetecConfiguration {
   cancelButtonLocation?: FacetecButtonLocation;
+  /** @platform android */
   exitAnimationStyle?: FacetecExitAnimationStyle;
 }
 
 export interface FacetecFlags {
   overlayShowBrandingImage?: boolean;
+  /** @platform android */
   feedbackEnablePulsatingText?: boolean;
   /** @platform android */
   resultScreenShowUploadProgressBar?: boolean;
@@ -64,18 +67,22 @@ export interface FacetecColors {
   readyScreenHeader?: string;
   readyScreenSubtext?: string;
   readyScreenTextBackground?: string;
+  /** @platform android */
   readyScreenOvalFill?: string;
   resultScreenMessage?: string;
   resultScreenUploadProgressBarFill?: string;
   resultScreenUploadProgressBarTrack?: string;
   resultScreenForeground?: string;
+  /** @platform android */
   resultScreenBackground?: string;
   resultScreenActivityIndicator?: string;
   resultScreenResultAnimationBackground?: string;
   resultScreenResultAnimationForeground?: string;
   retryScreenHeader?: string;
   retryScreenSubtext?: string;
+  /** @platform android */
   retryScreenImageBorder?: string;
+  /** @platform android */
   retryScreenOvalStroke?: string;
   feedbackMessage?: string;
   feedbackBarBackground?: string;
@@ -86,7 +93,9 @@ export interface FacetecColors {
   guidanceButtonBackgroundHighlight?: string;
   guidanceButtonBackgroundDisabled?: string;
   guidanceButtonBorder?: string;
+  /** @platform android */
   guidanceForeground?: string;
+  /** @platform android */
   guidanceBackground?: string;
   frameBackground?: string;
   frameBorder?: string;
@@ -228,14 +237,27 @@ export type IProovOrientationGPA =
 
 export type IProovOrientationLA = 'PORTRAIT' | 'REVERSE_PORTRAIT';
 
+export type IProovFilterStyle = 'natural' | 'lineDrawing';
+
+export type IProovNaturalStyle = 'clear' | 'blur';
+
+export type IProovLineDrawingStyle = 'classic' | 'shaded' | 'vibrant';
+
 export interface IProovConfiguration {
   timeoutSecs?: number;
+  /** @platform android */
   orientationGpa?: IProovOrientationGPA;
+  /** @platform android */
   orientationLa?: IProovOrientationLA;
+  filterStyle?: IProovFilterStyle;
+  naturalStyle?: IProovNaturalStyle;
+  lineDrawingStyle?: IProovLineDrawingStyle;
 }
 
 export interface IProovFlags {
+  /** @platform android */
   isEnabledScreenShots?: boolean;
+  /** @platform android */
   disableExteriorEffects?: boolean;
   promptRoundedCorners?: boolean;
 }
@@ -256,15 +278,12 @@ export interface IProovTheme {
  */
 
 export interface InstructionsThemeColors {
+  /** @platform android */
   statusBar?: string;
   background?: string;
   backButtonIcon?: string;
   /** Tint do ícone quando `assets.backButtonIcon` está definido. Android e iOS. */
   backButtonColor?: string;
-  /** @platform ios permission */
-  backButtonBackground?: string;
-  /** @platform ios permission */
-  backButtonBorder?: string;
   bottomSheet?: string;
   title?: string;
   caption?: string;
@@ -277,6 +296,7 @@ export interface InstructionsThemeColors {
   continueButtonText?: string;
   continueButtonTextColor?: string;
   continueButtonBackground?: string;
+  /** @platform ios */
   continueButtonBorder?: string;
 }
 
@@ -457,16 +477,21 @@ export interface ProcessingTheme {
  */
 
 export interface ResultThemeColors {
+  /** @platform android */
   successStatusBar?: string;
   successBackground?: string;
   successText?: string;
+  /** @platform android */
   errorStatusBar?: string;
   errorBackground?: string;
   errorText?: string;
+  /** @platform ios Fundo da tela de retry (não usar como cor do botão). */
   retryBackground?: string;
+  /** @platform ios Cor da mensagem de retry. */
   retryText?: string;
   retryButtonText?: string;
   retryButtonBackground?: string;
+  /** @platform ios */
   retryButtonBorder?: string;
 }
 
@@ -479,6 +504,7 @@ export interface ResultThemeTexts {
 export interface ResultThemeAssets {
   successImage?: string;
   errorImage?: string;
+  /** @platform ios */
   retryImage?: string;
 }
 

@@ -26,6 +26,17 @@ internal fun optInt(map: ReadableMap?, key: String, default: Int): Int {
   }
 }
 
+internal fun firstInt(map: ReadableMap?, vararg keys: String, default: Int): Int {
+  map ?: return default
+  for (key in keys) {
+    if (!map.hasKey(key)) continue
+    if (map.getType(key) == ReadableType.Number) {
+      return map.getDouble(key).toInt()
+    }
+  }
+  return default
+}
+
 internal fun optFloat(map: ReadableMap?, key: String, default: Float): Float {
   map ?: return default
   if (!map.hasKey(key)) return default

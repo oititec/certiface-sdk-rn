@@ -1,7 +1,7 @@
 import UIKit
 
 final class BackButtonIconComposer {
-  private static let canvasSide: CGFloat = 20
+  private static let canvasSide: CGFloat = 24
 
   static func prepare(_ icon: UIImage) -> UIImage {
     let size = CGSize(width: canvasSide, height: canvasSide)
@@ -23,6 +23,6 @@ final class BackButtonIconComposer {
         height: height
       )
       icon.draw(in: drawRect)
-    }
+    }.withRenderingMode(.alwaysTemplate)
   }
 }

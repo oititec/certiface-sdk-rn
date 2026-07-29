@@ -156,9 +156,7 @@ object FacetecThemeFactory {
 
     // Result Screen
     resultScreenForegroundColor(
-      facetecColors?.getString("resultScreenForeground")
-        ?: facetecColors?.getString("resultScreenMessage")
-        ?: "#0F9D58"
+      firstString(facetecColors, "resultScreenMessage", "resultScreenForeground") ?: "#0F9D58"
     )
     resultScreenBackgroundColors(facetecColors?.getString("resultScreenBackground") ?: "#DFFFD6")
     resultScreenUploadProgressFillColor(
@@ -218,10 +216,14 @@ object FacetecThemeFactory {
     // Oval
     ovalCustomizationStrokeWidth(optInt(facetecSizes, "ovalStrokeWidth", 4))
     ovalCustomizationStrokeColor(facetecColors?.getString("ovalStroke") ?: "#00FF00")
-    ovalCustomizationProgressStrokeWidth(optInt(facetecSizes, "ovalProgressStrokeWidth", 6))
+    ovalCustomizationProgressStrokeWidth(
+      firstInt(facetecSizes, "ovalProgressStrokeWidth", "ovalProgressWidth", default = 6)
+    )
     ovalCustomizationProgressColor1(facetecColors?.getString("ovalProgressFirst") ?: "#00FF00")
     ovalCustomizationProgressColor2(facetecColors?.getString("ovalProgressSecond") ?: "#FF0000")
-    ovalCustomizationProgressRadialOffset(optInt(facetecSizes, "ovalProgressRadialOffset", 8))
+    ovalCustomizationProgressRadialOffset(
+      firstInt(facetecSizes, "ovalProgressRadialOffset", "ovalProgressOffset", default = 8)
+    )
 
     // Frame
     frameBackgroundColor(facetecColors?.getString("frameBackground") ?: "#121212")

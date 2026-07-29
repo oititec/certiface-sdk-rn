@@ -281,16 +281,17 @@ final class ThemeFactory {
 
     let colors = instructionsTheme["colors"] as? [String: String] ?? [:]
     let assets = instructionsTheme["assets"] as? [String: String] ?? [:]
+    let configuration = instructionsTheme["configuration"] as? [String: Any] ?? [:]
     let closeButtonImageName = assets["closeButtonIcon"]
-    let hasCloseButtonImage = closeButtonImageName.flatMap { RnSdkBundle.getImage(named: $0) } != nil
+    let closeButtonImage = closeButtonImageName.flatMap { RnSdkBundle.getImage(named: $0) }
+    let closeButtonColorHex = firstValue(in: colors, keys: "closeButtonColor", "closeButtonIcon")
 
-    if hasCloseButtonImage {
-      setImage(closeButtonImageName, with: builder.setCloseButtonImage(_:))
+    if let closeButtonImage {
+      let tintableImage = BackButtonIconComposer.prepare(closeButtonImage)
+      _ = builder.setCloseButtonImage(tintableImage)
+      setColor(closeButtonColorHex, with: builder.setCloseButtonImageColor(_:))
     } else {
-      setColor(
-        firstValue(in: colors, keys: "closeButtonColor", "closeButtonIcon"),
-        with: builder.setCloseButtonImageColor(_:)
-      )
+      setColor(closeButtonColorHex, with: builder.setCloseButtonImageColor(_:))
     }
 
     setColor(firstValue(in: colors, keys: "title", "titleColor"), with: builder.setTitleTextColor(_:))
@@ -302,8 +303,24 @@ final class ThemeFactory {
     setColor(firstValue(in: colors, keys: "ovalNotReady", "ovalNotReadyColor"), with: builder.setGPAOvalStrokeNotReadyColor(_:))
     setColor(firstValue(in: colors, keys: "ovalCapturing", "ovalStrokeColor"), with: builder.setLAOvalStrokeCapturingColor(_:))
     setColor(firstValue(in: colors, keys: "ovalCompleted", "ovalCompletedColor"), with: builder.setLAOvalStrokeCompletedColor(_:))
-    setColor(colors["filterLineDrawingForeground"], with: builder.setFilterLineDrawingForegroundColor(_:))
-    setColor(colors["filterLineDrawingBackground"], with: builder.setFilterLineDrawingBackgroundColor(_:))
+
+    let filterForeground = colors["filterLineDrawingForeground"]
+    let filterBackground = colors["filterLineDrawingBackground"]
+    let useLineDrawing = resolveIProovUseLineDrawing(
+      configuration: configuration,
+      filterForeground: filterForeground,
+      filterBackground: filterBackground
+    )
+    _ = builder.setFilterStyle(resolveIProovFilterStyle(configuration: configuration, useLineDrawing: useLineDrawing))
+    if useLineDrawing {
+      setColor(filterForeground, with: builder.setFilterLineDrawingForegroundColor(_:))
+      setColor(filterBackground, with: builder.setFilterLineDrawingBackgroundColor(_:))
+    }
+
+    let flags = instructionsTheme["flags"] as? [String: Any] ?? [:]
+    let timeoutSecs = intThemeValue(configuration["timeoutSecs"]) ?? 60
+    _ = builder.setTimeout(TimeInterval(timeoutSecs))
+    _ = builder.setPromptRoundedCornersEnabled(flags["promptRoundedCorners"] as? Bool ?? true)
 
     let texts = instructionsTheme["texts"] as? [String: String] ?? [:]
     setText(texts["title"], with: builder.setTitle(_:))
@@ -332,9 +349,7 @@ final class ThemeFactory {
     _ = builder.setSpinnerWidth(
       CGFloat(doubleThemeValue(processingSizes["spinnerWidth"] ?? processingSizes["loadingIndicatorWidth"]) ?? 10)
     )
-    _ = builder.setSpinnerScaleFactor(
-      intThemeValue(processingSizes["spinnerSize"] ?? processingSizes["loadingIndicatorSize"]) ?? 100
-    )
+    _ = builder.setSpinnerScaleFactor(resolveIProovSpinnerScaleFactor(from: processingSizes))
 
     return builder
   }
@@ -445,11 +460,9 @@ final class ThemeFactory {
     setColor(firstValue(in: colors, keys: "loading", "loadingDialogColor"), with: builder.setSpinnerColor(_:))
     let processingSizes = loadingTheme["sizes"] as? [String: Any] ?? [:]
     _ = builder.setSpinnerWidth(
-      CGFloat(doubleThemeValue(processingSizes["spinnerWidth"] ?? processingSizes["loadingIndicatorWidth"]) ?? 80)
+      CGFloat(doubleThemeValue(processingSizes["spinnerWidth"] ?? processingSizes["loadingIndicatorWidth"]) ?? 10)
     )
-    _ = builder.setSpinnerScaleFactor(
-      intThemeValue(processingSizes["spinnerSize"] ?? processingSizes["loadingIndicatorSize"]) ?? 80
-    )
+    _ = builder.setSpinnerScaleFactor(resolveIProovSpinnerScaleFactor(from: processingSizes))
 
     return builder
   }
@@ -741,6 +754,65 @@ final class ThemeFactory {
       }
     }
     return nil
+  }
+
+  private static func normalizeIProovStyleKey(_ value: String?) -> String? {
+    guard let value else { return nil }
+    return value
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .lowercased()
+      .replacingOccurrences(of: " ", with: "")
+      .replacingOccurrences(of: "_", with: "")
+  }
+
+  private static func resolveIProovUseLineDrawing(
+    configuration: [String: Any],
+    filterForeground: String?,
+    filterBackground: String?
+  ) -> Bool {
+    switch normalizeIProovStyleKey(firstValue(in: configuration, keys: "filterStyle")) {
+    case "linedrawing":
+      return true
+    case "natural":
+      return false
+    default:
+      let hasForeground = !(filterForeground?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+      let hasBackground = !(filterBackground?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+      return hasForeground || hasBackground
+    }
+  }
+
+  private static func resolveIProovFilterStyle(
+    configuration: [String: Any],
+    useLineDrawing: Bool
+  ) -> FilterStyle {
+    if useLineDrawing {
+      switch normalizeIProovStyleKey(firstValue(in: configuration, keys: "lineDrawingStyle")) {
+      case "shaded":
+        return .lineDrawing(.shaded)
+      case "vibrant":
+        return .lineDrawing(.vibrant)
+      default:
+        return .lineDrawing(.classic)
+      }
+    }
+
+    switch normalizeIProovStyleKey(firstValue(in: configuration, keys: "naturalStyle")) {
+    case "blur":
+      return .natural(.blur)
+    default:
+      return .natural(.clear)
+    }
+  }
+
+  private static func resolveIProovSpinnerScaleFactor(from processingSizes: [String: Any]) -> Int {
+    if let spinnerSize = intThemeValue(processingSizes["spinnerSize"]) {
+      return min(max(spinnerSize, 1), 10)
+    }
+    if let androidSize = intThemeValue(processingSizes["loadingIndicatorSize"]) {
+      return min(max(Int((Double(androidSize) / 20.0).rounded()), 1), 10)
+    }
+    return 5
   }
 
   private static func setFont<T>(_ fontName: String?, with builder: @escaping (UIFont) -> T, size: CGFloat) {

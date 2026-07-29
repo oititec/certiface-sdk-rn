@@ -6,6 +6,7 @@ import br.com.certiface.designsystem.R
 import br.com.certiface.designsystem.ui.builders.InstructionImageScale
 import br.com.certiface.domain.model.iproov.OrientationGPA
 import br.com.certiface.domain.model.iproov.OrientationLA
+import br.com.certiface.domain.model.iproov.DomainFilterTheme
 import br.com.certiface.manager.exports.FilterTheme
 import br.com.certiface.manager.exports.IProovDrawablesKey
 import br.com.certiface.manager.exports.IProovFontsKey
@@ -95,21 +96,7 @@ object IProovThemeFactory {
     setFontsKey(iProovFonts)
     val filterForeground = firstString(colors, "filterLineDrawingForeground")
     val filterBackground = firstString(colors, "filterLineDrawingBackground")
-    setFilter(
-      if (filterForeground != null || filterBackground != null) {
-        FilterTheme.LineDrawing(
-          style = LineDrawingStyle.CLASSIC,
-          background = filterBackground?.let {
-            ThemeColorValidator.parseColorOrThrow(it, "filterLineDrawingBackground")
-          },
-          foreground = filterForeground?.let {
-            ThemeColorValidator.parseColorOrThrow(it, "filterLineDrawingForeground")
-          }
-        )
-      } else {
-        FilterTheme.Natural(NaturalStyle.CLEAR)
-      }
-    )
+    setFilter(resolveIProovFilter(iproovConfiguration, filterForeground, filterBackground))
 
     setOrientation(
       gpa = parseOrientationGpa(iproovConfiguration, "orientationGpa", OrientationGPA.PORTRAIT),
@@ -282,9 +269,9 @@ object IProovThemeFactory {
       setErrorText(firstString(resultTexts, "errorText", "error") ?: firstString(texts, "errorText") ?: "Algo deu errado na verificação.")
       setErrorTextColor(firstString(resultColors, "errorTextColor", "errorText") ?: "#D93025")
 
-      setRetryButtonColor(firstString(resultColors, "retryButtonColor", "retryButtonBackground", "retryBackground") ?: "#0F9D58")
+      setRetryButtonColor(firstString(resultColors, "retryButtonColor", "retryButtonBackground") ?: "#0F9D58")
       setRetryButtonText(firstString(resultTexts, "retryButtonText", "retryButton") ?: firstString(texts, "retryButtonText") ?: "Tentar novamente")
-      setRetryButtonTextColor(firstString(resultColors, "retryButtonTextColor", "retryButtonText", "retryText") ?: "#FFFFFF")
+      setRetryButtonTextColor(firstString(resultColors, "retryButtonTextColor", "retryButtonText") ?: "#FFFFFF")
     }
   }
 
@@ -441,5 +428,60 @@ object IProovThemeFactory {
     }
 
     return resolvedFontResource
+  }
+
+  private fun resolveIProovFilter(
+    configuration: ReadableMap?,
+    filterForeground: String?,
+    filterBackground: String?
+  ): DomainFilterTheme {
+    val explicitFilterStyle = firstString(configuration, "filterStyle")
+      ?.lowercase()
+      ?.replace(" ", "")
+      ?.replace("_", "")
+    val useLineDrawing = when (explicitFilterStyle) {
+      "linedrawing" -> true
+      "natural" -> false
+      else -> filterForeground != null || filterBackground != null
+    }
+
+    if (useLineDrawing) {
+      return FilterTheme.LineDrawing(
+        style = parseLineDrawingStyle(configuration),
+        background = filterBackground?.let {
+          ThemeColorValidator.parseColorOrThrow(it, "filterLineDrawingBackground")
+        },
+        foreground = filterForeground?.let {
+          ThemeColorValidator.parseColorOrThrow(it, "filterLineDrawingForeground")
+        }
+      )
+    }
+
+    return FilterTheme.Natural(parseNaturalStyle(configuration))
+  }
+
+  private fun parseNaturalStyle(configuration: ReadableMap?): NaturalStyle {
+    return when (
+      firstString(configuration, "naturalStyle")
+        ?.lowercase()
+        ?.replace(" ", "")
+        ?.replace("_", "")
+    ) {
+      "blur" -> NaturalStyle.BLUR
+      else -> NaturalStyle.CLEAR
+    }
+  }
+
+  private fun parseLineDrawingStyle(configuration: ReadableMap?): LineDrawingStyle {
+    return when (
+      firstString(configuration, "lineDrawingStyle")
+        ?.lowercase()
+        ?.replace(" ", "")
+        ?.replace("_", "")
+    ) {
+      "shaded" -> LineDrawingStyle.SHADED
+      "vibrant" -> LineDrawingStyle.VIBRANT
+      else -> LineDrawingStyle.CLASSIC
+    }
   }
 }

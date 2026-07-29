@@ -2,7 +2,6 @@ import type { CertifaceTheme } from '@certiface/sdk';
 
 export const customTheme: CertifaceTheme = {
   // O provider efetivo vem do parâmetro `provider` em `CertifaceSDK.startJourney`.
-  // Este arquivo mantém FaceTec e iProov no mesmo tema para facilitar testes e repasse ao cliente.
   facetec: {
     // Cores da jornada FaceTec. Algumas chaves são específicas de Android/iOS; consulte a documentação para paridade visual.
     colors: {
@@ -119,8 +118,8 @@ export const customTheme: CertifaceTheme = {
       // Guidance button: largura da borda e raio do botão nativo.
       guidanceButtonBorderWidth: 2,
       guidanceRetryScreenImageBorderWidth: 3,
-      // Frame/feedback: ajusta borda, raio e sombra do enquadramento facial.
-      frameBorderWidth: 2,
+      // Frame/feedback: iOS clampa frameBorderWidth em mínimo 4.
+      frameBorderWidth: 4,
       frameCornerRadius: 8,
       frameElevation: 5,
       feedbackElevation: 8,
@@ -149,7 +148,7 @@ export const customTheme: CertifaceTheme = {
     configuration: {
       // Posição do botão cancelar dentro da tela nativa FaceTec.
       cancelButtonLocation: 'TOP_LEFT',
-      // Animação ao sair da jornada FaceTec.
+      // Android-only: animação ao sair da jornada FaceTec.
       exitAnimationStyle: 'CIRCLE_FADE',
     },
   },
@@ -159,26 +158,27 @@ export const customTheme: CertifaceTheme = {
     fontPath: 'fonts/sixty.ttf',
     colors: {
       closeButtonColor: '#FFFFFF',
-      // Header/prompt: altera título superior e faixa de instruções do iProov.
+      // Alias legado de closeButtonColor. Prefira closeButtonColor quando houver ícone custom.
+      // closeButtonIcon: '#FFFFFF',
       title: '#F59E0B',
       titleBackground: '#2E2E2E',
       promptText: '#60A5FA',
       promptBackground: '#1A1A1A',
       background: '#FF6B35',
-      // Oval: estados visuais durante a captura.
       ovalReady: '#FF6B35',
       ovalNotReady: '#FF3030',
       ovalCapturing: '#22D3EE',
       ovalCompleted: '#FF6B35',
-      // Filtro line drawing: ativa customização do filtro de linhas do iProov.
-      filterLineDrawingForeground: '#FFFFFF',
-      filterLineDrawingBackground: '#000000',
+      // Só aplica com filterStyle: 'lineDrawing'. Com Natural CLEAR deixe omitido/comentado.
+      // filterLineDrawingForeground: '#FFFFFF',
+      // filterLineDrawingBackground: '#000000',
     },
     texts: {
       title: 'Verificação Biométrica',
     },
     assets: {
-      closeButtonIcon: 'close_icon',
+      // Glifo monocromático distinto do default (seta). Evite cancel_button (círculo + tint = bola).
+      closeButtonIcon: 'fc_arrow_left',
       logoImage: 'people',
     },
     fonts: {
@@ -194,26 +194,28 @@ export const customTheme: CertifaceTheme = {
       resultRetryButtonFont: 'sixty',
     },
     configuration: {
-      // Tempo máximo da jornada iProov.
       timeoutSecs: 60,
-      // Orientação do Genuine Presence Assurance.
+      // Android-only: orientação GPA/LA.
       orientationGpa: 'PORTRAIT',
-      // Orientação do Liveness Assurance.
       orientationLa: 'PORTRAIT',
+      filterStyle: 'natural',
+      naturalStyle: 'clear',
+      // Só usa com filterStyle: 'lineDrawing'. Valores: 'classic' | 'shaded' | 'vibrant'.
+      // lineDrawingStyle: 'classic',
     },
     flags: {
-      // Permite screenshots durante a jornada. Desative se houver política de segurança do app.
+      // Android-only: permite screenshots durante a jornada.
       isEnabledScreenShots: true,
-      // Remove efeitos visuais externos do iProov.
+      // Android-only: remove efeitos visuais externos do iProov.
       disableExteriorEffects: false,
-      // Arredonda os cantos do prompt de instruções.
+      // Arredonda os cantos do prompt de instruções (Android e iOS).
       promptRoundedCorners: true,
     },
   },
   // Tela de instruções compartilhada por FaceTec e iProov antes da captura.
   instructions: {
     configuration: {
-      // false pula a tela de instruções e inicia direto a captura.
+      // false pula a tela de instruções e inicia direto a captura (Android e iOS).
       showInstructionScreen: true,
     },
     flags: {
@@ -249,7 +251,7 @@ export const customTheme: CertifaceTheme = {
       continueButton: 'Continuar',
     },
     assets: {
-      // Use apenas o nome base do asset, sem extensão.
+      // Use apenas o nome base do asset, sem extensão. Prefira glifo monocromático ~24dp.
       backButtonIcon: 'fc_arrow_left',
       contextImage: 'woman_liveness_example',
       // fillBounds preenche a área superior; fit preserva proporção sem cortar.
@@ -357,14 +359,13 @@ export const customTheme: CertifaceTheme = {
       loading: '#FFFFFF',
     },
     sizes: {
-      // Android usa loadingIndicator*; iOS usa spinner*.
-      loadingIndicatorSize: 100, // 1 - 300
+      // Android: loadingIndicatorSize 1-300 (px-ish). iOS converte para scale 1-10 (100 → ~5).
+      // Para forçar scale iOS explícito: spinnerSize (1-10) e spinnerWidth.
+      loadingIndicatorSize: 100,
       loadingIndicatorWidth: 10,
-      spinnerSize: 5, // 1 - 10
-      spinnerWidth: 10,
     },
   },
-  // Tela de sucesso/erro. No iOS: `retryBackground` pinta a tela de retry; use `retryButtonBackground` para o botão.
+  // Tela de sucesso/erro. No iOS: `retryBackground`/`retryText` pintam a tela de retry; no botão use retryButton*.
   result: {
     colors: {
       // successStatusBar/errorStatusBar são Android-only.
@@ -374,10 +375,11 @@ export const customTheme: CertifaceTheme = {
       errorStatusBar: '#1f7365',
       errorBackground: '#1f7365',
       errorText: '#423c3c',
-      // retryBackground muda o fundo da tela no iOS e serve como fallback do botão no Android.
+      // iOS: fundo da tela de retry (não usa como cor do botão no Android).
       retryBackground: '#dbabab',
+      // iOS: cor da mensagem de retry.
       retryText: '#1f7365',
-      // Use retryButton* para controlar o botão de tentar novamente com paridade.
+      // Use retryButton* para o botão com paridade Android/iOS.
       retryButtonText: '#FF6B35',
       retryButtonBackground: '#FFFFFF',
       retryButtonBorder: '#FFFFFF',
@@ -388,7 +390,8 @@ export const customTheme: CertifaceTheme = {
       retryButton: 'Tentar Novamente',
     },
     assets: {
-      // retryImage é aplicado no iOS; Android usa os ícones de sucesso/erro.
+      // retryImage é iOS; Android usa successImage/errorImage.
+      // error_icon no example é X vermelho sem círculo branco.
       successImage: 'success_icon',
       errorImage: 'error_icon',
       retryImage: 'return_button',
