@@ -1,7 +1,14 @@
 export enum LivenessProvider {
   FACETEC = 'FACETEC',
   IPROOV = 'IPROOV',
+  FORTFACE = 'FORTFACE',
 }
+
+/**
+ * Providers available in the SaaS flow (token-based).
+ * The actual provider is resolved server-side based on the journeyToken.
+ */
+export type SaasProvider = 'FACETEC' | 'FORTFACE';
 
 export enum Environment {
   HML = 'HML',
@@ -532,10 +539,97 @@ export interface ResultTheme {
   sizes?: ResultThemeSizes;
 }
 
+/**
+ * Fortface Theme
+ */
+
+export type FortfaceCancelPosition = 'LEFT' | 'RIGHT';
+
+export type FortfaceScreenMode = 'FULL_SCREEN' | 'MODAL';
+
+export type FortfaceScreenOrientation = 'AUTOMATIC' | 'PORTRAIT' | 'LANDSCAPE';
+
+export interface FortfaceColors {
+  cameraBackground?: string;
+  cameraMessageText?: string;
+  cameraAlert?: string;
+  cameraNeutral?: string;
+  cameraSuccess?: string;
+  cameraBrightnessAlert?: string;
+  cameraLoading?: string;
+  cameraIconBackground?: string;
+  modalOverlay?: string;
+}
+
+export interface FortfaceTexts {
+  cameraStartMessage?: string;
+  cameraFaceNoCenter?: string;
+  cameraFacePositioned?: string;
+  cameraNoFace?: string;
+  cameraFaceFar?: string;
+  cameraFaceNear?: string;
+  cameraFaceCenterLeft?: string;
+  cameraFaceCenterRight?: string;
+  cameraFaceCenterUp?: string;
+  cameraFaceCenterDown?: string;
+  cameraFacePitchUp?: string;
+  cameraFacePitchDown?: string;
+  cameraNoFaceYaw?: string;
+  cameraNoFaceRoll?: string;
+  cameraFaceRollLeft?: string;
+  cameraFaceRollRight?: string;
+  cameraFaceBrightnessLow?: string;
+  cameraFaceBrightnessHigh?: string;
+  processingMessage?: string;
+}
+
+export interface FortfaceAssets {
+  cancelButtonIcon?: string;
+  cameraLogo?: string;
+  brightnessHighIcon?: string;
+  brightnessLowIcon?: string;
+}
+
+export interface FortfaceFonts {
+  cameraMessage?: string;
+  cameraFooter?: string;
+}
+
+export interface FortfaceSizes {
+  cameraTimeout?: number;
+  cameraMinStabilizationTime?: number;
+  cameraMaxStabilizationTime?: number;
+  brightnessValidationTimeout?: number;
+  modalOverlayOpacity?: number;
+}
+
+export interface FortfaceFlags {
+  cancelButtonEnable?: boolean;
+  cameraFrameTextVisible?: boolean;
+}
+
+export interface FortfaceConfiguration {
+  cancelPosition?: FortfaceCancelPosition;
+  screenMode?: FortfaceScreenMode;
+  screenOrientation?: FortfaceScreenOrientation;
+  customizationJsonFileName?: string;
+}
+
+export interface FortfaceTheme {
+  colors?: FortfaceColors;
+  texts?: FortfaceTexts;
+  assets?: FortfaceAssets;
+  fonts?: FortfaceFonts;
+  sizes?: FortfaceSizes;
+  flags?: FortfaceFlags;
+  configuration?: FortfaceConfiguration;
+}
+
 export interface CertifaceTheme {
   provider?: LivenessProvider;
   facetec?: FacetecTheme;
   iproov?: IProovTheme;
+  fortface?: FortfaceTheme;
   instructions?: InstructionsTheme;
   permission?: PermissionTheme;
   processing?: ProcessingTheme;

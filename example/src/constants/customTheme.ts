@@ -212,7 +212,64 @@ export const customTheme: CertifaceTheme = {
       promptRoundedCorners: true,
     },
   },
-  // Tela de instruções compartilhada por FaceTec e iProov antes da captura.
+  fortface: {
+    colors: {
+      cameraBackground: '#0D47A1',
+      cameraMessageText: '#FFFFFF',
+      cameraNeutral: '#CDCDCD',
+      cameraAlert: '#511f7d',
+      cameraSuccess: '#5FC213',
+      cameraBrightnessAlert: '#24B8C2',
+      cameraLoading: '#5FC213',
+      cameraIconBackground: '#F1F1F1',
+    },
+    texts: {
+      cameraStartMessage: 'Enquadre o rosto no oval',
+      cameraFaceNoCenter: 'Centralize o rosto',
+      cameraFacePositioned: 'Aguarde, não se mexa',
+      cameraNoFace: 'Posicione o rosto aqui',
+      cameraFaceFar: 'Aproxime o rosto',
+      cameraFaceNear: 'Afaste o rosto',
+      cameraFaceCenterLeft: 'Mova à esquerda',
+      cameraFaceCenterRight: 'Mova à direita',
+      cameraFaceCenterUp: 'Mova para cima',
+      cameraFaceCenterDown: 'Mova para baixo',
+      cameraFacePitchUp: 'Abaixe o rosto',
+      cameraFacePitchDown: 'Levante o rosto',
+      cameraNoFaceYaw: 'Olhe para frente',
+      cameraNoFaceRoll: 'Cabeça reta',
+      cameraFaceRollLeft: 'Incline à esquerda',
+      cameraFaceRollRight: 'Incline à direita',
+      cameraFaceBrightnessLow: 'Melhore a luz',
+      cameraFaceBrightnessHigh: 'Diminua a luz',
+      processingMessage: 'Processando sua verificação facial...',
+    },
+    assets: {
+      cancelButtonIcon: 'fortface_cancel_button_light',
+      brightnessHighIcon: 'ic_brightness_high',
+      brightnessLowIcon: 'ic_brightness_low',
+    },
+    fonts: {
+      cameraMessage: 'sixty',
+      cameraFooter: 'sixty',
+    },
+    sizes: {
+      cameraTimeout: 30,
+      cameraMinStabilizationTime: 2,
+      cameraMaxStabilizationTime: 3,
+      brightnessValidationTimeout: 10,
+    },
+    flags: {
+      cancelButtonEnable: true,
+      cameraFrameTextVisible: true,
+    },
+    configuration: {
+      cancelPosition: 'LEFT',
+      screenMode: 'FULL_SCREEN',
+      screenOrientation: 'AUTOMATIC',
+    },
+  },
+  // Instruções Certiface (compartilhada FaceTec/iProov/Fortface).
   instructions: {
     configuration: {
       // false pula a tela de instruções e inicia direto a captura (Android e iOS).
@@ -254,13 +311,10 @@ export const customTheme: CertifaceTheme = {
       // Use apenas o nome base do asset, sem extensão. Prefira glifo monocromático ~24dp.
       backButtonIcon: 'fc_arrow_left',
       contextImage: 'woman_liveness_example',
-      // fillBounds preenche a área superior; fit preserva proporção sem cortar.
-      contextImageScale: 'fillBounds', // 'fillBounds' | 'fillWidth' | 'fillHeight' | 'fit' | 'crop' | 'inside' | 'none'
-      // 1 ocupa toda a área disponível acima do bottom sheet no Android.
+      contextImageScale: 'fillBounds',
       contextImageHeightFraction: 1,
       firstInstructionIcon: 'lamp_example',
       secondInstructionIcon: 'face',
-      // fillBounds faz o ícone preencher o círculo; fit mantém padding interno.
       instructionIconScale: 'fillBounds',
       instructionIconSize: 60,
     },

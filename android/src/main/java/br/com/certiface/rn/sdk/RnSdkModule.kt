@@ -99,6 +99,47 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
     )
   }
 
+  override fun startSaasJourney(
+    token: String?,
+    environment: String?,
+    onSuccess: Callback?,
+    onError: Callback?,
+    isCustomEnabled: Boolean?,
+    theme: ReadableMap?
+  ) {
+    val customEnabled = isCustomEnabled ?: false
+
+    if (token.isNullOrEmpty()) {
+      onError?.invoke(serializeBridgeError("TOKEN_NULO", "TOKEN_NULO"))
+      return
+    }
+
+    if (environment.isNullOrEmpty()) {
+      onError?.invoke(serializeBridgeError("ENVIRONMENT_NULO", "ENVIRONMENT_NULO"))
+      return
+    }
+
+    val activity = reactApplicationContext ?: run {
+      onError?.invoke(serializeBridgeError("NO_ACTIVITY", "NO_ACTIVITY"))
+      return
+    }
+
+    LivenessExecutor.executeSaasLiveness(
+      context = activity,
+      token = token,
+      environment = environment,
+      execOnSuccess = { livenessResult ->
+        val jsonResult = convertLivenessResultToJson(livenessResult)
+        onSuccess?.invoke(jsonResult)
+      },
+      execOnError = { error ->
+        onError?.invoke(error)
+      },
+      isCustomEnabled = customEnabled,
+      theme = theme
+    )
+  }
+
   private fun convertLivenessResultToJson(livenessResult: br.com.certiface.manager.exports.LivenessResult?): String {
     return try {
       val jsonObject = JSONObject()

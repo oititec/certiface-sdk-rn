@@ -13,6 +13,14 @@ export interface Spec extends TurboModule {
     isCustomEnabled?: boolean,
     theme?: Object
   ): void;
+  startSaasJourney(
+    token: string,
+    environment: string,
+    onSuccess: (data: string) => void,
+    onError: (error: string) => void,
+    isCustomEnabled?: boolean,
+    theme?: Object
+  ): void;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('CertifaceRnSdk');

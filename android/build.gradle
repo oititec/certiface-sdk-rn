@@ -71,6 +71,19 @@ repositories {
   maven {
     url 'https://raw.githubusercontent.com/oititec/android-certiface-sdk-versions/main'
   }
+  maven {
+    url 'https://cdn-fortface-sdk.fortface.com.br'
+    content {
+      includeGroup 'br.com.fortface'
+    }
+    credentials(HttpHeaderCredentials) {
+      name = 'X-Sdk'
+      value = 'certiface'
+    }
+    authentication {
+      header(HttpHeaderAuthentication)
+    }
+  }
 }
 
 def kotlin_version = getExtOrDefault("kotlinVersion")
@@ -79,7 +92,7 @@ dependencies {
   implementation "com.facebook.react:react-android"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-  implementation 'br.com.certiface:certifacesdk:1.2.2'
+  implementation 'br.com.certiface:certifacesdk:1.3.0'
 }
 
 react {

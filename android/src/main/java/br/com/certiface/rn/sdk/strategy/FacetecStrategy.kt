@@ -2,13 +2,20 @@ package br.com.certiface.rn.sdk.strategy
 
 import android.content.Context
 import br.com.certiface.domain.callback.CertifaceResultCallback
-import br.com.certiface.facetecsdk.domain.model.FacetecManagerOptions
 import br.com.certiface.manager.exports.LivenessResult
-import br.com.certiface.manager.main.CertifaceSDK
-import br.com.certiface.manager.main.LivenessProvider
-import br.com.certiface.rn.sdk.factories.FacetecThemeFactory
 import com.facebook.react.bridge.ReadableMap
 
+/**
+ * @deprecated FaceTec now requires a journeyToken (SaaS flow) instead of an appKey.
+ * Use [SaasStrategy] via `startSaasJourney()` instead.
+ *
+ * This strategy is kept for backward compatibility but will emit a clear
+ * error if invoked, since [FacetecManagerOptions] no longer accepts appKey.
+ */
+@Deprecated(
+  message = "FaceTec agora usa fluxo SaaS com journeyToken. Use startSaasJourney() no lugar de startJourney() com provider FACETEC.",
+  replaceWith = ReplaceWith("SaasStrategy")
+)
 class FacetecStrategy : LivenessProviderStrategy {
   override fun start(
     context: Context,
@@ -17,9 +24,10 @@ class FacetecStrategy : LivenessProviderStrategy {
     theme: ReadableMap?,
     callback: CertifaceResultCallback<LivenessResult>
   ) {
-    val facetecTheme = FacetecThemeFactory.create(isCustom, theme, context)
-    val opts = FacetecManagerOptions(appKey, facetecTheme)
-    val manager = CertifaceSDK.createLivenessManager(LivenessProvider.FACETEC)
-    manager.start(opts, callback)
+    throw UnsupportedOperationException(
+      "FaceTec agora usa fluxo SaaS com journeyToken. " +
+        "Use CertifaceSDK.startSaasJourney(token, environment, ...) ao invés de " +
+        "startJourney(appKey, environment, 'FACETEC', ...)."
+    )
   }
 }

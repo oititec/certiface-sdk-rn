@@ -111,6 +111,46 @@ internal fun parseOrientationLa(
   }
 }
 
+internal fun parseFortfaceCancelPosition(
+  map: ReadableMap?,
+  key: String,
+  default: br.com.certiface.domain.model.fortface.FortfaceCancelPosition
+): br.com.certiface.domain.model.fortface.FortfaceCancelPosition {
+  val value = firstString(map, key)?.uppercase()?.replace(" ", "_") ?: return default
+  return when (value) {
+    "LEFT" -> br.com.certiface.domain.model.fortface.FortfaceCancelPosition.LEFT
+    "RIGHT" -> br.com.certiface.domain.model.fortface.FortfaceCancelPosition.RIGHT
+    else -> default
+  }
+}
+
+internal fun parseFortfaceScreenMode(
+  map: ReadableMap?,
+  key: String,
+  default: br.com.certiface.domain.model.fortface.FortfaceScreenMode
+): br.com.certiface.domain.model.fortface.FortfaceScreenMode {
+  val value = firstString(map, key)?.uppercase()?.replace(" ", "_") ?: return default
+  return when (value) {
+    "FULL_SCREEN", "FULLSCREEN" -> br.com.certiface.domain.model.fortface.FortfaceScreenMode.FULL_SCREEN
+    "MODAL" -> br.com.certiface.domain.model.fortface.FortfaceScreenMode.MODAL
+    else -> default
+  }
+}
+
+internal fun parseFortfaceScreenOrientation(
+  map: ReadableMap?,
+  key: String,
+  default: br.com.certiface.domain.model.fortface.FortfaceScreenOrientation
+): br.com.certiface.domain.model.fortface.FortfaceScreenOrientation {
+  val value = firstString(map, key)?.uppercase()?.replace(" ", "_") ?: return default
+  return when (value) {
+    "PORTRAIT" -> br.com.certiface.domain.model.fortface.FortfaceScreenOrientation.PORTRAIT
+    "LANDSCAPE" -> br.com.certiface.domain.model.fortface.FortfaceScreenOrientation.LANDSCAPE
+    "AUTOMATIC", "AUTO" -> br.com.certiface.domain.model.fortface.FortfaceScreenOrientation.AUTOMATIC
+    else -> default
+  }
+}
+
 internal fun resolveInstructionsBackButtonTintColor(
   instructionsColors: ReadableMap?,
   hasCustomBackButtonImage: Boolean

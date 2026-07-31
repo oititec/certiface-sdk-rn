@@ -13,12 +13,13 @@ import {
   CertifaceError,
   CertifaceSDK,
   Environment,
+  LivenessProvider,
   type LivenessResult,
 } from '@certiface/sdk';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { RootTabParamList } from '../navigation/AppNavigator';
-import { useUserStore } from '../store/userStore';
+import { useUserStore, type FeatureType } from '../store/userStore';
 import { customTheme } from '../constants/customTheme';
 import { invalidCustomTheme } from '../constants/invalidCustomTheme';
 
@@ -34,17 +35,27 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(false);
   const {
     appKey,
+    journeyToken,
     selectedFeature,
+    saasProvider,
     livenessProvider,
     environment,
     setSelectedFeature,
     setEnvironment,
     addResult,
+    canRunLiveness,
   } = useUserStore();
 
+  const isSaas = selectedFeature === 'SAAS';
+  const ready = canRunLiveness();
+
   const runJourney = async (variant: JourneyVariant) => {
-    if (!appKey) {
-      addResult('ERRO: App Key não configurada');
+    if (!ready) {
+      addResult(
+        isSaas
+          ? 'ERRO: Journey Token não configurado'
+          : 'ERRO: App Key não configurada'
+      );
       return;
     }
 
@@ -73,18 +84,30 @@ const HomeScreen = () => {
             }
           : customTheme;
 
+    const providerLabel = isSaas ? saasProvider : 'IPROOV';
+
     try {
       setLoading(true);
       addResult(
-        `Iniciando jornada (${selectedFeature} | ${environment} | tema ${themeEnabled ? 'ON' : 'OFF'})`
+        `Iniciando jornada (${providerLabel} | ${environment} | ${
+          isSaas ? 'SaaS' : 'AppKey'
+        } | tema ${themeEnabled ? 'ON' : 'OFF'})`
       );
-      const result: LivenessResult = await CertifaceSDK.startJourney(
-        appKey,
-        environment,
-        livenessProvider,
-        themeEnabled,
-        themeEnabled ? selectedTheme : undefined
-      );
+
+      const result: LivenessResult = isSaas
+        ? await CertifaceSDK.startSaasJourney(
+            journeyToken,
+            environment,
+            themeEnabled,
+            themeEnabled ? selectedTheme : undefined
+          )
+        : await CertifaceSDK.startJourney(
+            appKey,
+            environment,
+            LivenessProvider.IPROOV,
+            themeEnabled,
+            themeEnabled ? selectedTheme : undefined
+          );
 
       const { valid, codID, protocol } = result;
       addResult(
@@ -108,6 +131,26 @@ const HomeScreen = () => {
     }
   };
 
+  const renderFeatureOption = (feature: FeatureType, label: string) => (
+    <Pressable
+      key={feature}
+      style={[
+        styles.segmentOption,
+        selectedFeature === feature && styles.segmentOptionActive,
+      ]}
+      onPress={() => setSelectedFeature(feature)}
+    >
+      <Text
+        style={[
+          styles.segmentOptionText,
+          selectedFeature === feature && styles.segmentOptionTextActive,
+        ]}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView
@@ -116,58 +159,30 @@ const HomeScreen = () => {
       >
         <View style={styles.header}>
           <Text style={styles.title}>Certiface SDK</Text>
-          <Text style={styles.subtitle}>Teste de jornada</Text>
+          <Text style={styles.subtitle}>
+            {isSaas ? 'Teste SaaS (FaceTec / Fortface)' : 'Teste iProov'}
+          </Text>
         </View>
 
         <View style={styles.card}>
           <View style={styles.statusContainer}>
-            <Text style={styles.statusLabel}>App Key</Text>
+            <Text style={styles.statusLabel}>
+              {isSaas ? 'Journey Token' : 'App Key'}
+            </Text>
             <Text
               style={[
                 styles.statusText,
-                appKey ? styles.statusReady : styles.statusNotReady,
+                ready ? styles.statusReady : styles.statusNotReady,
               ]}
             >
-              {appKey ? 'Pronta para uso' : 'Não configurada'}
+              {ready ? 'Pronto para uso' : 'Não configurado'}
             </Text>
           </View>
 
-          <Text style={styles.segmentTitle}>Feature</Text>
+          <Text style={styles.segmentTitle}>Produto</Text>
           <View style={styles.segment}>
-            <Pressable
-              style={[
-                styles.segmentOption,
-                selectedFeature === 'FACETEC' && styles.segmentOptionActive,
-              ]}
-              onPress={() => setSelectedFeature('FACETEC')}
-            >
-              <Text
-                style={[
-                  styles.segmentOptionText,
-                  selectedFeature === 'FACETEC' &&
-                    styles.segmentOptionTextActive,
-                ]}
-              >
-                Facetec
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.segmentOption,
-                selectedFeature === 'IPROOV' && styles.segmentOptionActive,
-              ]}
-              onPress={() => setSelectedFeature('IPROOV')}
-            >
-              <Text
-                style={[
-                  styles.segmentOptionText,
-                  selectedFeature === 'IPROOV' &&
-                    styles.segmentOptionTextActive,
-                ]}
-              >
-                iProov
-              </Text>
-            </Pressable>
+            {renderFeatureOption('IPROOV', 'iProov')}
+            {renderFeatureOption('SAAS', 'SaaS')}
           </View>
 
           <Text style={styles.segmentTitle}>Ambiente</Text>
@@ -207,6 +222,10 @@ const HomeScreen = () => {
               </Text>
             </Pressable>
           </View>
+
+          <Text style={styles.providerHint}>
+            Provider ativo: {isSaas ? saasProvider : livenessProvider}
+          </Text>
         </View>
 
         <Text style={styles.sectionTitle}>Ações</Text>
@@ -216,10 +235,10 @@ const HomeScreen = () => {
             style={[
               styles.actionCard,
               styles.primaryAction,
-              (!appKey || loading) && styles.actionDisabled,
+              (!ready || loading) && styles.actionDisabled,
             ]}
             onPress={() => runJourney('DEFAULT')}
-            disabled={!appKey || loading}
+            disabled={!ready || loading}
           >
             <Text style={styles.primaryActionTitle}>Default</Text>
             <Text style={styles.primaryActionDescription}>Fluxo normal</Text>
@@ -229,10 +248,10 @@ const HomeScreen = () => {
             style={[
               styles.actionCard,
               styles.secondaryAction,
-              (!appKey || loading) && styles.actionDisabled,
+              (!ready || loading) && styles.actionDisabled,
             ]}
             onPress={() => runJourney('CUSTOM')}
-            disabled={!appKey || loading}
+            disabled={!ready || loading}
           >
             <Text style={styles.secondaryActionTitle}>Custom</Text>
             <Text style={styles.secondaryActionDescription}>
@@ -244,10 +263,10 @@ const HomeScreen = () => {
             style={[
               styles.actionCard,
               styles.secondaryAction,
-              (!appKey || loading) && styles.actionDisabled,
+              (!ready || loading) && styles.actionDisabled,
             ]}
             onPress={() => runJourney('NO_INSTRUCTIONS')}
-            disabled={!appKey || loading}
+            disabled={!ready || loading}
           >
             <Text style={styles.secondaryActionTitle}>Sem instruções</Text>
             <Text style={styles.secondaryActionDescription}>
@@ -259,10 +278,10 @@ const HomeScreen = () => {
             style={[
               styles.actionCard,
               styles.dangerAction,
-              (!appKey || loading) && styles.actionDisabled,
+              (!ready || loading) && styles.actionDisabled,
             ]}
             onPress={() => runJourney('INVALID_THEME')}
-            disabled={!appKey || loading}
+            disabled={!ready || loading}
           >
             <Text style={styles.dangerActionTitle}>Tema inválido</Text>
             <Text style={styles.dangerActionDescription}>
@@ -383,6 +402,12 @@ const styles = StyleSheet.create({
   },
   segmentOptionTextActive: {
     color: '#FFFFFF',
+  },
+  providerHint: {
+    fontSize: 12,
+    color: '#475569',
+    marginTop: 4,
+    fontWeight: '600',
   },
   sectionTitle: {
     marginTop: 8,

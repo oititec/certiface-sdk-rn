@@ -206,4 +206,63 @@ object AssetProcessor {
         
         return iproovDrawables
     }
+
+    fun processFortfaceAssets(theme: ReadableMap?): Map<br.com.certiface.manager.exports.FortfaceDrawablesKey, Any> {
+        val drawables = mutableMapOf<br.com.certiface.manager.exports.FortfaceDrawablesKey, Any>()
+        if (theme == null) return drawables
+
+        val fortfaceAssets = theme.getMap("fortface")?.getMap("assets")
+        val instructionsAssets = theme.getMap("instructions")?.getMap("assets")
+        val permissionAssets = theme.getMap("permission")?.getMap("assets")
+        val resultAssets = theme.getMap("result")?.getMap("assets")
+
+        instructionsAssets?.getString("firstInstructionIcon")?.let {
+            drawables[br.com.certiface.manager.exports.FortfaceDrawablesKey.INSTRUCTIONS_FIRST_INSTRUCTION_ICON] = it
+        }
+        instructionsAssets?.getString("secondInstructionIcon")?.let {
+            drawables[br.com.certiface.manager.exports.FortfaceDrawablesKey.INSTRUCTIONS_SECOND_INSTRUCTION_ICON] = it
+        }
+        instructionsAssets?.getString("contextImage")?.let {
+            drawables[br.com.certiface.manager.exports.FortfaceDrawablesKey.INSTRUCTIONS_CONTEXT_IMAGE] = it
+        }
+        instructionsAssets?.getString("backButtonIcon")?.let {
+            drawables[br.com.certiface.manager.exports.FortfaceDrawablesKey.INSTRUCTIONS_BACK_BUTTON_IMG] = it
+        }
+        permissionAssets?.getString("cameraImage")?.let {
+            drawables[br.com.certiface.manager.exports.FortfaceDrawablesKey.PERMISSION_CAMERA_ICON] = it
+        }
+        permissionAssets?.getString("backButtonIcon")?.let {
+            drawables[br.com.certiface.manager.exports.FortfaceDrawablesKey.PERMISSION_BACK_BUTTON_ICON] = it
+        }
+        fortfaceAssets?.getString("cancelButtonIcon")?.let {
+            drawables[br.com.certiface.manager.exports.FortfaceDrawablesKey.SDK_CANCEL_BUTTON_IMAGE] = it
+        }
+        fortfaceAssets?.getString("cameraLogo")?.let {
+            drawables[br.com.certiface.manager.exports.FortfaceDrawablesKey.SDK_CAMERA_LOGO] = it
+        }
+        fortfaceAssets?.getString("brightnessHighIcon")?.let {
+            drawables[br.com.certiface.manager.exports.FortfaceDrawablesKey.SDK_BRIGHTNESS_HIGH_ICON] = it
+        }
+        fortfaceAssets?.getString("brightnessLowIcon")?.let {
+            drawables[br.com.certiface.manager.exports.FortfaceDrawablesKey.SDK_BRIGHTNESS_LOW_ICON] = it
+        }
+        resultAssets?.getString("successImage")?.let {
+            drawables[br.com.certiface.manager.exports.FortfaceDrawablesKey.RESULT_SUCCESS_ICON] = it
+        }
+        resultAssets?.getString("errorImage")?.let {
+            drawables[br.com.certiface.manager.exports.FortfaceDrawablesKey.RESULT_ERROR_ICON] = it
+        }
+
+        return drawables
+    }
+
+    fun resolveFortfaceDrawables(
+        context: Context?,
+        drawables: Map<br.com.certiface.manager.exports.FortfaceDrawablesKey, Any>
+    ): Map<br.com.certiface.manager.exports.FortfaceDrawablesKey, Any> {
+        if (context == null || drawables.isEmpty()) return emptyMap()
+        return drawables.mapValues { (_, value) ->
+            resolveDrawableResourceId(context, value) ?: value
+        }
+    }
 }

@@ -37,6 +37,19 @@ allprojects {
         maven {
             url 'https://raw.githubusercontent.com/oititec/android-certiface-sdk-versions-beta/main'
         }
+        maven {
+            url 'https://cdn-fortface-sdk.fortface.com.br'
+            content {
+                includeGroup 'br.com.fortface'
+            }
+            credentials(HttpHeaderCredentials) {
+                name = 'X-Sdk'
+                value = 'certiface'
+            }
+            authentication {
+                header(HttpHeaderAuthentication)
+            }
+        }
     }
 }
 ```

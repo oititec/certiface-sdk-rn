@@ -6,16 +6,14 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.ReadableType
 
 internal object ThemeColorValidator {
-  private const val FACETEC_KEY = "facetec"
-  private const val IPROOV_KEY = "iproov"
+  private val PROVIDER_KEYS = setOf("facetec", "iproov", "fortface")
 
   fun validate(theme: ReadableMap?, activeProviderKey: String) {
     theme ?: return
-    val excludedProviderKey = if (activeProviderKey == FACETEC_KEY) IPROOV_KEY else FACETEC_KEY
     val iterator = theme.keySetIterator()
     while (iterator.hasNextKey()) {
       val key = iterator.nextKey()
-      if (key == excludedProviderKey) continue
+      if (key in PROVIDER_KEYS && key != activeProviderKey) continue
       if (theme.getType(key) == ReadableType.Map) {
         theme.getMap(key)?.let { validateNode(it) }
       }
