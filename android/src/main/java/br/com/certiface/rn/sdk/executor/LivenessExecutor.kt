@@ -63,6 +63,13 @@ class LivenessExecutor(val appkey: String, val feature: Features) {
       strategy.start(context, appkey, isCustomEnabled, theme, callback)
     } catch (e: CustomThemeException) {
       execOnError(e.toErrorPayloadJson())
+    } catch (e: UnsupportedOperationException) {
+      execOnError(
+        JSONObject()
+          .put("code", "UNSUPPORTED_OPERATION")
+          .put("message", e.message ?: "Operação não suportada")
+          .toString()
+      )
     }
   }
 

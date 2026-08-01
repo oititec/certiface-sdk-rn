@@ -6,7 +6,9 @@ import com.facebook.react.bridge.ReadableMap
 class FortfaceFonts(
   private val instructionsFonts: ReadableMap?,
   private val permissionFonts: ReadableMap?,
-  private val fortfaceFonts: ReadableMap?
+  private val fortfaceFonts: ReadableMap?,
+  private val resultFonts: ReadableMap? = null,
+  private val processingFonts: ReadableMap? = null
 ) {
   private val instructionsTitleFont: String = fontAssetPath(instructionsFonts?.getString("title"))
   private val instructionsCaptionFont: String = fontAssetPath(instructionsFonts?.getString("caption"))
@@ -21,6 +23,11 @@ class FortfaceFonts(
   private val permissionCaptionFont: String = fontAssetPath(permissionFonts?.getString("caption"))
   private val permissionButtonFont: String =
     fontAssetPath(permissionFonts?.getString("checkPermissionButton"))
+
+  private val resultMessageFont: String = fontAssetPath(resultFonts?.getString("text"))
+  private val resultRetryButtonFont: String = fontAssetPath(resultFonts?.getString("retryButton"))
+
+  private val processingMessageFont: String = fontAssetPath(processingFonts?.getString("message"))
 
   private val cameraMessageFont: String =
     fontAssetPath(fortfaceFonts?.getString("cameraMessage"))
@@ -37,6 +44,9 @@ class FortfaceFonts(
       FortfaceFontsKey.PERMISSION_TITLE_FONT to permissionTitleFont,
       FortfaceFontsKey.PERMISSION_CAPTION_FONT to permissionCaptionFont,
       FortfaceFontsKey.PERMISSION_BUTTON_FONT to permissionButtonFont,
+      FortfaceFontsKey.RESULT_MESSAGE_FONT to resultMessageFont,
+      FortfaceFontsKey.RESULT_RETRY_BUTTON_FONT to resultRetryButtonFont,
+      FortfaceFontsKey.PROCESSING_MESSAGE_FONT to processingMessageFont,
       FortfaceFontsKey.SDK_CAMERA_MESSAGE_FONT to cameraMessageFont,
       FortfaceFontsKey.SDK_CAMERA_FOOTER_FONT to cameraFooterFont
     )

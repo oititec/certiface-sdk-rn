@@ -21,7 +21,6 @@ object FortfaceThemeFactory {
       setInstructionsTheme {
         setShowInstructionScreen(showInstructionScreen)
       }
-      sdkInstructionScreen(false)
       cancelButtonEnable(false)
     }
 
@@ -54,24 +53,31 @@ object FortfaceThemeFactory {
     val processingColors = processingTheme?.getMap("colors")
     val processingFlags = processingTheme?.getMap("flags")
     val processingSizes = processingTheme?.getMap("sizes")
+    val processingFonts = processingTheme?.getMap("fonts")
+    val processingTexts = processingTheme?.getMap("texts")
 
     val resultTheme = theme?.getMap("result")
     val resultColors = resultTheme?.getMap("colors")
     val resultTexts = resultTheme?.getMap("texts")
     val resultFlags = resultTheme?.getMap("flags")
+    val resultFonts = resultTheme?.getMap("fonts")
 
-    val drawables = AssetProcessor.processFortfaceAssets(theme)
+    val drawablesRaw = AssetProcessor.processFortfaceAssets(theme)
+    val drawables = AssetProcessor.resolveFortfaceDrawables(context, drawablesRaw)
     val hasCustomBackButton =
       drawables.containsKey(FortfaceDrawablesKey.INSTRUCTIONS_BACK_BUTTON_IMG)
 
     fun appDrawable(key: FortfaceDrawablesKey): Int? =
-      resolveAppDrawable(context, drawables[key])
+      AssetProcessor.resolveDrawableResourceId(context, drawables[key])
+        ?: AssetProcessor.resolveDrawableResourceId(context, drawablesRaw[key])
 
     val resolvedFonts = resolveConfiguredFonts(
       context = context,
       instructionsFonts = instructionsFonts,
       permissionFonts = permissionFonts,
-      fortfaceFonts = fontsMap
+      fortfaceFonts = fontsMap,
+      resultFonts = resultFonts,
+      processingFonts = processingFonts
     )
 
     val textMap = buildTextMap(texts)
@@ -91,7 +97,6 @@ object FortfaceThemeFactory {
         setCustomizationJsonFileName(it)
       }
 
-      sdkInstructionScreen(false)
       cancelButtonEnable(optBoolean(flags, "cancelButtonEnable", true))
       cancelPosition(
         parseFortfaceCancelPosition(configuration, "cancelPosition", FortfaceCancelPosition.LEFT)
@@ -107,7 +112,7 @@ object FortfaceThemeFactory {
         )
       )
 
-      cameraTimeout(optInt(sizes, "cameraTimeout", 30))
+      cameraTimeout(optInt(sizes, "cameraTimeout", 30).coerceAtLeast(20))
       cameraMinStabilizationTime(optInt(sizes, "cameraMinStabilizationTime", 2))
       cameraMaxStabilizationTime(optInt(sizes, "cameraMaxStabilizationTime", 3))
       brightnessValidationTimeout(optInt(sizes, "brightnessValidationTimeout", 10))
@@ -250,14 +255,16 @@ object FortfaceThemeFactory {
         setStatusBarIsDarkIcons(optBoolean(processingFlags, "statusBarIsDarkIcons", true))
         setLoadingIndicatorSize(optInt(processingSizes, "loadingIndicatorSize", 100))
         setLoadingIndicatorWidth(optInt(processingSizes, "loadingIndicatorWidth", 10))
-        firstString(texts, "processingMessage")?.let { setProcessingMessage(it) }
+        firstString(processingTexts, "message")
+          ?.let { setProcessingMessage(it) }
+          ?: firstString(texts, "processingMessage")?.let { setProcessingMessage(it) }
       }
 
       val successIconId =
-        resolveAppDrawable(context, drawables[FortfaceDrawablesKey.RESULT_SUCCESS_ICON])
+        appDrawable(FortfaceDrawablesKey.RESULT_SUCCESS_ICON)
           ?: R.drawable.success_icon
       val errorIconId =
-        resolveAppDrawable(context, drawables[FortfaceDrawablesKey.RESULT_ERROR_ICON])
+        appDrawable(FortfaceDrawablesKey.RESULT_ERROR_ICON)
           ?: R.drawable.error_icon
 
       setResultTheme {
@@ -320,12 +327,30 @@ object FortfaceThemeFactory {
     context: Context?,
     instructionsFonts: ReadableMap?,
     permissionFonts: ReadableMap?,
-    fortfaceFonts: ReadableMap?
+    fortfaceFonts: ReadableMap?,
+    resultFonts: ReadableMap?,
+    processingFonts: ReadableMap?
   ): Map<FortfaceFontsKey, Any> {
-    if (instructionsFonts == null && permissionFonts == null && fortfaceFonts == null) {
+    if (
+      instructionsFonts == null &&
+      permissionFonts == null &&
+      fortfaceFonts == null &&
+      resultFonts == null &&
+      processingFonts == null
+    ) {
       return emptyMap()
     }
-    val raw = FortfaceFonts(instructionsFonts, permissionFonts, fortfaceFonts).apply()
+    val raw = FortfaceFonts(
+      instructionsFonts,
+      permissionFonts,
+      fortfaceFonts,
+      resultFonts,
+      processingFonts
+    ).apply()
+    val cameraFontKeys = setOf(
+      FortfaceFontsKey.SDK_CAMERA_MESSAGE_FONT,
+      FortfaceFontsKey.SDK_CAMERA_FOOTER_FONT
+    )
     return raw.mapNotNull { (key, path) ->
       val name = path
         .removePrefix("fonts/")
@@ -334,23 +359,17 @@ object FortfaceThemeFactory {
         .trim()
       if (name.isEmpty() || name == "ubuntu_regular") {
         null
+      } else if (key in cameraFontKeys) {
+        val resId = FontResolver.resolveCameraFontResId(context, path)
+        if (resId != null) {
+          key to resId
+        } else {
+          key to path
+        }
       } else {
         key to FontResolver.resolveFromAssetPath(context, path)
       }
     }.toMap()
-  }
-
-  private fun resolveAppDrawable(context: Context?, value: Any?): Int? {
-    if (context == null || value == null) return null
-    return when (value) {
-      is Int -> value.takeIf { it != 0 }
-      is String -> {
-        val name = value.trim()
-        if (name.isEmpty()) return null
-        context.resources.getIdentifier(name, "drawable", context.packageName).takeIf { it != 0 }
-      }
-      else -> null
-    }
   }
 
   private fun buildTextMap(texts: ReadableMap?): Map<FortfaceTextKey, String> {

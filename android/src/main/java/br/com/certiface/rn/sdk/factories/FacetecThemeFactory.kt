@@ -44,34 +44,36 @@ object FacetecThemeFactory {
     val facetecFontsMap = facetecTheme?.getMap("fonts")
     val instructionsSizes = instructionsTheme?.getMap("sizes")
 
+    val processingTheme = theme?.getMap("processing")
+    val processingFonts = processingTheme?.getMap("fonts")
+
     val facetecFonts: Map<FacetecFontsKey, Any> =
-      if (facetecFontsMap != null || instructionsFonts != null || permissionFonts != null) {
-        val rawFonts = FacetecFonts(instructionsFonts, permissionFonts, facetecFontsMap).apply()
-        if (context != null) {
-          rawFonts.mapValues { (_, path) -> FontResolver.resolveFromAssetPath(context, path) }
-        } else {
-          rawFonts
-        }
+      if (
+        facetecFontsMap != null ||
+        instructionsFonts != null ||
+        permissionFonts != null ||
+        processingFonts != null
+      ) {
+        val rawFonts = FacetecFonts(
+          instructionsFonts,
+          permissionFonts,
+          facetecFontsMap,
+          processingFonts
+        ).apply()
+        rawFonts.mapNotNull { (key, path) ->
+          val name = path
+            .removePrefix("fonts/")
+            .substringBeforeLast(".ttf")
+            .substringBeforeLast(".otf")
+            .trim()
+          if (name.isEmpty() || name == "ubuntu_regular") {
+            null
+          } else {
+            key to FontResolver.resolveFromAssetPath(context, path)
+          }
+        }.toMap()
       } else {
-        hashMapOf(
-          FacetecFontsKey.INSTRUCTIONS_TITLE_FONT to FontResolver.defaultFontRes,
-          FacetecFontsKey.INSTRUCTIONS_CAPTION_FONT to FontResolver.defaultFontRes,
-          FacetecFontsKey.INSTRUCTIONS_DOCUMENT_TYPES_INSTRUCTIONS_FONT to FontResolver.defaultFontRes,
-          FacetecFontsKey.INSTRUCTIONS_DOCUMENT_TIPS_INSTRUCTIONS_FONT to FontResolver.defaultFontRes,
-          FacetecFontsKey.INSTRUCTIONS_BUTTON_FONT to FontResolver.defaultFontRes,
-          FacetecFontsKey.PERMISSION_TITLE_FONT to FontResolver.defaultFontRes,
-          FacetecFontsKey.PERMISSION_CAPTION_FONT to FontResolver.defaultFontRes,
-          FacetecFontsKey.PERMISSION_BUTTON_FONT to FontResolver.defaultFontRes,
-          FacetecFontsKey.GUIDANCE_CUSTOMIZATION_HEADER_FONT to FontResolver.defaultFontRes,
-          FacetecFontsKey.GUIDANCE_CUSTOMIZATION_SUBTEXT_FONT to FontResolver.defaultFontRes,
-          FacetecFontsKey.GUIDANCE_CUSTOMIZATION_BUTTON_FONT to FontResolver.defaultFontRes,
-          FacetecFontsKey.GUIDANCE_CUSTOMIZATION_READY_SCREEN_HEADER_FONT to FontResolver.defaultFontRes,
-          FacetecFontsKey.GUIDANCE_CUSTOMIZATION_READY_SCREEN_SUBTEXT_FONT to FontResolver.defaultFontRes,
-          FacetecFontsKey.GUIDANCE_CUSTOMIZATION_RETRY_SCREEN_HEADER_FONT to FontResolver.defaultFontRes,
-          FacetecFontsKey.GUIDANCE_CUSTOMIZATION_RETRY_SCREEN_SUBTEXT_FONT to FontResolver.defaultFontRes,
-          FacetecFontsKey.RESULT_SCREEN_CUSTOMIZATION_MESSAGE_FONT to FontResolver.defaultFontRes,
-          FacetecFontsKey.FEEDBACK_CUSTOMIZATION_TEXT_FONT to FontResolver.defaultFontRes
-        )
+        emptyMap()
       }
 
     val facetecDrawablesRaw = AssetProcessor.processFacetecAssets(theme)
@@ -254,7 +256,9 @@ object FacetecThemeFactory {
       parseFacetecExitAnimationStyle(facetecConfiguration, "exitAnimationStyle", FacetecExitAnimationStyle.RIPPLE_IN)
     )
 
-    setFacetecFontsMap(facetecFonts)
+    if (facetecFonts.isNotEmpty()) {
+      setFacetecFontsMap(HashMap(facetecFonts))
+    }
     setFacetecTextMap(customFacetecTexts)
 
     // Instructions Screen
@@ -324,10 +328,10 @@ object FacetecThemeFactory {
     }
 
     // Processing Screen
-    val processingTheme = theme?.getMap("processing")
     val processingColors = processingTheme?.getMap("colors")
     val processingFlags = processingTheme?.getMap("flags")
     val processingSizes = processingTheme?.getMap("sizes")
+    val processingTexts = processingTheme?.getMap("texts")
 
     setProcessingTheme {
       setBackgroundColor(firstString(processingColors, "backgroundColor", "background") ?: "#000000")
@@ -335,6 +339,10 @@ object FacetecThemeFactory {
       setStatusBarColor(firstString(processingColors, "statusBarColor", "statusBar") ?: "#000000")
       setStatusBarIsDarkIcons(optBoolean(processingFlags, "statusBarIsDarkIcons", false))
       setLoadingIndicatorSize(optInt(processingSizes, "loadingIndicatorSize", 80))
+      (
+        firstString(processingTexts, "message")
+          ?: firstString(facetecTexts, "processingMessage")
+      )?.let { setProcessingMessage(it) }
     }
   }
 

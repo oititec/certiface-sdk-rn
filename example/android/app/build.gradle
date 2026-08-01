@@ -228,3 +228,17 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+def assetsFontsDir = file("src/main/assets/fonts")
+def resFontDir = file("src/main/res/font")
+tasks.register("syncAssetsFontsToResFont", Copy) {
+    from(assetsFontsDir) {
+        include("*.ttf", "*.otf")
+    }
+    into(resFontDir)
+    eachFile { details ->
+        details.name = details.name.toLowerCase().replace("-", "_")
+    }
+    onlyIf { assetsFontsDir.exists() }
+}
+tasks.named("preBuild").configure { dependsOn("syncAssetsFontsToResFont") }

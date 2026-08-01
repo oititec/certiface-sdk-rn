@@ -55,6 +55,8 @@ class IProovFonts(
 
     private val resultRetryButtonFont: String = resolveFont("resultRetryButtonFont")
 
+    private val processingMessageFont: String = resolveFont("processingMessageFont")
+
     fun apply(): Map<IProovFontsKey, String> {
         return mapOf(
             IProovFontsKey.INSTRUCTIONS_TITLE_FONT to instructionsTitleFont,
@@ -67,6 +69,7 @@ class IProovFonts(
             IProovFontsKey.PERMISSION_BUTTON_FONT to permissionButtonFont,
             IProovFontsKey.RESULT_MESSAGE_FONT to resultMessageFont,
             IProovFontsKey.RESULT_RETRY_BUTTON_FONT to resultRetryButtonFont,
+            IProovFontsKey.PROCESSING_MESSAGE_FONT to processingMessageFont,
         )
     }
 }

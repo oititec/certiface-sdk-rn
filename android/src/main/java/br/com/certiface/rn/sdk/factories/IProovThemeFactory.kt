@@ -51,6 +51,8 @@ object IProovThemeFactory {
     val permissionFontsMap = permissionTheme?.getMap("fonts")
     val resultTheme = theme?.getMap("result")
     val resultFontsMap = resultTheme?.getMap("fonts")
+    val processingTheme = theme?.getMap("processing")
+    val processingFontsMap = processingTheme?.getMap("fonts")
     val iproovFontsMap = iproovTheme?.getMap("fonts")
     val iproovFontResource = iproovTheme?.getString("fontResource")
     val iproovFontPath = iproovTheme?.getString("fontPath")
@@ -62,6 +64,7 @@ object IProovThemeFactory {
       instructionsFontsMap = instructionsFontsMap,
       permissionFontsMap = permissionFontsMap,
       resultFontsMap = resultFontsMap,
+      processingFontsMap = processingFontsMap,
       resolvedFontResource = resolvedIProovFontResource,
       fontResource = iproovFontResource,
       fontPath = iproovFontPath
@@ -93,7 +96,9 @@ object IProovThemeFactory {
     setDisableExteriorEffects(optBoolean(iproovFlags, "disableExteriorEffects", false))
     setTimeoutSecs(optInt(iproovConfiguration, "timeoutSecs", 60))
     setPromptRoundedCorners(optBoolean(iproovFlags, "promptRoundedCorners", true))
-    setFontsKey(iProovFonts)
+    if (iProovFonts.isNotEmpty()) {
+      setFontsKey(iProovFonts)
+    }
     val filterForeground = firstString(colors, "filterLineDrawingForeground")
     val filterBackground = firstString(colors, "filterLineDrawingBackground")
     setFilter(resolveIProovFilter(iproovConfiguration, filterForeground, filterBackground))
@@ -232,10 +237,11 @@ object IProovThemeFactory {
       drawableRes(IProovDrawablesKey.PERMISSION_BACK_BUTTON_ICON)?.let { setBackButtonIcon(it) }
     }
 
-    val processingTheme = theme?.getMap("processing")
     val processingColors = processingTheme?.getMap("colors")
     val processingFlags = processingTheme?.getMap("flags")
     val processingSizes = processingTheme?.getMap("sizes")
+    val processingTexts = processingTheme?.getMap("texts")
+    val iproovTexts = iproovTheme?.getMap("texts")
 
     setProcessingTheme {
       setBackgroundColor(firstString(processingColors, "backgroundColor", "background") ?: "#000000")
@@ -244,6 +250,10 @@ object IProovThemeFactory {
       setStatusBarIsDarkIcons(optBoolean(processingFlags, "statusBarIsDarkIcons", true))
       setLoadingIndicatorSize(optInt(processingSizes, "loadingIndicatorSize", 100))
       setLoadingIndicatorWidth(optInt(processingSizes, "loadingIndicatorWidth", 10))
+      (
+        firstString(processingTexts, "message")
+          ?: firstString(iproovTexts, "processingMessage")
+      )?.let { setProcessingMessage(it) }
     }
 
     val resultColors = resultTheme?.getMap("colors")
@@ -281,6 +291,7 @@ object IProovThemeFactory {
     instructionsFontsMap: ReadableMap?,
     permissionFontsMap: ReadableMap?,
     resultFontsMap: ReadableMap?,
+    processingFontsMap: ReadableMap?,
     resolvedFontResource: Int,
     fontResource: String?,
     fontPath: String?
@@ -293,7 +304,13 @@ object IProovThemeFactory {
       else -> resolvedFontResource
     }
 
-    if (iproovFontsMap == null && instructionsFontsMap == null && permissionFontsMap == null && resultFontsMap == null) {
+    if (
+      iproovFontsMap == null &&
+      instructionsFontsMap == null &&
+      permissionFontsMap == null &&
+      resultFontsMap == null &&
+      processingFontsMap == null
+    ) {
       return buildDefaultIProovFonts(baseValue)
     }
 
@@ -304,11 +321,28 @@ object IProovThemeFactory {
     resultFontsMap?.getString("retryButton")?.trim()?.takeIf { it.isNotEmpty() }?.let {
       configuredFonts[IProovFontsKey.RESULT_RETRY_BUTTON_FONT] = fontAssetPath(it)
     }
-    if (context == null) {
-      return configuredFonts
+    processingFontsMap?.getString("message")?.trim()?.takeIf { it.isNotEmpty() }?.let {
+      configuredFonts[IProovFontsKey.PROCESSING_MESSAGE_FONT] = fontAssetPath(it)
     }
 
-    return configuredFonts.mapValues { (_, fontPathValue) ->
+    val filteredFonts = configuredFonts.mapNotNull { (key, path) ->
+      val name = path
+        .removePrefix("fonts/")
+        .substringBeforeLast(".ttf")
+        .substringBeforeLast(".otf")
+        .trim()
+      if (name.isEmpty() || name == "ubuntu_regular") {
+        null
+      } else {
+        key to path
+      }
+    }.toMap()
+
+    if (context == null) {
+      return filteredFonts
+    }
+
+    return filteredFonts.mapValues { (_, fontPathValue) ->
       FontResolver.resolveFromAssetPath(context, fontPathValue)
     }
   }
@@ -407,6 +441,7 @@ object IProovThemeFactory {
       IProovFontsKey.PERMISSION_BUTTON_FONT to baseFontValue,
       IProovFontsKey.RESULT_MESSAGE_FONT to baseFontValue,
       IProovFontsKey.RESULT_RETRY_BUTTON_FONT to baseFontValue,
+      IProovFontsKey.PROCESSING_MESSAGE_FONT to baseFontValue,
     )
   }
 
