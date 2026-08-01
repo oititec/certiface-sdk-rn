@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.0.0] - 01/08/2026
+
+### Adicionado
+
+- Android SaaS: `startSaasJourney` com providers FaceTec e Fortface (`journeyToken`)
+- Theme Fortface (Android): cores, textos, assets, fontes de câmera, processing/result compartilhados
+- `processing.texts.message` canônico (com fallback legado por provider)
+
+### Corrigido
+
+- Bridge Android: `setProcessingMessage` no iProov; drawables Fortface com resolução app+SDK
+- Fontes parciais FaceTec/iProov não forçam mais `ubuntu_regular` nas keys omitidas
+- `startJourney(FACETEC)` legado rejeita a Promise com mensagem clara (usar SaaS)
+
+### Alterado
+
+- Dependência Android `certifacesdk` `1.3.1-snapshot-3`
+- Types: Fortface / SaaS `@platform android`; typo `opentSettingsButton` deprecated
+- Example `customTheme` como referência completa de customização
+
 ## [1.1.5] - 29/07/2026
 
 ### Adicionado
