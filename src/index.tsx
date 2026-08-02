@@ -37,6 +37,15 @@ async function startJourney(
           const parsedResponse: LivenessResponse = JSON.parse(data);
 
           if (parsedResponse.status === 'success') {
+            if (!parsedResponse.result) {
+              reject(
+                new CertifaceError(
+                  'PARSE_ERROR',
+                  'Success response missing result payload'
+                )
+              );
+              return;
+            }
             resolve(parsedResponse.result);
             return;
           }
@@ -86,6 +95,15 @@ async function startSaasJourney(
           const parsedResponse: LivenessResponse = JSON.parse(data);
 
           if (parsedResponse.status === 'success') {
+            if (!parsedResponse.result) {
+              reject(
+                new CertifaceError(
+                  'PARSE_ERROR',
+                  'Success response missing result payload'
+                )
+              );
+              return;
+            }
             resolve(parsedResponse.result);
             return;
           }

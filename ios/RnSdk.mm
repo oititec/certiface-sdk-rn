@@ -63,6 +63,25 @@ RCT_EXPORT_MODULE(CertifaceRnSdk)
   }];
 }
 
+- (void)startSaasJourney:(NSString *)token
+             environment:(NSString *)environment
+               onSuccess:(RCTResponseSenderBlock)onSuccess
+                 onError:(RCTResponseSenderBlock)onError
+         isCustomEnabled:(NSNumber *)isCustomEnabled
+                   theme:(NSDictionary *)theme {
+  BOOL customEnabled = isCustomEnabled ? [isCustomEnabled boolValue] : NO;
+  [moduleImpl startSaasJourneyWithToken:token
+                            environment:environment
+                        isCustomEnabled:customEnabled
+                                  theme:theme
+                              onSuccess:^(NSString *_Nonnull result) {
+    onSuccess(@[ result ]);
+  }
+                                onError:^(NSString *_Nonnull error) {
+    onError(@[ error ]);
+  }];
+}
+
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
 (const facebook::react::ObjCTurboModule::InitParams &)params {
   return std::make_shared<facebook::react::NativeRnSdkSpecJSI>(params);

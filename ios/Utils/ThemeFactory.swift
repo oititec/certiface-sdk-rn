@@ -7,6 +7,7 @@
 
 import CertifaceSDK
 import CertifaceIProov
+import CertifaceFortface
 import UIKit
 
 final class ThemeFactory {
@@ -60,6 +61,45 @@ final class ThemeFactory {
         customizeLivenessFacetec(in: defaultThemeBuilder, with: theme)
       }
       .setLivenessTexts(customizeLivenessTexts(from: theme))
+      .build()
+  }
+
+  static func createSaasCustomization(from theme: [String: Any]?) throws -> SaasCustomization {
+    try validate(theme, provider: .facetec)
+    let builder = SaasCustomization.builder()
+    guard let theme else { return builder.build() }
+
+    return builder
+      .setInstructionCustomization { instructionBuilder in
+        customizeInstruction(in: instructionBuilder, with: theme)
+      }
+      .setCameraPermissionCustomization { cameraPermissionBuilder in
+        customizeCameraPermission(in: cameraPermissionBuilder, with: theme)
+      }
+      .setLoadingCustomization { loadingBuilder in
+        customizeLoadingFacetec(in: loadingBuilder, with: theme)
+      }
+      .build()
+  }
+
+  static func createFortfaceCustomization(from theme: [String: Any]?) throws -> CertifaceSDK.FortfaceCustomization {
+    try validate(theme, provider: .fortface)
+    let builder = CertifaceSDK.FortfaceCustomization.builder()
+    guard let theme else { return builder.build() }
+
+    return builder
+      .setInstructionCustomization { instructionBuilder in
+        customizeInstruction(in: instructionBuilder, with: theme)
+      }
+      .setCameraPermissionCustomization { cameraPermissionBuilder in
+        customizeCameraPermission(in: cameraPermissionBuilder, with: theme)
+      }
+      .setLoadingCustomization { loadingBuilder in
+        customizeLoadingFacetec(in: loadingBuilder, with: theme)
+      }
+      .setVendorCustomization { vendorBuilder in
+        customizeFortfaceVendor(in: vendorBuilder, with: theme)
+      }
       .build()
   }
 
@@ -622,6 +662,96 @@ final class ThemeFactory {
     }
 
     return livenessTexts
+  }
+
+  // MARK: Fortface
+
+  private static func customizeFortfaceVendor(
+    in builder: CertifaceFortface.FortfaceCustomizationBuilder,
+    with theme: [String: Any]
+  ) -> CertifaceFortface.FortfaceCustomizationBuilder {
+    guard let fortfaceTheme = theme["fortface"] as? [String: Any] else {
+      return builder
+    }
+
+    let colors = fortfaceTheme["colors"] as? [String: String] ?? [:]
+    let texts = fortfaceTheme["texts"] as? [String: String] ?? [:]
+    let flags = fortfaceTheme["flags"] as? [String: Any] ?? [:]
+    let configuration = fortfaceTheme["configuration"] as? [String: String] ?? [:]
+    let fonts = fortfaceTheme["fonts"] as? [String: String] ?? [:]
+    let assets = fortfaceTheme["assets"] as? [String: String] ?? [:]
+
+    let cancelPositionKey = configuration["cancelPosition"]?.uppercased()
+    _ = builder.setCancelButton(
+      FortfaceCancelButton(
+        position: cancelPositionKey == "RIGHT" ? .right : .left,
+        enable: flags["cancelButtonEnable"] as? Bool,
+        iconColor: colorFromHex(colors["cancelButton"])
+      )
+    )
+
+    let screenModeKey = configuration["screenMode"]?.uppercased()
+    _ = builder.setScreenMode(screenModeKey == "MODAL" ? .modal : .fullscreen)
+
+    let screenOrientationKey = configuration["screenOrientation"]?.uppercased()
+    switch screenOrientationKey {
+    case "PORTRAIT":
+      _ = builder.setScreenOrientation(.portrait)
+    case "LANDSCAPE":
+      _ = builder.setScreenOrientation(.landscape)
+    default:
+      _ = builder.setScreenOrientation(.automatic)
+    }
+
+    if let backgroundColor = colorFromHex(colors["cameraBackground"]) {
+      _ = builder.setCameraBackground(FortfaceCameraBackground(color: backgroundColor))
+    }
+
+    _ = builder.setCameraColor(
+      FortfaceCameraColor(
+        neutral: colorFromHex(colors["cameraNeutral"]),
+        alert: colorFromHex(colors["cameraAlert"]),
+        success: colorFromHex(colors["cameraSuccess"]),
+        brightness: colorFromHex(colors["cameraBrightnessAlert"]),
+        brightnessBackground: colorFromHex(colors["cameraBrightnessAlert"]),
+        loadingBackground: colorFromHex(colors["cameraLoading"]),
+        loadingStroke: colorFromHex(colors["cameraLoadingStroke"]) ?? .white,
+        messageTextColorResource: colorFromHex(colors["cameraMessageText"])
+      )
+    )
+
+    if let cameraFrameTextVisible = flags["cameraFrameTextVisible"] as? Bool {
+      _ = builder.setCameraFrameText(FortfaceCameraFrameText(visible: cameraFrameTextVisible))
+    }
+
+    let cameraFont = fonts["cameraMessage"] ?? fonts["cameraFooter"]
+    _ = builder.setCameraMessages(
+      FortfaceCameraMessages(
+        familyFont: cameraFont,
+        positioned: texts["cameraFacePositioned"],
+        noFace: texts["cameraNoFace"],
+        faceNear: texts["cameraFaceNear"],
+        faceFar: texts["cameraFaceFar"],
+        noFaceYaw: texts["cameraNoFaceYaw"],
+        facePitchIsUp: texts["cameraFacePitchUp"],
+        facePitchIsDown: texts["cameraFacePitchDown"],
+        highBrightness: texts["cameraFaceBrightnessHigh"],
+        lowBrightness: texts["cameraFaceBrightnessLow"],
+        faceCenterLeft: texts["cameraFaceCenterLeft"],
+        faceCenterRight: texts["cameraFaceCenterRight"],
+        faceCenterUp: texts["cameraFaceCenterUp"],
+        faceCenterDown: texts["cameraFaceCenterDown"],
+        faceRollRight: texts["cameraFaceRollRight"],
+        faceRollLeft: texts["cameraFaceRollLeft"],
+        noFaceRoll: texts["cameraNoFaceRoll"]
+      )
+    )
+
+    if let logoName = assets["cameraLogo"], let logo = RnSdkBundle.getImage(named: logoName) {
+      _ = builder.setCameraLogo(FortfaceCameraLogo(icon: logo, iconSmall: logo))
+    }
+
+    return builder
   }
 
   // MARK: - Utils

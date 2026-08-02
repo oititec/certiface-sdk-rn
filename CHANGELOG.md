@@ -16,8 +16,8 @@
 
 ### Alterado
 
-- Dependência Android `certifacesdk` `1.3.1-snapshot-3`
-- Types: Fortface / SaaS `@platform android`; typo `opentSettingsButton` deprecated
+- Dependência Android `certifacesdk` `2.0.0-beta-1`
+- Types: Fortface / SaaS disponíveis; typo `opentSettingsButton` deprecated
 - Example `customTheme` como referência completa de customização
 
 ## [1.1.5] - 29/07/2026

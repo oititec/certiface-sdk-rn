@@ -7,7 +7,6 @@ export enum LivenessProvider {
 /**
  * Providers available in the SaaS flow (token-based).
  * The actual provider is resolved server-side based on the journeyToken.
- * @platform android
  */
 export type SaasProvider = 'FACETEC' | 'FORTFACE';
 
@@ -577,7 +576,6 @@ export interface ResultTheme {
 
 /**
  * Fortface Theme
- * @platform android
  */
 
 export type FortfaceCancelPosition = 'LEFT' | 'RIGHT';
@@ -594,6 +592,7 @@ export interface FortfaceColors {
   cameraSuccess?: string;
   cameraBrightnessAlert?: string;
   cameraLoading?: string;
+  cameraLoadingStroke?: string;
   cameraIconBackground?: string;
   modalOverlay?: string;
 }

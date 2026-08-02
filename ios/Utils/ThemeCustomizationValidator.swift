@@ -41,7 +41,9 @@ enum ThemeCustomizationValidator {
     provider: ThemeValidationProvider
   ) -> [String: Any] {
     var scoped = theme
-    scoped.removeValue(forKey: provider.excludedThemeKey)
+    for key in provider.excludedThemeKeys {
+      scoped.removeValue(forKey: key)
+    }
     return scoped
   }
 

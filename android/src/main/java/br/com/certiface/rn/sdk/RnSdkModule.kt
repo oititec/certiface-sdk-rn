@@ -8,12 +8,12 @@ import com.facebook.react.bridge.Callback
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
-import com.facebook.react.bridge.WritableMap
-import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.UiThreadUtil
 import com.facebook.react.module.annotations.ReactModule
 import br.com.certiface.rn.sdk.executor.LivenessExecutor
 import br.com.certiface.rn.sdk.model.Features
 import org.json.JSONObject
+import java.util.concurrent.atomic.AtomicBoolean
 
 @ReactModule(name = RnSdkModule.NAME)
 class RnSdkModule(reactContext: ReactApplicationContext) :
@@ -54,19 +54,20 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
     theme: ReadableMap?
   ) {
     val customEnabled = isCustomEnabled ?: false
+    val delivered = AtomicBoolean(false)
 
     if (appKey.isNullOrEmpty()) {
-      onError?.invoke(serializeBridgeError("APP_KEY_NULO", "APP_KEY_NULO"))
+      invokeOnceOnUiThread(delivered, onError, serializeBridgeError("APP_KEY_NULO", "APP_KEY_NULO"))
       return
     }
 
     if (environment.isNullOrEmpty()) {
-      onError?.invoke(serializeBridgeError("ENVIRONMENT_NULO", "ENVIRONMENT_NULO"))
+      invokeOnceOnUiThread(delivered, onError, serializeBridgeError("ENVIRONMENT_NULO", "ENVIRONMENT_NULO"))
       return
     }
 
     if (provider.isNullOrEmpty()) {
-      onError?.invoke(serializeBridgeError("PROVIDER_NULO", "PROVIDER_NULO"))
+      invokeOnceOnUiThread(delivered, onError, serializeBridgeError("PROVIDER_NULO", "PROVIDER_NULO"))
       return
     }
 
@@ -74,13 +75,17 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
       "FACETEC" -> Features.Facetec
       "IPROOV" -> Features.IProov
       else -> {
-        onError?.invoke(serializeBridgeError("PROVIDER_INVALIDO", "PROVIDER_INVALIDO: $provider"))
+        invokeOnceOnUiThread(
+          delivered,
+          onError,
+          serializeBridgeError("PROVIDER_INVALIDO", "PROVIDER_INVALIDO: $provider")
+        )
         return
       }
     }
 
     val activity = reactApplicationContext ?: run {
-      onError?.invoke(serializeBridgeError("NO_ACTIVITY", "NO_ACTIVITY"))
+      invokeOnceOnUiThread(delivered, onError, serializeBridgeError("NO_ACTIVITY", "NO_ACTIVITY"))
       return
     }
 
@@ -89,10 +94,10 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
       environment = environment,
       execOnSuccess = { livenessResult ->
         val jsonResult = convertLivenessResultToJson(livenessResult)
-        onSuccess?.invoke(jsonResult)
+        invokeOnceOnUiThread(delivered, onSuccess, jsonResult)
       },
       execOnError = { error ->
-        onError?.invoke(error)
+        invokeOnceOnUiThread(delivered, onError, error)
       },
       isCustomEnabled = customEnabled,
       theme = theme
@@ -108,19 +113,20 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
     theme: ReadableMap?
   ) {
     val customEnabled = isCustomEnabled ?: false
+    val delivered = AtomicBoolean(false)
 
     if (token.isNullOrEmpty()) {
-      onError?.invoke(serializeBridgeError("TOKEN_NULO", "TOKEN_NULO"))
+      invokeOnceOnUiThread(delivered, onError, serializeBridgeError("TOKEN_NULO", "TOKEN_NULO"))
       return
     }
 
     if (environment.isNullOrEmpty()) {
-      onError?.invoke(serializeBridgeError("ENVIRONMENT_NULO", "ENVIRONMENT_NULO"))
+      invokeOnceOnUiThread(delivered, onError, serializeBridgeError("ENVIRONMENT_NULO", "ENVIRONMENT_NULO"))
       return
     }
 
     val activity = reactApplicationContext ?: run {
-      onError?.invoke(serializeBridgeError("NO_ACTIVITY", "NO_ACTIVITY"))
+      invokeOnceOnUiThread(delivered, onError, serializeBridgeError("NO_ACTIVITY", "NO_ACTIVITY"))
       return
     }
 
@@ -130,14 +136,28 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
       environment = environment,
       execOnSuccess = { livenessResult ->
         val jsonResult = convertLivenessResultToJson(livenessResult)
-        onSuccess?.invoke(jsonResult)
+        invokeOnceOnUiThread(delivered, onSuccess, jsonResult)
       },
       execOnError = { error ->
-        onError?.invoke(error)
+        invokeOnceOnUiThread(delivered, onError, error)
       },
       isCustomEnabled = customEnabled,
       theme = theme
     )
+  }
+
+  private fun invokeOnceOnUiThread(
+    delivered: AtomicBoolean,
+    callback: Callback?,
+    payload: String?
+  ) {
+    if (!delivered.compareAndSet(false, true)) {
+      return
+    }
+
+    UiThreadUtil.runOnUiThread {
+      callback?.invoke(payload)
+    }
   }
 
   private fun convertLivenessResultToJson(livenessResult: br.com.certiface.manager.exports.LivenessResult?): String {

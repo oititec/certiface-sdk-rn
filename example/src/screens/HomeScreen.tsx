@@ -109,9 +109,8 @@ const HomeScreen = () => {
             themeEnabled ? selectedTheme : undefined
           );
 
-      const { valid, codID, protocol } = result;
       addResult(
-        `✅ Sucesso: valid=${valid} codID=${codID} protocol=${protocol}`
+        `✅ Sucesso: valid=${result?.valid} codID=${result?.codID} protocol=${result?.protocol}`
       );
       navigation.navigate('Results');
     } catch (error) {

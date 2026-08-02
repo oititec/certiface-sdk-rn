@@ -2,11 +2,11 @@ import type { CertifaceTheme } from '@certiface/sdk';
 
 export const customTheme: CertifaceTheme = {
   // O provider efetivo vem do parâmetro `provider` em `CertifaceSDK.startJourney`
-  // ou `startSaasJourney` (FaceTec/Fortface via token SaaS — Android).
+  // ou `startSaasJourney` (FaceTec/Fortface via token SaaS).
   //
   // FaceTec nativo: `facetec.*` (+ instructions/permission/processing compartilhados).
   // iProov: `iproov.*` + instructions/permission/processing/result.
-  // Fortface (Android): `fortface.*` + instructions/permission/processing/result.
+  // Fortface (SaaS): `fortface.*` + instructions/permission/processing/result.
   // `result.*` = iProov e Fortface. FaceTec usa `facetec.*` para a tela de resultado nativa.
   // Permission bottom sheet / openSettings / closeButton = iOS-only (todos os providers no Android).
 
@@ -187,7 +187,7 @@ export const customTheme: CertifaceTheme = {
     },
   },
 
-  // Fortface — @platform android (startSaasJourney com provider FORTFACE).
+  // Fortface — startSaasJourney (provider resolvido pelo token).
   fortface: {
     colors: {
       cameraBackground: '#0D47A1',
@@ -197,6 +197,7 @@ export const customTheme: CertifaceTheme = {
       cameraSuccess: '#5FC213',
       cameraBrightnessAlert: '#24B8C2',
       cameraLoading: '#5FC213',
+      cameraLoadingStroke: '#FFFFFF',
       cameraIconBackground: '#F1F1F1',
       // Usado com screenMode: 'MODAL'.
       modalOverlay: '#80000000',

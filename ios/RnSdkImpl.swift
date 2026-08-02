@@ -21,53 +21,36 @@ import UIKit
     onSuccess: @escaping (String) -> Void,
     onError: @escaping (String) -> Void
   ) {
-    print(
-      "AppKey: \(appKey), Environment: \(environment), Provider: \(provider), CustomEnabled: \(isCustomEnabled)"
-    )
-    if let themeData = theme {
-      print("Theme: \(themeData)")
-    }
-
     self.onSuccessCallback = onSuccess
     self.onErrorCallback = onError
 
-    let sdkEnvironment: CertifaceSDK.Environment
-    if environment == "PRD" {
-      sdkEnvironment = .prd
-    } else {
-      sdkEnvironment = .hml
-    }
+    guard provider == "IPROOV" else {
+      if provider == "FACETEC" {
+        onError(
+          NativeErrorPayload.serialize(
+            code: "UNSUPPORTED_OPERATION",
+            message: "FaceTec agora usa fluxo SaaS com journeyToken. Use CertifaceSDK.startSaasJourney(token, environment, ...) ao invés de startJourney(appKey, environment, 'FACETEC', ...)."
+          )
+        )
+        return
+      }
 
-    let livenessProvider: LivenessProvider
-    if provider == "FACETEC" {
-      livenessProvider = .facetec
-    } else if provider == "IPROOV" {
-      livenessProvider = .iproov
-    } else {
       onError(
         NativeErrorPayload.serialize(
           code: "PROVIDER_INVALIDO",
-          message: "Invalid provider: \(provider)"
+          message: "PROVIDER_INVALIDO: \(provider)"
         )
       )
       return
     }
 
-    var facetecCustomization = FacetecCustomization.builder().build()
+    let sdkEnvironment = resolveEnvironment(environment)
     var iproovCustomization = IProovCustomization.builder().build()
-
     var showInstructionsScreen = true
 
     if isCustomEnabled {
       do {
-        switch livenessProvider {
-        case .facetec:
-          facetecCustomization = try ThemeFactory.createFacetecCustomization(from: theme)
-        case .iproov:
-          iproovCustomization = try ThemeFactory.createIProovCustomization(from: theme)
-        @unknown default:
-          break
-        }
+        iproovCustomization = try ThemeFactory.createIProovCustomization(from: theme)
       } catch let error as ThemeCustomizationError {
         onError(NativeErrorPayload.fromThemeError(error))
         return
@@ -81,22 +64,74 @@ import UIKit
         return
       }
 
-      if let themeData = theme,
-         let instructionsTheme = themeData["instructions"] as? [String: Any],
-         let configuration = instructionsTheme["configuration"] as? [String: Any],
-         let showInstruction = configuration["showInstructionScreen"] as? Bool {
-        showInstructionsScreen = showInstruction
-      }
+      showInstructionsScreen = resolveShowInstructionsScreen(from: theme)
     }
 
     let options = LivenessManagerOptions
       .builder(appKey: appKey, environment: sdkEnvironment)
       .setShowInstructionsScreen(showInstructionsScreen)
-      .setFacetecCustomization(facetecCustomization)
       .setIProovCustomization(iproovCustomization)
       .build()
-    let manager = CertifaceSDKFactory.createLivenessManager(for: livenessProvider)
+    let manager = CertifaceSDKFactory.createLivenessManager(for: .iproov)
 
+    start(manager: manager, options: options, onError: onError)
+  }
+
+  @objc public func startSaasJourney(
+    token: String,
+    environment: String,
+    isCustomEnabled: Bool,
+    theme: [String: Any]?,
+    onSuccess: @escaping (String) -> Void,
+    onError: @escaping (String) -> Void
+  ) {
+    self.onSuccessCallback = onSuccess
+    self.onErrorCallback = onError
+
+    let sdkEnvironment = resolveEnvironment(environment)
+    var facetecCustomization = FacetecCustomization.builder().build()
+    var fortfaceCustomization = FortfaceCustomization.builder().build()
+    var saasCustomization = SaasCustomization.builder().build()
+    var showInstructionsScreen = true
+
+    if isCustomEnabled {
+      do {
+        facetecCustomization = try ThemeFactory.createFacetecCustomization(from: theme)
+        fortfaceCustomization = try ThemeFactory.createFortfaceCustomization(from: theme)
+        saasCustomization = try ThemeFactory.createSaasCustomization(from: theme)
+      } catch let error as ThemeCustomizationError {
+        onError(NativeErrorPayload.fromThemeError(error))
+        return
+      } catch {
+        onError(
+          NativeErrorPayload.serialize(
+            code: "INVALID_PARAMS",
+            message: "Parâmetros de customização inválidos."
+          )
+        )
+        return
+      }
+
+      showInstructionsScreen = resolveShowInstructionsScreen(from: theme)
+    }
+
+    let options = LivenessManagerOptions
+      .builder(token: token, environment: sdkEnvironment)
+      .setShowInstructionsScreen(showInstructionsScreen)
+      .setFacetecCustomization(facetecCustomization)
+      .setFortfaceCustomization(fortfaceCustomization)
+      .setSaasCustomization(saasCustomization)
+      .build()
+    let manager = CertifaceSDKFactory.createLivenessManager(for: .saas)
+
+    start(manager: manager, options: options, onError: onError)
+  }
+
+  private func start(
+    manager: LivenessManager,
+    options: LivenessManagerOptions,
+    onError: @escaping (String) -> Void
+  ) {
     DispatchQueue.main.async { [weak self] in
       guard let self, let viewController = getRootViewController() else {
         onError(
@@ -110,5 +145,19 @@ import UIKit
 
       manager.start(at: viewController, options: options, callback: self)
     }
+  }
+
+  private func resolveEnvironment(_ environment: String) -> CertifaceSDK.Environment {
+    environment == "PRD" ? .prd : .hml
+  }
+
+  private func resolveShowInstructionsScreen(from theme: [String: Any]?) -> Bool {
+    guard let themeData = theme,
+          let instructionsTheme = themeData["instructions"] as? [String: Any],
+          let configuration = instructionsTheme["configuration"] as? [String: Any],
+          let showInstruction = configuration["showInstructionScreen"] as? Bool else {
+      return true
+    }
+    return showInstruction
   }
 }
