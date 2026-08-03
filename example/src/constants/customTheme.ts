@@ -225,7 +225,6 @@ export const customTheme: CertifaceTheme = {
     },
     assets: {
       cancelButtonIcon: 'fortface_cancel_button_light',
-      cameraLogo: 'people',
       brightnessHighIcon: 'ic_brightness_high',
       brightnessLowIcon: 'ic_brightness_low',
     },
@@ -236,7 +235,7 @@ export const customTheme: CertifaceTheme = {
     sizes: {
       cameraTimeout: 30,
       cameraMinStabilizationTime: 2,
-      cameraMaxStabilizationTime: 3,
+      cameraMaxStabilizationTime: 6,
       brightnessValidationTimeout: 10,
       // Usado com screenMode: 'MODAL' (0–1).
       modalOverlayOpacity: 0.6,
@@ -249,7 +248,7 @@ export const customTheme: CertifaceTheme = {
       cancelPosition: 'LEFT',
       // Default do exemplo: FULL_SCREEN. Para overlay: screenMode: 'MODAL' + colors.modalOverlay + sizes.modalOverlayOpacity.
       screenMode: 'FULL_SCREEN',
-      screenOrientation: 'AUTOMATIC',
+      screenOrientation: 'PORTRAIT',
       // Arquivo JSON de customização Fortface no assets do app (quando aplicável).
       // customizationJsonFileName: 'fortface_customization.json',
     },
