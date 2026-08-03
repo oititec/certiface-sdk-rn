@@ -554,11 +554,19 @@ final class ThemeFactory {
     setColor(colors["frameBorder"], with: builder.setFrameBorderColor(_:))
     setColor(colors["frameBackground"], with: builder.setFrameBackgroundColor(_:))
     setColor(colors["ovalStroke"], with: builder.setOvalStrokeColor(_:))
-    _ = builder.setOvalStrokeWidth(intThemeValue(sizes["ovalStrokeWidth"]) ?? 4)
+    if let strokeWidth = intThemeValue(sizes["ovalStrokeWidth"]), strokeWidth > 0 {
+      _ = builder.setOvalStrokeWidth(strokeWidth)
+    }
     setColor(colors["ovalProgressFirst"], with: builder.setOvalProgressFirstColor(_:))
     setColor(colors["ovalProgressSecond"], with: builder.setOvalProgressSecondColor(_:))
-    _ = builder.setOvalProgressWidth(intThemeValue(sizes["ovalProgressStrokeWidth"] ?? sizes["ovalProgressWidth"]) ?? 6)
-    _ = builder.setOvalProgressOffset(intThemeValue(sizes["ovalProgressRadialOffset"] ?? sizes["ovalProgressOffset"]) ?? 8)
+    if let progressWidth = intThemeValue(sizes["ovalProgressStrokeWidth"] ?? sizes["ovalProgressWidth"]),
+       progressWidth > 0 {
+      _ = builder.setOvalProgressWidth(progressWidth)
+    }
+    if let progressOffset = intThemeValue(sizes["ovalProgressRadialOffset"] ?? sizes["ovalProgressOffset"]),
+       progressOffset > 0 {
+      _ = builder.setOvalProgressOffset(progressOffset)
+    }
     setColor(colors["overlayBackground"], with: builder.setOverlayBackgroundColor(_:))
 
     let flags = livenessTheme["flags"] as? [String: Any] ?? [:]
@@ -579,15 +587,15 @@ final class ThemeFactory {
     setImage(assets["cancelButtonIcon"], with: builder.setCancelButtonIcon(_:))
 
     let fonts = livenessTheme["fonts"] as? [String: String] ?? [:]
-    setFont(fonts["readyScreenHeader"], with: builder.setReadyScreenHeaderFont(_:), size: 0)
-    setFont(fonts["readyScreenSubtext"], with: builder.setReadyScreenMessageFont(_:), size: 0)
-    setFont(fonts["resultScreenMessage"], with: builder.setResultScreenMessageFont(_:), size: 0)
-    setFont(fonts["retryScreenHeader"], with: builder.setRetryScreenHeaderFont(_:), size: 0)
-    setFont(fonts["retryScreenSubtext"], with: builder.setRetryScreenCaptionFont(_:), size: 0)
-    setFont(fonts["feedbackMessage"], with: builder.setFeedbackMessageFont(_:), size: 0)
-    setFont(fonts["guidanceHeader"], with: builder.setGuidanceHeaderFont(_:), size: 0)
-    setFont(fonts["guidanceSubtext"], with: builder.setGuidanceSubtextFont(_:), size: 0)
-    setFont(fonts["guidanceButton"], with: builder.setGuidanceButtonFont(_:), size: 0)
+    setFont(fonts["readyScreenHeader"], with: builder.setReadyScreenHeaderFont(_:), size: 20)
+    setFont(fonts["readyScreenSubtext"], with: builder.setReadyScreenMessageFont(_:), size: 16)
+    setFont(fonts["resultScreenMessage"], with: builder.setResultScreenMessageFont(_:), size: 16)
+    setFont(fonts["retryScreenHeader"], with: builder.setRetryScreenHeaderFont(_:), size: 20)
+    setFont(fonts["retryScreenSubtext"], with: builder.setRetryScreenCaptionFont(_:), size: 16)
+    setFont(fonts["feedbackMessage"], with: builder.setFeedbackMessageFont(_:), size: 18)
+    setFont(fonts["guidanceHeader"], with: builder.setGuidanceHeaderFont(_:), size: 20)
+    setFont(fonts["guidanceSubtext"], with: builder.setGuidanceSubtextFont(_:), size: 16)
+    setFont(fonts["guidanceButton"], with: builder.setGuidanceButtonFont(_:), size: 16)
 
     if let width = intThemeValue(sizes["guidanceButtonBorderWidth"]) {
       _ = builder.setGuidanceButtonBorderWidth(width)
@@ -658,7 +666,11 @@ final class ThemeFactory {
     var livenessTexts = [Liveness3DTextKey : String]()
 
     for (themeKey, textKey) in keys {
-      livenessTexts[textKey] = texts[themeKey]
+      guard let value = texts[themeKey]?.trimmingCharacters(in: .whitespacesAndNewlines),
+            !value.isEmpty else {
+        continue
+      }
+      livenessTexts[textKey] = value
     }
 
     return livenessTexts
@@ -1029,22 +1041,19 @@ final class ThemeFactory {
       return color
     }
 
-    let blobColor = getColor(
-      from: colors["resultScreenActivityIndicator"],
-      defaultColor: .black
-    )
-    let checkmarkForegroundColor = getColor(
-      from: colors["resultScreenResultAnimationForeground"],
-      defaultColor: .black
-    )
-    let checkmarkBackgroundColor = getColor(
-      from: colors["resultScreenResultAnimationBackground"],
-      defaultColor: .black
-    )
     return BlobAnimationAppearance(
-      blobColor: blobColor,
-      checkmarkForegroundColor: checkmarkForegroundColor,
-      checkmarkBackgroundColor: checkmarkBackgroundColor
+      blobColor: getColor(
+        from: colors["resultScreenActivityIndicator"],
+        defaultColor: .black
+      ),
+      checkmarkForegroundColor: getColor(
+        from: colors["resultScreenResultAnimationForeground"],
+        defaultColor: .white
+      ),
+      checkmarkBackgroundColor: getColor(
+        from: colors["resultScreenResultAnimationBackground"],
+        defaultColor: .black
+      )
     )
   }
 }

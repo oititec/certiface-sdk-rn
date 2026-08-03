@@ -2172,10 +2172,10 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CertifaceModules:
-    :commit: 9c3fd9f26b186e3e5b2062653c19b9bda5fdf1f2
+    :commit: c521baf271477d9d0e6103d87bf8d49289ad6ebb
     :git: https://github.com/oititec/ios-oiti-sdk.git
   CertifaceSDK:
-    :commit: 9c3fd9f26b186e3e5b2062653c19b9bda5fdf1f2
+    :commit: c521baf271477d9d0e6103d87bf8d49289ad6ebb
     :git: https://github.com/oititec/ios-oiti-sdk.git
   CFFortfaceSDK:
     :commit: 4e2e26fc6d260a44145d14a54cc2a31661cdced6
