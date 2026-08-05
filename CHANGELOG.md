@@ -16,9 +16,11 @@
 
 ### Alterado
 
-- Dependência Android `certifacesdk` `2.0.0-beta-1`
+- Dependência Android `certifacesdk` `2.0.0` (repositório production)
+- Dependência iOS `CertifaceSDK` `2.0.0` via CocoaPods/artifactory (sem branches git)
 - Types: Fortface / SaaS disponíveis; typo `opentSettingsButton` deprecated
 - Example `customTheme` como referência completa de customização
+- Example iOS: pods git (`feature/30418-fortface` / `ios-certiface-fortface`) comentados; pin em `CertifaceSDK` `2.0.0`
 
 ## [1.1.5] - 29/07/2026
 

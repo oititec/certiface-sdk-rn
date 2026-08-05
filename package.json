@@ -1,7 +1,6 @@
 {
   "name": "@certiface/sdk",
   "version": "2.0.0",
-  "private": true,
   "description": "Certiface SDK",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
