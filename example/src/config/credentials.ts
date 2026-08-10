@@ -3,7 +3,7 @@ type FeatureType = 'IPROOV' | 'SAAS';
 type CredentialPair = { user: string; pass: string };
 
 export const apiCredentials: Record<'IPROOV', CredentialPair> = {
-  IPROOV: { user: 'mobile.demo.app', pass: 'ddc0ba9a6a5ab1681108a7e34c914207' },
+  IPROOV: { user: '', pass: '' },
 };
 
 export function getApiCredentials(feature: FeatureType): CredentialPair {
