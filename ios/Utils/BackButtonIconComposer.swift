@@ -11,11 +11,13 @@ final class BackButtonIconComposer {
     let renderer = UIGraphicsImageRenderer(size: size, format: format)
 
     return renderer.image { _ in
-      let widthRatio = size.width / icon.size.width
-      let heightRatio = size.height / icon.size.height
+      let iconWidth = max(icon.size.width, 1)
+      let iconHeight = max(icon.size.height, 1)
+      let widthRatio = size.width / iconWidth
+      let heightRatio = size.height / iconHeight
       let scale = min(widthRatio, heightRatio)
-      let width = icon.size.width * scale
-      let height = icon.size.height * scale
+      let width = iconWidth * scale
+      let height = iconHeight * scale
       let drawRect = CGRect(
         x: (size.width - width) / 2,
         y: (size.height - height) / 2,

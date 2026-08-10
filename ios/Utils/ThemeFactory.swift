@@ -172,7 +172,8 @@ final class ThemeFactory {
     setImage(assetStrings["contextImage"], with: builder.setContextImage(_:))
 
     let iconScale = InstructionIconScaleMode.from(assets["instructionIconScale"] as? String)
-    let iconSize = CGFloat(doubleThemeValue(assets["instructionIconSize"]) ?? 60)
+    let rawIconSize = CGFloat(doubleThemeValue(assets["instructionIconSize"]) ?? 60)
+    let iconSize = min(max(rawIconSize, 16), 256)
 
     setInstructionIcon(
       assetStrings["firstInstructionIcon"],
@@ -960,44 +961,13 @@ final class ThemeFactory {
   private static func setFont<T>(_ fontName: String?, with builder: @escaping (UIFont) -> T, size: CGFloat) {
     guard let fontName else { return }
     let normalizedSize = size > 0 ? size : UIFont.systemFontSize
-    guard let resolvedName = resolveFontName(fontName) else { return }
+    guard let resolvedName = FontNameResolver.resolve(fontName) else { return }
     guard let font = UIFont(name: resolvedName, size: normalizedSize) else { return }
     _ = builder(font)
   }
 
   private static func resolveFontName(_ fontName: String) -> String? {
-    let trimmed = fontName.trimmingCharacters(in: .whitespacesAndNewlines)
-    if UIFont(name: trimmed, size: UIFont.systemFontSize) != nil {
-      return trimmed
-    }
-
-    let pathComponent = (trimmed as NSString).lastPathComponent
-    if UIFont(name: pathComponent, size: UIFont.systemFontSize) != nil {
-      return pathComponent
-    }
-
-    let baseName = (pathComponent as NSString).deletingPathExtension
-    if UIFont(name: baseName, size: UIFont.systemFontSize) != nil {
-      return baseName
-    }
-
-    let wanted = baseName.lowercased()
-    for family in UIFont.familyNames {
-      if family.lowercased().contains(wanted) {
-        let familyCandidates = UIFont.fontNames(forFamilyName: family)
-        if let first = familyCandidates.first {
-          return first
-        }
-      }
-      for candidate in UIFont.fontNames(forFamilyName: family) {
-        let candidateNormalized = candidate.lowercased()
-        if candidateNormalized == wanted || candidateNormalized.contains(wanted) {
-          return candidate
-        }
-      }
-    }
-
-    return nil
+    FontNameResolver.resolve(fontName)
   }
 
   private static func applyIProovBaseFont(
@@ -1055,5 +1025,63 @@ final class ThemeFactory {
         defaultColor: .black
       )
     )
+  }
+}
+
+enum FontNameResolver {
+  private static let lock = NSLock()
+  private static var cache: [String: String?] = [:]
+
+  static func resolve(_ fontName: String) -> String? {
+    let trimmed = fontName.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return nil }
+
+    lock.lock()
+    if let cached = cache[trimmed] {
+      lock.unlock()
+      return cached
+    }
+    lock.unlock()
+
+    let resolved = resolveUncached(trimmed)
+
+    lock.lock()
+    cache[trimmed] = resolved
+    lock.unlock()
+    return resolved
+  }
+
+  private static func resolveUncached(_ trimmed: String) -> String? {
+    if UIFont(name: trimmed, size: UIFont.systemFontSize) != nil {
+      return trimmed
+    }
+
+    let pathComponent = (trimmed as NSString).lastPathComponent
+    if UIFont(name: pathComponent, size: UIFont.systemFontSize) != nil {
+      return pathComponent
+    }
+
+    let baseName = (pathComponent as NSString).deletingPathExtension
+    if UIFont(name: baseName, size: UIFont.systemFontSize) != nil {
+      return baseName
+    }
+
+    let wanted = baseName.lowercased()
+    for family in UIFont.familyNames {
+      if family.lowercased().contains(wanted) {
+        let familyCandidates = UIFont.fontNames(forFamilyName: family)
+        if let first = familyCandidates.first {
+          return first
+        }
+      }
+      for candidate in UIFont.fontNames(forFamilyName: family) {
+        let candidateNormalized = candidate.lowercased()
+        if candidateNormalized == wanted || candidateNormalized.contains(wanted) {
+          return candidate
+        }
+      }
+    }
+
+    return nil
   }
 }

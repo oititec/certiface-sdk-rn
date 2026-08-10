@@ -1,15 +1,18 @@
 #import "RnSdk.h"
 #import "RnSdk-Swift.h"
 #import <AVFoundation/AVFoundation.h>
+#import <stdatomic.h>
 
 @implementation RnSdk {
   RnSdkImpl *moduleImpl;
+  atomic_bool cameraPermissionInFlight;
 }
 
 - (instancetype)init {
   self = [super init];
   if (self) {
     moduleImpl = [RnSdkImpl new];
+    atomic_init(&cameraPermissionInFlight, false);
   }
   return self;
 }
@@ -34,8 +37,15 @@ RCT_EXPORT_MODULE(CertifaceRnSdk)
     return;
   }
 
+  bool expected = false;
+  if (!atomic_compare_exchange_strong(&cameraPermissionInFlight, &expected, true)) {
+    reject(@"ERROR", @"Camera permission request already in progress", nil);
+    return;
+  }
+
   [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
                            completionHandler:^(BOOL granted) {
+    atomic_store(&cameraPermissionInFlight, false);
     dispatch_async(dispatch_get_main_queue(), ^{
       resolve(@(granted));
     });

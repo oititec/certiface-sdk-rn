@@ -131,8 +131,8 @@ object IProovThemeFactory {
     val instructionsTexts = instructionsTheme?.getMap("texts")
     val instructionsConfiguration = instructionsTheme?.getMap("configuration")
     val instructionsFlags = instructionsTheme?.getMap("flags")
-    val showInstructionScreen = instructionsConfiguration?.getBoolean("showInstructionScreen") ?: true
-    val instructionStatusBarDarkIcons = instructionsFlags?.getBoolean("statusBarIsDarkIcons") ?: false
+    val showInstructionScreen = optBoolean(instructionsConfiguration, "showInstructionScreen", true)
+    val instructionStatusBarDarkIcons = optBoolean(instructionsFlags, "statusBarIsDarkIcons", false)
 
     val iproovDrawablesRaw = AssetProcessor.processIProovAssets(theme)
     val iproovDrawables = resolveIProovDrawables(context, iproovDrawablesRaw)
@@ -205,11 +205,15 @@ object IProovThemeFactory {
       instructionsAssets?.getString("contextImageScale")
         ?.let { setContextImageScale(InstructionImageScale.fromString(it)) }
       if (instructionsAssets?.hasKey("contextImageHeightFraction") == true)
-        setContextImageHeightFraction(instructionsAssets.getDouble("contextImageHeightFraction").toFloat())
+        setContextImageHeightFraction(
+          optFloatOrNull(instructionsAssets, "contextImageHeightFraction") ?: 0.5f
+        )
       instructionsAssets?.getString("instructionIconScale")
         ?.let { setInstructionIconScale(InstructionImageScale.fromString(it)) }
       if (instructionsAssets?.hasKey("instructionIconSize") == true)
-        setInstructionIconSize(instructionsAssets.getDouble("instructionIconSize").toInt())
+        setInstructionIconSize(
+          clampedThemeInt(instructionsAssets, "instructionIconSize", 16, 256) ?: 60
+        )
     }
 
     val permissionColors = permissionTheme?.getMap("colors")
@@ -248,8 +252,8 @@ object IProovThemeFactory {
       setLoadingDialogColor(firstString(processingColors, "loadingDialogColor", "loading") ?: "#FFFFFF")
       setStatusBarColor(firstString(processingColors, "statusBarColor", "statusBar") ?: "#000000")
       setStatusBarIsDarkIcons(optBoolean(processingFlags, "statusBarIsDarkIcons", true))
-      setLoadingIndicatorSize(optInt(processingSizes, "loadingIndicatorSize", 100))
-      setLoadingIndicatorWidth(optInt(processingSizes, "loadingIndicatorWidth", 10))
+      setLoadingIndicatorSize(clampedInt(processingSizes, "loadingIndicatorSize", 100, 8, 512))
+      setLoadingIndicatorWidth(clampedInt(processingSizes, "loadingIndicatorWidth", 10, 1, 64))
       (
         firstString(processingTexts, "message")
           ?: firstString(iproovTexts, "processingMessage")
@@ -374,8 +378,8 @@ object IProovThemeFactory {
 
     return drawables.mapNotNull { (key, value) ->
       if (key in reservedForDirectSetters) return@mapNotNull null
-      val resourceId = resolveDrawableResourceId(context, value)
-      key to (resourceId ?: value)
+      val resourceId = resolveDrawableResourceId(context, value) ?: return@mapNotNull null
+      key to resourceId
     }.toMap()
   }
 

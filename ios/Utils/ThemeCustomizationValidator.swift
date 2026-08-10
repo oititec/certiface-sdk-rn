@@ -67,7 +67,8 @@ enum ThemeCustomizationValidator {
     return nil
   }
 
-  private static func findColorIssue(in node: Any, pathPrefix: String = "") -> String? {
+  private static func findColorIssue(in node: Any, pathPrefix: String = "", depth: Int = 0) -> String? {
+    guard depth <= 12 else { return "theme" }
     guard let dictionary = node as? [String: Any] else { return nil }
 
     if let colors = dictionary["colors"] as? [String: Any] {
@@ -82,7 +83,7 @@ enum ThemeCustomizationValidator {
     }
 
     for (key, value) in dictionary {
-      if let nested = findColorIssue(in: value, pathPrefix: key) {
+      if let nested = findColorIssue(in: value, pathPrefix: key, depth: depth + 1) {
         return nested
       }
     }
@@ -323,36 +324,6 @@ enum ThemeCustomizationValidator {
   }
 
   private static func resolveFontName(_ fontName: String) -> String? {
-    let trimmed = fontName.trimmingCharacters(in: .whitespacesAndNewlines)
-    if UIFont(name: trimmed, size: UIFont.systemFontSize) != nil {
-      return trimmed
-    }
-
-    let pathComponent = (trimmed as NSString).lastPathComponent
-    if UIFont(name: pathComponent, size: UIFont.systemFontSize) != nil {
-      return pathComponent
-    }
-
-    let baseName = (pathComponent as NSString).deletingPathExtension
-    if UIFont(name: baseName, size: UIFont.systemFontSize) != nil {
-      return baseName
-    }
-
-    let wanted = baseName.lowercased()
-    for family in UIFont.familyNames {
-      if family.lowercased().contains(wanted) {
-        if let first = UIFont.fontNames(forFamilyName: family).first {
-          return first
-        }
-      }
-      for candidate in UIFont.fontNames(forFamilyName: family) {
-        let candidateNormalized = candidate.lowercased()
-        if candidateNormalized == wanted || candidateNormalized.contains(wanted) {
-          return candidate
-        }
-      }
-    }
-
-    return nil
+    FontNameResolver.resolve(fontName)
   }
 }

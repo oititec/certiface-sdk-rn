@@ -6,9 +6,12 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { getApiCredentials } from '../config/credentials';
 import { cancelJourneyToken, createJourneyToken } from '../services/saasApi';
 
 export type FeatureType = 'IPROOV' | 'SAAS';
+
+const MAX_RESULTS = 50;
 
 interface UserData {
   cpf: string;
@@ -102,12 +105,15 @@ export const useUserStore = create<UserStore>()(
       setCustomThemeEnabled: (enabled) =>
         set({ isCustomThemeEnabled: enabled }),
       addResult: (result) =>
-        set((state) => ({
-          results: [
+        set((state) => {
+          const next = [
             ...state.results,
             `${new Date().toLocaleTimeString()}: ${result}`,
-          ],
-        })),
+          ];
+          return {
+            results: next.length > MAX_RESULTS ? next.slice(-MAX_RESULTS) : next,
+          };
+        }),
       clearResults: () => set({ results: [] }),
       canRunLiveness: () => {
         const { selectedFeature, appKey, journeyToken } = get();
@@ -117,12 +123,13 @@ export const useUserStore = create<UserStore>()(
       },
       generateAppKey: async () => {
         const { userData } = get();
+        const { user, pass } = getApiCredentials('IPROOV');
         const myHeaders = new Headers();
         myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
 
         const credentialBody = new URLSearchParams();
-        credentialBody.append('user', 'mobile.demo.app');
-        credentialBody.append('pass', 'ddc0ba9a6a5ab1681108a7e34c914207');
+        credentialBody.append('user', user);
+        credentialBody.append('pass', pass);
 
         const credentialResponse = await fetch(
           'https://comercial.certiface.com.br/facecaptcha/service/captcha/credencial',
@@ -135,7 +142,7 @@ export const useUserStore = create<UserStore>()(
         const credential = JSON.parse(await credentialResponse.text());
 
         const appKeyBody = new URLSearchParams();
-        appKeyBody.append('user', 'mobile.demo.app');
+        appKeyBody.append('user', user);
         appKeyBody.append('token', JSON.stringify(credential));
         appKeyBody.append('cpf', userData.cpf);
         appKeyBody.append('nome', userData.nome);

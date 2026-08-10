@@ -8,6 +8,7 @@ import br.com.certiface.manager.exports.LivenessResult
 import br.com.certiface.manager.main.CertifaceSDK
 import br.com.certiface.rn.sdk.factories.FacetecThemeFactory
 import br.com.certiface.rn.sdk.factories.FortfaceThemeFactory
+import br.com.certiface.rn.sdk.factories.optBoolean
 import com.facebook.react.bridge.ReadableMap
 
 class SaasStrategy {
@@ -20,11 +21,25 @@ class SaasStrategy {
   ) {
     val isDebug =
       (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+    val facetecTheme =
+      if (isCustom) FacetecThemeFactory.create(true, theme, context)
+      else FacetecThemeFactory.buildDefault()
+    val fortfaceTheme =
+      if (isCustom) FortfaceThemeFactory.create(true, theme, context)
+      else {
+        val showInstructionScreen =
+          optBoolean(
+            theme?.getMap("instructions")?.getMap("configuration"),
+            "showInstructionScreen",
+            true
+          )
+        FortfaceThemeFactory.buildDefault(showInstructionScreen)
+      }
     val opts = SaasLivenessOptions(
       journeyToken = token,
       isDebug = isDebug,
-      facetecTheme = FacetecThemeFactory.create(isCustom, theme, context),
-      fortfaceTheme = FortfaceThemeFactory.create(isCustom, theme, context)
+      facetecTheme = facetecTheme,
+      fortfaceTheme = fortfaceTheme
     )
     val manager = CertifaceSDK.createSaasLivenessManager()
     manager.start(opts, callback)

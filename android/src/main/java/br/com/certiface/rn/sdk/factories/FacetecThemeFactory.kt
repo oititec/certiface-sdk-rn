@@ -27,7 +27,7 @@ object FacetecThemeFactory {
     val instructionsFonts = instructionsTheme?.getMap("fonts")
     val instructionsConfiguration = instructionsTheme?.getMap("configuration")
     val instructionsFlags = instructionsTheme?.getMap("flags")
-    val showInstructionScreen = instructionsConfiguration?.getBoolean("showInstructionScreen") ?: true
+    val showInstructionScreen = optBoolean(instructionsConfiguration, "showInstructionScreen", true)
 
     val permissionTheme = theme?.getMap("permission")
     val permissionColors = permissionTheme?.getMap("colors")
@@ -303,11 +303,15 @@ object FacetecThemeFactory {
       instructionsAssets?.getString("contextImageScale")
         ?.let { setContextImageScale(InstructionImageScale.fromString(it)) }
       if (instructionsAssets?.hasKey("contextImageHeightFraction") == true)
-        setContextImageHeightFraction(instructionsAssets.getDouble("contextImageHeightFraction").toFloat())
+        setContextImageHeightFraction(
+          optFloatOrNull(instructionsAssets, "contextImageHeightFraction") ?: 0.5f
+        )
       instructionsAssets?.getString("instructionIconScale")
         ?.let { setInstructionIconScale(InstructionImageScale.fromString(it)) }
       if (instructionsAssets?.hasKey("instructionIconSize") == true)
-        setInstructionIconSize(instructionsAssets.getDouble("instructionIconSize").toInt())
+        setInstructionIconSize(
+          clampedThemeInt(instructionsAssets, "instructionIconSize", 16, 256) ?: 60
+        )
     }
 
     setPermissionTheme {
@@ -338,7 +342,7 @@ object FacetecThemeFactory {
       setLoadingDialogColor(firstString(processingColors, "loadingDialogColor", "loading") ?: "#FFFFFF")
       setStatusBarColor(firstString(processingColors, "statusBarColor", "statusBar") ?: "#000000")
       setStatusBarIsDarkIcons(optBoolean(processingFlags, "statusBarIsDarkIcons", false))
-      setLoadingIndicatorSize(optInt(processingSizes, "loadingIndicatorSize", 80))
+      setLoadingIndicatorSize(clampedInt(processingSizes, "loadingIndicatorSize", 80, 8, 512))
       (
         firstString(processingTexts, "message")
           ?: firstString(facetecTexts, "processingMessage")

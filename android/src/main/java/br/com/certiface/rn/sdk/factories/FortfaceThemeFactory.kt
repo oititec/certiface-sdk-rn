@@ -41,7 +41,7 @@ object FortfaceThemeFactory {
     val instructionsFlags = instructionsTheme?.getMap("flags")
     val instructionsSizes = instructionsTheme?.getMap("sizes")
     val showInstructionScreen =
-      instructionsConfiguration?.getBoolean("showInstructionScreen") ?: true
+      optBoolean(instructionsConfiguration, "showInstructionScreen", true)
 
     val permissionTheme = theme?.getMap("permission")
     val permissionColors = permissionTheme?.getMap("colors")
@@ -119,7 +119,7 @@ object FortfaceThemeFactory {
       cameraFrameTextVisible(optBoolean(flags, "cameraFrameTextVisible", true))
 
       if (sizes?.hasKey("modalOverlayOpacity") == true) {
-        modalOverlayOpacity(sizes.getDouble("modalOverlayOpacity").toFloat())
+        modalOverlayOpacity(optFloatOrNull(sizes, "modalOverlayOpacity") ?: 0.5f)
       }
 
       firstString(colors, "modalOverlay")?.let { modalOverlayColor(it) }
@@ -203,13 +203,15 @@ object FortfaceThemeFactory {
           ?.let { setContextImageScale(InstructionImageScale.fromString(it)) }
         if (instructionsAssets?.hasKey("contextImageHeightFraction") == true) {
           setContextImageHeightFraction(
-            instructionsAssets.getDouble("contextImageHeightFraction").toFloat()
+            optFloatOrNull(instructionsAssets, "contextImageHeightFraction") ?: 0.5f
           )
         }
         instructionsAssets?.getString("instructionIconScale")
           ?.let { setInstructionIconScale(InstructionImageScale.fromString(it)) }
         if (instructionsAssets?.hasKey("instructionIconSize") == true) {
-          setInstructionIconSize(instructionsAssets.getDouble("instructionIconSize").toInt())
+          setInstructionIconSize(
+            clampedThemeInt(instructionsAssets, "instructionIconSize", 16, 256) ?: 60
+          )
         }
       }
 
@@ -253,8 +255,8 @@ object FortfaceThemeFactory {
           firstString(processingColors, "statusBarColor", "statusBar") ?: "#000000"
         )
         setStatusBarIsDarkIcons(optBoolean(processingFlags, "statusBarIsDarkIcons", true))
-        setLoadingIndicatorSize(optInt(processingSizes, "loadingIndicatorSize", 100))
-        setLoadingIndicatorWidth(optInt(processingSizes, "loadingIndicatorWidth", 10))
+        setLoadingIndicatorSize(clampedInt(processingSizes, "loadingIndicatorSize", 100, 8, 512))
+        setLoadingIndicatorWidth(clampedInt(processingSizes, "loadingIndicatorWidth", 10, 1, 64))
         firstString(processingTexts, "message")
           ?.let { setProcessingMessage(it) }
           ?: firstString(texts, "processingMessage")?.let { setProcessingMessage(it) }
@@ -313,10 +315,11 @@ object FortfaceThemeFactory {
   fun create(isCustom: Boolean, theme: ReadableMap? = null, context: Context? = null): FortfaceTheme {
     if (!isCustom) {
       val showInstructionScreen =
-        theme?.getMap("instructions")
-          ?.getMap("configuration")
-          ?.getBoolean("showInstructionScreen")
-          ?: true
+        optBoolean(
+          theme?.getMap("instructions")?.getMap("configuration"),
+          "showInstructionScreen",
+          true
+        )
       return buildDefault(showInstructionScreen)
     }
     ThemeColorValidator.validate(theme, "fortface")
