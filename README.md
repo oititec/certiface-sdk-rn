@@ -35,7 +35,7 @@ allprojects {
         google()
         mavenCentral()
         maven {
-            url 'https://raw.githubusercontent.com/oititec/android-certiface-sdk-versions-beta/main'
+            url 'https://raw.githubusercontent.com/oititec/android-certiface-sdk-versions/main'
         }
         maven {
             url 'https://cdn-fortface-sdk.fortface.com.br'
