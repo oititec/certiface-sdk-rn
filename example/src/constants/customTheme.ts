@@ -1,14 +1,10 @@
 import type { CertifaceTheme } from '@certiface/sdk';
 
 export const customTheme: CertifaceTheme = {
-  // O provider efetivo vem do parâmetro `provider` em `CertifaceSDK.startJourney`
-  // ou `startSaasJourney` (FaceTec/Fortface via token SaaS).
-  //
-  // FaceTec nativo: `facetec.*` (+ instructions/permission/processing compartilhados).
-  // iProov: `iproov.*` + instructions/permission/processing/result.
-  // Fortface (SaaS): `fortface.*` + instructions/permission/processing/result.
-  // `result.*` = iProov e Fortface. FaceTec usa `facetec.*` para a tela de resultado nativa.
-  // Permission bottom sheet / openSettings / closeButton = iOS-only (todos os providers no Android).
+  // Fluxos: startJourney (iProov) ou startSaasJourney (FaceTec/Fortface via token).
+  // FaceTec: facetec.* (+ telas compartilhadas). iProov: iproov.* + instructions/permission/processing/result.
+  // Fortface (SaaS): fortface.* + instructions/permission/processing/result.
+  // result.* = iProov e Fortface. FaceTec usa facetec.* na tela de resultado nativa.
 
   facetec: {
     colors: {

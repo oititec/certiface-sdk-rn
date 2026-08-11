@@ -102,6 +102,7 @@ import {
   CertifaceError,
   LivenessProvider,
   Environment,
+  type CertifaceFlow,
   type CertifaceTheme,
   type LivenessResult,
   type SaasProvider,
@@ -224,7 +225,7 @@ Códigos comuns:
 | ------ | ----------- |
 | `JOURNEY_IN_PROGRESS` | Já existe uma jornada em andamento |
 | `JOURNEY_TIMEOUT` | Jornada expirou sem resposta do nativo |
-| `UNSUPPORTED_OPERATION` | Ex.: FaceTec via `startJourney` / appKey |
+| `UNSUPPORTED_OPERATION` | Provider não-iProov em `startJourney` (use SaaS) |
 | `INVALID_PARAMS` | Tema inválido (`invalidParam` indica o campo) |
 | `NO_ACTIVITY` | Sem Activity / rootViewController |
 | `TOKEN_NULO` / `APP_KEY_NULO` / `ENVIRONMENT_NULO` | Parâmetro obrigatório ausente |
@@ -233,10 +234,10 @@ Códigos comuns:
 
 ```typescript
 enum LivenessProvider {
-  FACETEC = 'FACETEC',
   IPROOV = 'IPROOV',
-  FORTFACE = 'FORTFACE',
 }
+
+type CertifaceFlow = 'IPROOV' | 'SAAS';
 
 type SaasProvider = 'FACETEC' | 'FORTFACE';
 
@@ -245,6 +246,8 @@ enum Environment {
   PRD = 'PRD',
 }
 ```
+
+`LivenessProvider` é só para `startJourney` (iProov). Os fluxos de produto são **IPROOV** e **SAAS** (`CertifaceFlow`). `SaasProvider` tipa a engine na **geração do token**, não o método de jornada.
 
 ## Personalização de tema
 

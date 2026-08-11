@@ -1,6 +1,5 @@
 import {
   Environment,
-  LivenessProvider,
   type SaasProvider,
 } from '@certiface/sdk';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -31,7 +30,6 @@ interface UserStore {
   journeyToken: string;
   selectedFeature: FeatureType;
   saasProvider: SaasProvider;
-  livenessProvider: LivenessProvider;
   environment: Environment;
   isCustomThemeEnabled: boolean;
   results: string[];
@@ -67,7 +65,6 @@ export const useUserStore = create<UserStore>()(
       journeyToken: '',
       selectedFeature: 'SAAS',
       saasProvider: 'FORTFACE',
-      livenessProvider: LivenessProvider.FORTFACE,
       environment: Environment.HML,
       isCustomThemeEnabled: false,
       results: [],
@@ -82,23 +79,13 @@ export const useUserStore = create<UserStore>()(
       setAppKey: (key) => set({ appKey: key }),
       setJourneyToken: (token) => set({ journeyToken: token }),
       setSelectedFeature: (feature) =>
-        set((state) => ({
+        set({
           selectedFeature: feature,
-          livenessProvider:
-            feature === 'IPROOV'
-              ? LivenessProvider.IPROOV
-              : state.saasProvider === 'FACETEC'
-                ? LivenessProvider.FACETEC
-                : LivenessProvider.FORTFACE,
           ...(feature === 'SAAS' ? { appKey: '' } : { journeyToken: '' }),
-        })),
+        }),
       setSaasProvider: (provider) =>
         set({
           saasProvider: provider,
-          livenessProvider:
-            provider === 'FACETEC'
-              ? LivenessProvider.FACETEC
-              : LivenessProvider.FORTFACE,
           journeyToken: '',
         }),
       setEnvironment: (environment) => set({ environment }),
@@ -209,30 +196,27 @@ export const useUserStore = create<UserStore>()(
     {
       name: 'certiface-example-store',
       storage: createJSONStorage(() => AsyncStorage),
-      version: 2,
+      version: 3,
       migrate: (persisted: any) => {
         if (!persisted || typeof persisted !== 'object') {
           return persisted;
         }
-        const legacyFeature = persisted.selectedFeature;
+        const { livenessProvider: _removed, ...rest } = persisted;
+        const legacyFeature = rest.selectedFeature;
         if (legacyFeature === 'FACETEC' || legacyFeature === 'FORTFACE') {
           return {
-            ...persisted,
+            ...rest,
             selectedFeature: 'SAAS',
             saasProvider: legacyFeature === 'FACETEC' ? 'FACETEC' : 'FORTFACE',
-            livenessProvider:
-              legacyFeature === 'FACETEC'
-                ? LivenessProvider.FACETEC
-                : LivenessProvider.FORTFACE,
-            journeyToken: persisted.journeyToken ?? '',
-            saasOperator: persisted.saasOperator ?? { login: '', password: '' },
+            journeyToken: rest.journeyToken ?? '',
+            saasOperator: rest.saasOperator ?? { login: '', password: '' },
           };
         }
         return {
-          ...persisted,
-          journeyToken: persisted.journeyToken ?? '',
-          saasOperator: persisted.saasOperator ?? { login: '', password: '' },
-          saasProvider: persisted.saasProvider ?? 'FORTFACE',
+          ...rest,
+          journeyToken: rest.journeyToken ?? '',
+          saasOperator: rest.saasOperator ?? { login: '', password: '' },
+          saasProvider: rest.saasProvider ?? 'FORTFACE',
         };
       },
       partialize: (state) => ({
@@ -242,7 +226,6 @@ export const useUserStore = create<UserStore>()(
         journeyToken: state.journeyToken,
         selectedFeature: state.selectedFeature,
         saasProvider: state.saasProvider,
-        livenessProvider: state.livenessProvider,
         environment: state.environment,
         isCustomThemeEnabled: state.isCustomThemeEnabled,
         results: state.results,

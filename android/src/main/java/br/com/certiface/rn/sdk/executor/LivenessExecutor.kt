@@ -10,7 +10,6 @@ import br.com.certiface.manager.exports.SDKConfig
 import br.com.certiface.manager.main.CertifaceSDK
 import br.com.certiface.rn.sdk.exceptions.CustomThemeException
 import br.com.certiface.rn.sdk.model.Features
-import br.com.certiface.rn.sdk.strategy.FacetecStrategy
 import br.com.certiface.rn.sdk.strategy.IProovStrategy
 import br.com.certiface.rn.sdk.strategy.LivenessProviderStrategy
 import br.com.certiface.rn.sdk.strategy.SaasStrategy
@@ -20,7 +19,6 @@ import org.json.JSONObject
 class LivenessExecutor(val appkey: String, val feature: Features) {
 
   private val strategies: Map<Features, LivenessProviderStrategy> = mapOf(
-    Features.Facetec to FacetecStrategy(),
     Features.IProov to IProovStrategy()
   )
 

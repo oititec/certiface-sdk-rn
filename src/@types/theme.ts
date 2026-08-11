@@ -1,12 +1,12 @@
 export enum LivenessProvider {
-  FACETEC = 'FACETEC',
   IPROOV = 'IPROOV',
-  FORTFACE = 'FORTFACE',
 }
 
+export type CertifaceFlow = 'IPROOV' | 'SAAS';
+
 /**
- * Providers available in the SaaS flow (token-based).
- * The actual provider is resolved server-side based on the journeyToken.
+ * Engines available when generating a SaaS journeyToken.
+ * The effective engine is resolved server-side from the token; not a startJourney param.
  */
 export type SaasProvider = 'FACETEC' | 'FORTFACE';
 
@@ -665,7 +665,6 @@ export interface FortfaceTheme {
 }
 
 export interface CertifaceTheme {
-  provider?: LivenessProvider;
   facetec?: FacetecTheme;
   iproov?: IProovTheme;
   fortface?: FortfaceTheme;

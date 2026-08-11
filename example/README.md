@@ -98,13 +98,23 @@ const handleVerification = async () => {
     const result = await CertifaceSDK.startJourney(
       appKey,
       Environment.HML,
-      LivenessProvider.FACETEC
+      LivenessProvider.IPROOV
     );
     console.log('Resultado:', result);
   } catch (error) {
     console.error('Erro:', error);
   }
 };
+```
+
+### SaaS
+
+```typescript
+const result = await CertifaceSDK.startSaasJourney(
+  journeyToken,
+  Environment.HML,
+  false
+);
 ```
 
 ### Com Tema Customizado
@@ -118,7 +128,6 @@ import {
 } from '@certiface/sdk';
 
 const customTheme: CertifaceTheme = {
-  provider: LivenessProvider.FACETEC,
   facetec: {
     colors: {
       frameBackground: '#1A1A1A',
@@ -135,7 +144,7 @@ const customTheme: CertifaceTheme = {
 const result = await CertifaceSDK.startJourney(
   appKey,
   Environment.HML,
-  LivenessProvider.FACETEC,
+  LivenessProvider.IPROOV,
   true,
   customTheme
 );

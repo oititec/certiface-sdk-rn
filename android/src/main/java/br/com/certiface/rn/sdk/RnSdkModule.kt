@@ -140,18 +140,28 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
       return
     }
 
-    val selectedFeature = when (provider) {
-      "FACETEC" -> Features.Facetec
-      "IPROOV" -> Features.IProov
-      else -> {
-        releaseJourneyAndInvoke(
-          delivered,
-          onError,
-          serializeBridgeError("PROVIDER_INVALIDO", "PROVIDER_INVALIDO: $provider")
+    if (provider == "FACETEC" || provider == "FORTFACE" || provider == "SAAS") {
+      releaseJourneyAndInvoke(
+        delivered,
+        onError,
+        serializeBridgeError(
+          "UNSUPPORTED_OPERATION",
+          "FaceTec/Fortface usam fluxo SaaS com journeyToken. Use CertifaceSDK.startSaasJourney(token, environment, ...) ao invés de startJourney(appKey, environment, '$provider', ...)."
         )
-        return
-      }
+      )
+      return
     }
+
+    if (provider != "IPROOV") {
+      releaseJourneyAndInvoke(
+        delivered,
+        onError,
+        serializeBridgeError("PROVIDER_INVALIDO", "PROVIDER_INVALIDO: $provider")
+      )
+      return
+    }
+
+    val selectedFeature = Features.IProov
 
     val activity = currentActivity
     if (activity == null) {

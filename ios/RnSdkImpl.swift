@@ -29,11 +29,11 @@ import UIKit
     }
 
     guard provider == "IPROOV" else {
-      if provider == "FACETEC" {
+      if provider == "FACETEC" || provider == "FORTFACE" || provider == "SAAS" {
         deliverError(
           NativeErrorPayload.serialize(
             code: "UNSUPPORTED_OPERATION",
-            message: "FaceTec agora usa fluxo SaaS com journeyToken. Use CertifaceSDK.startSaasJourney(token, environment, ...) ao invés de startJourney(appKey, environment, 'FACETEC', ...)."
+            message: "FaceTec/Fortface usam fluxo SaaS com journeyToken. Use CertifaceSDK.startSaasJourney(token, environment, ...) ao invés de startJourney(appKey, environment, '\(provider)', ...)."
           )
         )
         return

@@ -38,7 +38,6 @@ const HomeScreen = () => {
     journeyToken,
     selectedFeature,
     saasProvider,
-    livenessProvider,
     environment,
     setSelectedFeature,
     setEnvironment,
@@ -223,7 +222,7 @@ const HomeScreen = () => {
           </View>
 
           <Text style={styles.providerHint}>
-            Provider ativo: {isSaas ? saasProvider : livenessProvider}
+            Fluxo: {isSaas ? `SaaS (${saasProvider})` : 'IPROOV'}
           </Text>
         </View>
 

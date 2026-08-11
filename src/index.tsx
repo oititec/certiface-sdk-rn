@@ -1,5 +1,5 @@
 import CertifaceRnSdk from './NativeRnSdk';
-import type { CertifaceTheme, LivenessProvider } from './@types/theme';
+import { LivenessProvider, type CertifaceTheme } from './@types/theme';
 
 import type { LivenessResponse, LivenessResult } from './@types/result';
 import type { Environment } from './@types/theme';
@@ -15,10 +15,10 @@ function requestCameraPermission(): Promise<boolean> {
 }
 
 /**
- * Start a liveness journey using an **appKey** (legacy flow).
+ * Start an iProov liveness journey using an **appKey**.
  *
- * Use this for providers that authenticate via appKey (e.g. iProov).
- * For token-based providers (FaceTec / FortFace), use {@link startSaasJourney} instead.
+ * The only supported provider is {@link LivenessProvider.IPROOV}.
+ * For SaaS (FaceTec / Fortface via journeyToken), use {@link startSaasJourney}.
  */
 async function startJourney(
   appKey: string,
@@ -27,6 +27,15 @@ async function startJourney(
   isCustomEnabled?: boolean,
   theme?: CertifaceTheme
 ): Promise<LivenessResult> {
+  if (provider !== LivenessProvider.IPROOV) {
+    return Promise.reject(
+      new CertifaceError(
+        'UNSUPPORTED_OPERATION',
+        "Apenas LivenessProvider.IPROOV é suportado em startJourney. Use CertifaceSDK.startSaasJourney(token, environment, ...) para o fluxo SaaS."
+      )
+    );
+  }
+
   return new Promise((resolve, reject) => {
     CertifaceRnSdk.startJourney(
       appKey,
@@ -74,11 +83,10 @@ async function startJourney(
 }
 
 /**
- * Start a liveness journey using a **journeyToken** (SaaS flow).
+ * Start a SaaS liveness journey using a **journeyToken**.
  *
- * The provider (FaceTec or FortFace) is resolved server-side based on the token.
- * Use this for the new SaaS architecture. For appKey-based providers (iProov),
- * use {@link startJourney} instead.
+ * FaceTec or Fortface is resolved server-side from the token.
+ * For iProov with appKey, use {@link startJourney}.
  */
 async function startSaasJourney(
   token: string,
