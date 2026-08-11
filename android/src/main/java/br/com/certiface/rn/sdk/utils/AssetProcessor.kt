@@ -1,56 +1,39 @@
 package br.com.certiface.rn.sdk.utils
 
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.Base64
 import android.util.Log
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.util.UUID
-import java.lang.reflect.Field
 
 class AssetProcessor(private val context: Context) {
 
     companion object {
         private const val TAG = "AssetProcessor"
         private const val ASSETS_CACHE_DIR = "theme_assets"
+        private const val MAX_BASE64_CHARS = 2_000_000
+        private const val MAX_DECODED_BYTES = 1_500_000
+        private const val MAX_BITMAP_DIMENSION = 2048
     }
 
     fun processBase64ToDrawable(base64String: String?, fallbackDrawableRes: Int): Drawable? {
         if (base64String.isNullOrEmpty()) {
-            Log.d(TAG, "Base64 string is null or empty, using fallback")
             return context.getDrawable(fallbackDrawableRes)
         }
 
         return try {
-            Log.d(TAG, "Processing base64 string: ${base64String.take(50)}...")
-            
-            val cleanBase64 = if (base64String.contains("base64,")) {
-                base64String.substringAfter("base64,")
-            } else {
-                base64String
-            }
-            
-            val decodedBytes = Base64.decode(cleanBase64, Base64.DEFAULT)
-            Log.d(TAG, "Decoded bytes size: ${decodedBytes.size}")
-            
-            val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
-            
+            val bitmap = decodeBase64ToBitmap(base64String)
             if (bitmap != null) {
-                Log.d(TAG, "Successfully created bitmap: ${bitmap.width}x${bitmap.height}")
                 BitmapDrawable(context.resources, bitmap)
             } else {
-                Log.w(TAG, "Failed to decode bitmap from base64")
                 context.getDrawable(fallbackDrawableRes)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error processing base64 to drawable: ${e.message}")
-            e.printStackTrace()
+            Log.e(TAG, "Error processing base64 to drawable")
             context.getDrawable(fallbackDrawableRes)
         }
     }
@@ -59,43 +42,23 @@ class AssetProcessor(private val context: Context) {
         if (base64String.isNullOrEmpty()) return null
 
         return try {
-            Log.d(TAG, "Saving base64 as drawable resource...")
-            
-            val cleanBase64 = if (base64String.contains("base64,")) {
-                base64String.substringAfter("base64,")
-            } else {
-                base64String
+            val bitmap = decodeBase64ToBitmap(base64String) ?: return null
+
+            val cacheDir = File(context.cacheDir, ASSETS_CACHE_DIR)
+            if (!cacheDir.exists()) {
+                cacheDir.mkdirs()
             }
-            
-            val decodedBytes = Base64.decode(cleanBase64, Base64.DEFAULT)
-            
-            val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
-            
-            if (bitmap != null) {
-                Log.d(TAG, "Successfully created bitmap from base64: ${bitmap.width}x${bitmap.height}")
-                
-                val cacheDir = File(context.cacheDir, ASSETS_CACHE_DIR)
-                if (!cacheDir.exists()) {
-                    cacheDir.mkdirs()
-                }
-                
-                val fileName = "asset_${System.currentTimeMillis()}.png"
-                val file = File(cacheDir, fileName)
-                
-                FileOutputStream(file).use { out ->
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-                }
-                
-                Log.d(TAG, "Saved asset to: ${file.absolutePath}")
-                
-                System.currentTimeMillis().toInt()
-            } else {
-                Log.w(TAG, "Failed to create bitmap from base64")
-                null
+
+            val fileName = "asset_${System.currentTimeMillis()}.png"
+            val file = File(cacheDir, fileName)
+
+            FileOutputStream(file).use { out ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 90, out)
             }
+
+            file.absolutePath.hashCode()
         } catch (e: Exception) {
-            Log.e(TAG, "Error saving base64 as drawable resource: ${e.message}")
-            e.printStackTrace()
+            Log.e(TAG, "Error saving base64 as drawable resource")
             null
         }
     }
@@ -108,61 +71,51 @@ class AssetProcessor(private val context: Context) {
         return try {
             val cacheDir = File(context.cacheDir, ASSETS_CACHE_DIR)
             val files = cacheDir.listFiles() ?: return context.getDrawable(fallbackDrawableRes)
-            
+
             val targetFile = files.find { it.absolutePath.hashCode() == resourceId }
-            
+
             if (targetFile?.exists() == true) {
-                val bitmap = BitmapFactory.decodeFile(targetFile.absolutePath)
+                val bitmap = decodeFileDownsampled(targetFile.absolutePath)
                 if (bitmap != null) {
                     BitmapDrawable(context.resources, bitmap)
                 } else {
                     context.getDrawable(fallbackDrawableRes)
                 }
             } else {
-                Log.w(TAG, "Cached file not found for resource ID: $resourceId")
                 context.getDrawable(fallbackDrawableRes)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error creating drawable from cached file: ${e.message}")
+            Log.e(TAG, "Error creating drawable from cached file")
             context.getDrawable(fallbackDrawableRes)
         }
     }
 
     fun createDynamicResourceId(drawable: Drawable?): Int? {
         if (drawable == null) return null
-        
+
         return try {
-            val drawableHash = drawable.hashCode()
-            
             if (drawable is BitmapDrawable) {
-                val bitmap = drawable.bitmap
-                if (bitmap != null) {
-                    val cacheDir = File(context.cacheDir, ASSETS_CACHE_DIR)
-                    if (!cacheDir.exists()) {
-                        cacheDir.mkdirs()
-                    }
-                    
-                    val fileName = "dynamic_${drawableHash}.png"
-                    val file = File(cacheDir, fileName)
-                    
-                    if (!file.exists()) {
-                        FileOutputStream(file).use { out ->
-                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-                        }
-                        Log.d(TAG, "Created dynamic resource file: ${file.absolutePath}")
-                    }
-                    
-                    file.absolutePath.hashCode()
-                } else {
-                    Log.w(TAG, "BitmapDrawable has null bitmap")
-                    null
+                val bitmap = drawable.bitmap ?: return null
+                val cacheDir = File(context.cacheDir, ASSETS_CACHE_DIR)
+                if (!cacheDir.exists()) {
+                    cacheDir.mkdirs()
                 }
+
+                val fileName = "dynamic_${bitmap.hashCode()}.png"
+                val file = File(cacheDir, fileName)
+
+                if (!file.exists()) {
+                    FileOutputStream(file).use { out ->
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 90, out)
+                    }
+                }
+
+                file.absolutePath.hashCode()
             } else {
-                Log.d(TAG, "Drawable is not BitmapDrawable, using hash as ID")
-                drawableHash
+                drawable.hashCode()
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error creating dynamic resource ID: ${e.message}")
+            Log.e(TAG, "Error creating dynamic resource ID")
             null
         }
     }
@@ -174,8 +127,67 @@ class AssetProcessor(private val context: Context) {
                 cacheDir.deleteRecursively()
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error cleaning up cache: ${e.message}")
+            Log.e(TAG, "Error cleaning up cache")
         }
     }
-}
 
+    private fun decodeBase64ToBitmap(base64String: String): Bitmap? {
+        if (base64String.length > MAX_BASE64_CHARS) {
+            Log.w(TAG, "Base64 payload exceeds size limit")
+            return null
+        }
+
+        val cleanBase64 = if (base64String.contains("base64,")) {
+            base64String.substringAfter("base64,")
+        } else {
+            base64String
+        }
+
+        if (cleanBase64.length > MAX_BASE64_CHARS) {
+            Log.w(TAG, "Base64 payload exceeds size limit")
+            return null
+        }
+
+        val decodedBytes = Base64.decode(cleanBase64, Base64.DEFAULT)
+        if (decodedBytes.size > MAX_DECODED_BYTES) {
+            Log.w(TAG, "Decoded image exceeds size limit")
+            return null
+        }
+
+        return decodeByteArrayDownsampled(decodedBytes)
+    }
+
+    private fun decodeByteArrayDownsampled(bytes: ByteArray): Bitmap? {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) {
+            return null
+        }
+
+        val options = BitmapFactory.Options().apply {
+            inSampleSize = calculateInSampleSize(bounds.outWidth, bounds.outHeight, MAX_BITMAP_DIMENSION)
+        }
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
+    }
+
+    private fun decodeFileDownsampled(path: String): Bitmap? {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(path, bounds)
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) {
+            return null
+        }
+
+        val options = BitmapFactory.Options().apply {
+            inSampleSize = calculateInSampleSize(bounds.outWidth, bounds.outHeight, MAX_BITMAP_DIMENSION)
+        }
+        return BitmapFactory.decodeFile(path, options)
+    }
+
+    private fun calculateInSampleSize(width: Int, height: Int, maxDimension: Int): Int {
+        var inSampleSize = 1
+        while (width / inSampleSize > maxDimension || height / inSampleSize > maxDimension) {
+            inSampleSize *= 2
+        }
+        return inSampleSize
+    }
+}

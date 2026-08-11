@@ -7,6 +7,7 @@
 
 import CertifaceSDK
 import CertifaceIProov
+import CertifaceFortface
 import UIKit
 
 final class ThemeFactory {
@@ -60,6 +61,45 @@ final class ThemeFactory {
         customizeLivenessFacetec(in: defaultThemeBuilder, with: theme)
       }
       .setLivenessTexts(customizeLivenessTexts(from: theme))
+      .build()
+  }
+
+  static func createSaasCustomization(from theme: [String: Any]?) throws -> SaasCustomization {
+    try validate(theme, provider: .facetec)
+    let builder = SaasCustomization.builder()
+    guard let theme else { return builder.build() }
+
+    return builder
+      .setInstructionCustomization { instructionBuilder in
+        customizeInstruction(in: instructionBuilder, with: theme)
+      }
+      .setCameraPermissionCustomization { cameraPermissionBuilder in
+        customizeCameraPermission(in: cameraPermissionBuilder, with: theme)
+      }
+      .setLoadingCustomization { loadingBuilder in
+        customizeLoadingFacetec(in: loadingBuilder, with: theme)
+      }
+      .build()
+  }
+
+  static func createFortfaceCustomization(from theme: [String: Any]?) throws -> CertifaceSDK.FortfaceCustomization {
+    try validate(theme, provider: .fortface)
+    let builder = CertifaceSDK.FortfaceCustomization.builder()
+    guard let theme else { return builder.build() }
+
+    return builder
+      .setInstructionCustomization { instructionBuilder in
+        customizeInstruction(in: instructionBuilder, with: theme)
+      }
+      .setCameraPermissionCustomization { cameraPermissionBuilder in
+        customizeCameraPermission(in: cameraPermissionBuilder, with: theme)
+      }
+      .setLoadingCustomization { loadingBuilder in
+        customizeLoadingFacetec(in: loadingBuilder, with: theme)
+      }
+      .setVendorCustomization { vendorBuilder in
+        customizeFortfaceVendor(in: vendorBuilder, with: theme)
+      }
       .build()
   }
 
@@ -132,7 +172,8 @@ final class ThemeFactory {
     setImage(assetStrings["contextImage"], with: builder.setContextImage(_:))
 
     let iconScale = InstructionIconScaleMode.from(assets["instructionIconScale"] as? String)
-    let iconSize = CGFloat(doubleThemeValue(assets["instructionIconSize"]) ?? 60)
+    let rawIconSize = CGFloat(doubleThemeValue(assets["instructionIconSize"]) ?? 60)
+    let iconSize = min(max(rawIconSize, 16), 256)
 
     setInstructionIcon(
       assetStrings["firstInstructionIcon"],
@@ -281,16 +322,17 @@ final class ThemeFactory {
 
     let colors = instructionsTheme["colors"] as? [String: String] ?? [:]
     let assets = instructionsTheme["assets"] as? [String: String] ?? [:]
+    let configuration = instructionsTheme["configuration"] as? [String: Any] ?? [:]
     let closeButtonImageName = assets["closeButtonIcon"]
-    let hasCloseButtonImage = closeButtonImageName.flatMap { RnSdkBundle.getImage(named: $0) } != nil
+    let closeButtonImage = closeButtonImageName.flatMap { RnSdkBundle.getImage(named: $0) }
+    let closeButtonColorHex = firstValue(in: colors, keys: "closeButtonColor", "closeButtonIcon")
 
-    if hasCloseButtonImage {
-      setImage(closeButtonImageName, with: builder.setCloseButtonImage(_:))
+    if let closeButtonImage {
+      let tintableImage = BackButtonIconComposer.prepare(closeButtonImage)
+      _ = builder.setCloseButtonImage(tintableImage)
+      setColor(closeButtonColorHex, with: builder.setCloseButtonImageColor(_:))
     } else {
-      setColor(
-        firstValue(in: colors, keys: "closeButtonColor", "closeButtonIcon"),
-        with: builder.setCloseButtonImageColor(_:)
-      )
+      setColor(closeButtonColorHex, with: builder.setCloseButtonImageColor(_:))
     }
 
     setColor(firstValue(in: colors, keys: "title", "titleColor"), with: builder.setTitleTextColor(_:))
@@ -302,8 +344,24 @@ final class ThemeFactory {
     setColor(firstValue(in: colors, keys: "ovalNotReady", "ovalNotReadyColor"), with: builder.setGPAOvalStrokeNotReadyColor(_:))
     setColor(firstValue(in: colors, keys: "ovalCapturing", "ovalStrokeColor"), with: builder.setLAOvalStrokeCapturingColor(_:))
     setColor(firstValue(in: colors, keys: "ovalCompleted", "ovalCompletedColor"), with: builder.setLAOvalStrokeCompletedColor(_:))
-    setColor(colors["filterLineDrawingForeground"], with: builder.setFilterLineDrawingForegroundColor(_:))
-    setColor(colors["filterLineDrawingBackground"], with: builder.setFilterLineDrawingBackgroundColor(_:))
+
+    let filterForeground = colors["filterLineDrawingForeground"]
+    let filterBackground = colors["filterLineDrawingBackground"]
+    let useLineDrawing = resolveIProovUseLineDrawing(
+      configuration: configuration,
+      filterForeground: filterForeground,
+      filterBackground: filterBackground
+    )
+    _ = builder.setFilterStyle(resolveIProovFilterStyle(configuration: configuration, useLineDrawing: useLineDrawing))
+    if useLineDrawing {
+      setColor(filterForeground, with: builder.setFilterLineDrawingForegroundColor(_:))
+      setColor(filterBackground, with: builder.setFilterLineDrawingBackgroundColor(_:))
+    }
+
+    let flags = instructionsTheme["flags"] as? [String: Any] ?? [:]
+    let timeoutSecs = intThemeValue(configuration["timeoutSecs"]) ?? 60
+    _ = builder.setTimeout(TimeInterval(timeoutSecs))
+    _ = builder.setPromptRoundedCornersEnabled(flags["promptRoundedCorners"] as? Bool ?? true)
 
     let texts = instructionsTheme["texts"] as? [String: String] ?? [:]
     setText(texts["title"], with: builder.setTitle(_:))
@@ -332,9 +390,7 @@ final class ThemeFactory {
     _ = builder.setSpinnerWidth(
       CGFloat(doubleThemeValue(processingSizes["spinnerWidth"] ?? processingSizes["loadingIndicatorWidth"]) ?? 10)
     )
-    _ = builder.setSpinnerScaleFactor(
-      intThemeValue(processingSizes["spinnerSize"] ?? processingSizes["loadingIndicatorSize"]) ?? 100
-    )
+    _ = builder.setSpinnerScaleFactor(resolveIProovSpinnerScaleFactor(from: processingSizes))
 
     return builder
   }
@@ -445,11 +501,9 @@ final class ThemeFactory {
     setColor(firstValue(in: colors, keys: "loading", "loadingDialogColor"), with: builder.setSpinnerColor(_:))
     let processingSizes = loadingTheme["sizes"] as? [String: Any] ?? [:]
     _ = builder.setSpinnerWidth(
-      CGFloat(doubleThemeValue(processingSizes["spinnerWidth"] ?? processingSizes["loadingIndicatorWidth"]) ?? 80)
+      CGFloat(doubleThemeValue(processingSizes["spinnerWidth"] ?? processingSizes["loadingIndicatorWidth"]) ?? 10)
     )
-    _ = builder.setSpinnerScaleFactor(
-      intThemeValue(processingSizes["spinnerSize"] ?? processingSizes["loadingIndicatorSize"]) ?? 80
-    )
+    _ = builder.setSpinnerScaleFactor(resolveIProovSpinnerScaleFactor(from: processingSizes))
 
     return builder
   }
@@ -501,11 +555,19 @@ final class ThemeFactory {
     setColor(colors["frameBorder"], with: builder.setFrameBorderColor(_:))
     setColor(colors["frameBackground"], with: builder.setFrameBackgroundColor(_:))
     setColor(colors["ovalStroke"], with: builder.setOvalStrokeColor(_:))
-    _ = builder.setOvalStrokeWidth(intThemeValue(sizes["ovalStrokeWidth"]) ?? 4)
+    if let strokeWidth = intThemeValue(sizes["ovalStrokeWidth"]), strokeWidth > 0 {
+      _ = builder.setOvalStrokeWidth(strokeWidth)
+    }
     setColor(colors["ovalProgressFirst"], with: builder.setOvalProgressFirstColor(_:))
     setColor(colors["ovalProgressSecond"], with: builder.setOvalProgressSecondColor(_:))
-    _ = builder.setOvalProgressWidth(intThemeValue(sizes["ovalProgressStrokeWidth"] ?? sizes["ovalProgressWidth"]) ?? 6)
-    _ = builder.setOvalProgressOffset(intThemeValue(sizes["ovalProgressRadialOffset"] ?? sizes["ovalProgressOffset"]) ?? 8)
+    if let progressWidth = intThemeValue(sizes["ovalProgressStrokeWidth"] ?? sizes["ovalProgressWidth"]),
+       progressWidth > 0 {
+      _ = builder.setOvalProgressWidth(progressWidth)
+    }
+    if let progressOffset = intThemeValue(sizes["ovalProgressRadialOffset"] ?? sizes["ovalProgressOffset"]),
+       progressOffset > 0 {
+      _ = builder.setOvalProgressOffset(progressOffset)
+    }
     setColor(colors["overlayBackground"], with: builder.setOverlayBackgroundColor(_:))
 
     let flags = livenessTheme["flags"] as? [String: Any] ?? [:]
@@ -526,15 +588,15 @@ final class ThemeFactory {
     setImage(assets["cancelButtonIcon"], with: builder.setCancelButtonIcon(_:))
 
     let fonts = livenessTheme["fonts"] as? [String: String] ?? [:]
-    setFont(fonts["readyScreenHeader"], with: builder.setReadyScreenHeaderFont(_:), size: 0)
-    setFont(fonts["readyScreenSubtext"], with: builder.setReadyScreenMessageFont(_:), size: 0)
-    setFont(fonts["resultScreenMessage"], with: builder.setResultScreenMessageFont(_:), size: 0)
-    setFont(fonts["retryScreenHeader"], with: builder.setRetryScreenHeaderFont(_:), size: 0)
-    setFont(fonts["retryScreenSubtext"], with: builder.setRetryScreenCaptionFont(_:), size: 0)
-    setFont(fonts["feedbackMessage"], with: builder.setFeedbackMessageFont(_:), size: 0)
-    setFont(fonts["guidanceHeader"], with: builder.setGuidanceHeaderFont(_:), size: 0)
-    setFont(fonts["guidanceSubtext"], with: builder.setGuidanceSubtextFont(_:), size: 0)
-    setFont(fonts["guidanceButton"], with: builder.setGuidanceButtonFont(_:), size: 0)
+    setFont(fonts["readyScreenHeader"], with: builder.setReadyScreenHeaderFont(_:), size: 20)
+    setFont(fonts["readyScreenSubtext"], with: builder.setReadyScreenMessageFont(_:), size: 16)
+    setFont(fonts["resultScreenMessage"], with: builder.setResultScreenMessageFont(_:), size: 16)
+    setFont(fonts["retryScreenHeader"], with: builder.setRetryScreenHeaderFont(_:), size: 20)
+    setFont(fonts["retryScreenSubtext"], with: builder.setRetryScreenCaptionFont(_:), size: 16)
+    setFont(fonts["feedbackMessage"], with: builder.setFeedbackMessageFont(_:), size: 18)
+    setFont(fonts["guidanceHeader"], with: builder.setGuidanceHeaderFont(_:), size: 20)
+    setFont(fonts["guidanceSubtext"], with: builder.setGuidanceSubtextFont(_:), size: 16)
+    setFont(fonts["guidanceButton"], with: builder.setGuidanceButtonFont(_:), size: 16)
 
     if let width = intThemeValue(sizes["guidanceButtonBorderWidth"]) {
       _ = builder.setGuidanceButtonBorderWidth(width)
@@ -605,10 +667,104 @@ final class ThemeFactory {
     var livenessTexts = [Liveness3DTextKey : String]()
 
     for (themeKey, textKey) in keys {
-      livenessTexts[textKey] = texts[themeKey]
+      guard let value = texts[themeKey]?.trimmingCharacters(in: .whitespacesAndNewlines),
+            !value.isEmpty else {
+        continue
+      }
+      livenessTexts[textKey] = value
     }
 
     return livenessTexts
+  }
+
+  // MARK: Fortface
+
+  private static func customizeFortfaceVendor(
+    in builder: CertifaceFortface.FortfaceCustomizationBuilder,
+    with theme: [String: Any]
+  ) -> CertifaceFortface.FortfaceCustomizationBuilder {
+    guard let fortfaceTheme = theme["fortface"] as? [String: Any] else {
+      return builder
+    }
+
+    let colors = fortfaceTheme["colors"] as? [String: String] ?? [:]
+    let texts = fortfaceTheme["texts"] as? [String: String] ?? [:]
+    let flags = fortfaceTheme["flags"] as? [String: Any] ?? [:]
+    let configuration = fortfaceTheme["configuration"] as? [String: String] ?? [:]
+    let fonts = fortfaceTheme["fonts"] as? [String: String] ?? [:]
+    let assets = fortfaceTheme["assets"] as? [String: String] ?? [:]
+
+    let cancelPositionKey = configuration["cancelPosition"]?.uppercased()
+    _ = builder.setCancelButton(
+      FortfaceCancelButton(
+        position: cancelPositionKey == "RIGHT" ? .right : .left,
+        enable: flags["cancelButtonEnable"] as? Bool,
+        iconColor: colorFromHex(colors["cancelButton"])
+      )
+    )
+
+    let screenModeKey = configuration["screenMode"]?.uppercased()
+    _ = builder.setScreenMode(screenModeKey == "MODAL" ? .modal : .fullscreen)
+
+    let screenOrientationKey = configuration["screenOrientation"]?.uppercased()
+    switch screenOrientationKey {
+    case "PORTRAIT":
+      _ = builder.setScreenOrientation(.portrait)
+    case "LANDSCAPE":
+      _ = builder.setScreenOrientation(.landscape)
+    default:
+      _ = builder.setScreenOrientation(.automatic)
+    }
+
+    if let backgroundColor = colorFromHex(colors["cameraBackground"]) {
+      _ = builder.setCameraBackground(FortfaceCameraBackground(color: backgroundColor))
+    }
+
+    _ = builder.setCameraColor(
+      FortfaceCameraColor(
+        neutral: colorFromHex(colors["cameraNeutral"]),
+        alert: colorFromHex(colors["cameraAlert"]),
+        success: colorFromHex(colors["cameraSuccess"]),
+        brightness: colorFromHex(colors["cameraBrightnessAlert"]),
+        brightnessBackground: colorFromHex(colors["cameraBrightnessAlert"]),
+        loadingBackground: colorFromHex(colors["cameraLoading"]),
+        loadingStroke: colorFromHex(colors["cameraLoadingStroke"]) ?? .white,
+        messageTextColorResource: colorFromHex(colors["cameraMessageText"])
+      )
+    )
+
+    if let cameraFrameTextVisible = flags["cameraFrameTextVisible"] as? Bool {
+      _ = builder.setCameraFrameText(FortfaceCameraFrameText(visible: cameraFrameTextVisible))
+    }
+
+    let cameraFont = fonts["cameraMessage"] ?? fonts["cameraFooter"]
+    _ = builder.setCameraMessages(
+      FortfaceCameraMessages(
+        familyFont: cameraFont,
+        positioned: texts["cameraFacePositioned"],
+        noFace: texts["cameraNoFace"],
+        faceNear: texts["cameraFaceNear"],
+        faceFar: texts["cameraFaceFar"],
+        noFaceYaw: texts["cameraNoFaceYaw"],
+        facePitchIsUp: texts["cameraFacePitchUp"],
+        facePitchIsDown: texts["cameraFacePitchDown"],
+        highBrightness: texts["cameraFaceBrightnessHigh"],
+        lowBrightness: texts["cameraFaceBrightnessLow"],
+        faceCenterLeft: texts["cameraFaceCenterLeft"],
+        faceCenterRight: texts["cameraFaceCenterRight"],
+        faceCenterUp: texts["cameraFaceCenterUp"],
+        faceCenterDown: texts["cameraFaceCenterDown"],
+        faceRollRight: texts["cameraFaceRollRight"],
+        faceRollLeft: texts["cameraFaceRollLeft"],
+        noFaceRoll: texts["cameraNoFaceRoll"]
+      )
+    )
+
+    if let logoName = assets["cameraLogo"], let logo = RnSdkBundle.getImage(named: logoName) {
+      _ = builder.setCameraLogo(FortfaceCameraLogo(icon: logo, iconSmall: logo))
+    }
+
+    return builder
   }
 
   // MARK: - Utils
@@ -743,47 +899,75 @@ final class ThemeFactory {
     return nil
   }
 
+  private static func normalizeIProovStyleKey(_ value: String?) -> String? {
+    guard let value else { return nil }
+    return value
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .lowercased()
+      .replacingOccurrences(of: " ", with: "")
+      .replacingOccurrences(of: "_", with: "")
+  }
+
+  private static func resolveIProovUseLineDrawing(
+    configuration: [String: Any],
+    filterForeground: String?,
+    filterBackground: String?
+  ) -> Bool {
+    switch normalizeIProovStyleKey(firstValue(in: configuration, keys: "filterStyle")) {
+    case "linedrawing":
+      return true
+    case "natural":
+      return false
+    default:
+      let hasForeground = !(filterForeground?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+      let hasBackground = !(filterBackground?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+      return hasForeground || hasBackground
+    }
+  }
+
+  private static func resolveIProovFilterStyle(
+    configuration: [String: Any],
+    useLineDrawing: Bool
+  ) -> FilterStyle {
+    if useLineDrawing {
+      switch normalizeIProovStyleKey(firstValue(in: configuration, keys: "lineDrawingStyle")) {
+      case "shaded":
+        return .lineDrawing(.shaded)
+      case "vibrant":
+        return .lineDrawing(.vibrant)
+      default:
+        return .lineDrawing(.classic)
+      }
+    }
+
+    switch normalizeIProovStyleKey(firstValue(in: configuration, keys: "naturalStyle")) {
+    case "blur":
+      return .natural(.blur)
+    default:
+      return .natural(.clear)
+    }
+  }
+
+  private static func resolveIProovSpinnerScaleFactor(from processingSizes: [String: Any]) -> Int {
+    if let spinnerSize = intThemeValue(processingSizes["spinnerSize"]) {
+      return min(max(spinnerSize, 1), 10)
+    }
+    if let androidSize = intThemeValue(processingSizes["loadingIndicatorSize"]) {
+      return min(max(Int((Double(androidSize) / 20.0).rounded()), 1), 10)
+    }
+    return 5
+  }
+
   private static func setFont<T>(_ fontName: String?, with builder: @escaping (UIFont) -> T, size: CGFloat) {
     guard let fontName else { return }
     let normalizedSize = size > 0 ? size : UIFont.systemFontSize
-    guard let resolvedName = resolveFontName(fontName) else { return }
+    guard let resolvedName = FontNameResolver.resolve(fontName) else { return }
     guard let font = UIFont(name: resolvedName, size: normalizedSize) else { return }
     _ = builder(font)
   }
 
   private static func resolveFontName(_ fontName: String) -> String? {
-    let trimmed = fontName.trimmingCharacters(in: .whitespacesAndNewlines)
-    if UIFont(name: trimmed, size: UIFont.systemFontSize) != nil {
-      return trimmed
-    }
-
-    let pathComponent = (trimmed as NSString).lastPathComponent
-    if UIFont(name: pathComponent, size: UIFont.systemFontSize) != nil {
-      return pathComponent
-    }
-
-    let baseName = (pathComponent as NSString).deletingPathExtension
-    if UIFont(name: baseName, size: UIFont.systemFontSize) != nil {
-      return baseName
-    }
-
-    let wanted = baseName.lowercased()
-    for family in UIFont.familyNames {
-      if family.lowercased().contains(wanted) {
-        let familyCandidates = UIFont.fontNames(forFamilyName: family)
-        if let first = familyCandidates.first {
-          return first
-        }
-      }
-      for candidate in UIFont.fontNames(forFamilyName: family) {
-        let candidateNormalized = candidate.lowercased()
-        if candidateNormalized == wanted || candidateNormalized.contains(wanted) {
-          return candidate
-        }
-      }
-    }
-
-    return nil
+    FontNameResolver.resolve(fontName)
   }
 
   private static func applyIProovBaseFont(
@@ -827,22 +1011,77 @@ final class ThemeFactory {
       return color
     }
 
-    let blobColor = getColor(
-      from: colors["resultScreenActivityIndicator"],
-      defaultColor: .black
-    )
-    let checkmarkForegroundColor = getColor(
-      from: colors["resultScreenResultAnimationForeground"],
-      defaultColor: .black
-    )
-    let checkmarkBackgroundColor = getColor(
-      from: colors["resultScreenResultAnimationBackground"],
-      defaultColor: .black
-    )
     return BlobAnimationAppearance(
-      blobColor: blobColor,
-      checkmarkForegroundColor: checkmarkForegroundColor,
-      checkmarkBackgroundColor: checkmarkBackgroundColor
+      blobColor: getColor(
+        from: colors["resultScreenActivityIndicator"],
+        defaultColor: .black
+      ),
+      checkmarkForegroundColor: getColor(
+        from: colors["resultScreenResultAnimationForeground"],
+        defaultColor: .white
+      ),
+      checkmarkBackgroundColor: getColor(
+        from: colors["resultScreenResultAnimationBackground"],
+        defaultColor: .black
+      )
     )
+  }
+}
+
+enum FontNameResolver {
+  private static let lock = NSLock()
+  private static var cache: [String: String?] = [:]
+
+  static func resolve(_ fontName: String) -> String? {
+    let trimmed = fontName.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return nil }
+
+    lock.lock()
+    if let cached = cache[trimmed] {
+      lock.unlock()
+      return cached
+    }
+    lock.unlock()
+
+    let resolved = resolveUncached(trimmed)
+
+    lock.lock()
+    cache[trimmed] = resolved
+    lock.unlock()
+    return resolved
+  }
+
+  private static func resolveUncached(_ trimmed: String) -> String? {
+    if UIFont(name: trimmed, size: UIFont.systemFontSize) != nil {
+      return trimmed
+    }
+
+    let pathComponent = (trimmed as NSString).lastPathComponent
+    if UIFont(name: pathComponent, size: UIFont.systemFontSize) != nil {
+      return pathComponent
+    }
+
+    let baseName = (pathComponent as NSString).deletingPathExtension
+    if UIFont(name: baseName, size: UIFont.systemFontSize) != nil {
+      return baseName
+    }
+
+    let wanted = baseName.lowercased()
+    for family in UIFont.familyNames {
+      if family.lowercased().contains(wanted) {
+        let familyCandidates = UIFont.fontNames(forFamilyName: family)
+        if let first = familyCandidates.first {
+          return first
+        }
+      }
+      for candidate in UIFont.fontNames(forFamilyName: family) {
+        let candidateNormalized = candidate.lowercased()
+        if candidateNormalized == wanted || candidateNormalized.contains(wanted) {
+          return candidate
+        }
+      }
+    }
+
+    return nil
   }
 }

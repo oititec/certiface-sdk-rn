@@ -11,6 +11,7 @@ internal fun firstString(map: ReadableMap?, vararg keys: String): String? {
   map ?: return null
   for (key in keys) {
     if (!map.hasKey(key)) continue
+    if (map.getType(key) != ReadableType.String) continue
     val value = map.getString(key)?.trim()
     if (!value.isNullOrEmpty()) return value
   }
@@ -26,6 +27,17 @@ internal fun optInt(map: ReadableMap?, key: String, default: Int): Int {
   }
 }
 
+internal fun firstInt(map: ReadableMap?, vararg keys: String, default: Int): Int {
+  map ?: return default
+  for (key in keys) {
+    if (!map.hasKey(key)) continue
+    if (map.getType(key) == ReadableType.Number) {
+      return map.getDouble(key).toInt()
+    }
+  }
+  return default
+}
+
 internal fun optFloat(map: ReadableMap?, key: String, default: Float): Float {
   map ?: return default
   if (!map.hasKey(key)) return default
@@ -35,6 +47,13 @@ internal fun optFloat(map: ReadableMap?, key: String, default: Float): Float {
   }
 }
 
+internal fun optFloatOrNull(map: ReadableMap?, key: String): Float? {
+  map ?: return null
+  if (!map.hasKey(key)) return null
+  if (map.getType(key) != ReadableType.Number) return null
+  return map.getDouble(key).toFloat()
+}
+
 internal fun optBoolean(map: ReadableMap?, key: String, default: Boolean): Boolean {
   map ?: return default
   if (!map.hasKey(key)) return default
@@ -42,6 +61,28 @@ internal fun optBoolean(map: ReadableMap?, key: String, default: Boolean): Boole
     ReadableType.Boolean -> map.getBoolean(key)
     else -> default
   }
+}
+
+internal fun clampedInt(
+  map: ReadableMap?,
+  key: String,
+  default: Int,
+  min: Int,
+  max: Int
+): Int {
+  return optInt(map, key, default).coerceIn(min, max)
+}
+
+internal fun clampedThemeInt(
+  map: ReadableMap?,
+  key: String,
+  min: Int,
+  max: Int
+): Int? {
+  map ?: return null
+  if (!map.hasKey(key)) return null
+  if (map.getType(key) != ReadableType.Number) return null
+  return map.getDouble(key).toInt().coerceIn(min, max)
 }
 
 internal fun parseFacetecButtonLocation(
@@ -96,6 +137,46 @@ internal fun parseOrientationLa(
   return when (value) {
     "PORTRAIT" -> OrientationLA.PORTRAIT
     "REVERSE_PORTRAIT", "REVERSEPORTRAIT" -> OrientationLA.REVERSE_PORTRAIT
+    else -> default
+  }
+}
+
+internal fun parseFortfaceCancelPosition(
+  map: ReadableMap?,
+  key: String,
+  default: br.com.certiface.domain.model.fortface.FortfaceCancelPosition
+): br.com.certiface.domain.model.fortface.FortfaceCancelPosition {
+  val value = firstString(map, key)?.uppercase()?.replace(" ", "_") ?: return default
+  return when (value) {
+    "LEFT" -> br.com.certiface.domain.model.fortface.FortfaceCancelPosition.LEFT
+    "RIGHT" -> br.com.certiface.domain.model.fortface.FortfaceCancelPosition.RIGHT
+    else -> default
+  }
+}
+
+internal fun parseFortfaceScreenMode(
+  map: ReadableMap?,
+  key: String,
+  default: br.com.certiface.domain.model.fortface.FortfaceScreenMode
+): br.com.certiface.domain.model.fortface.FortfaceScreenMode {
+  val value = firstString(map, key)?.uppercase()?.replace(" ", "_") ?: return default
+  return when (value) {
+    "FULL_SCREEN", "FULLSCREEN" -> br.com.certiface.domain.model.fortface.FortfaceScreenMode.FULL_SCREEN
+    "MODAL" -> br.com.certiface.domain.model.fortface.FortfaceScreenMode.MODAL
+    else -> default
+  }
+}
+
+internal fun parseFortfaceScreenOrientation(
+  map: ReadableMap?,
+  key: String,
+  default: br.com.certiface.domain.model.fortface.FortfaceScreenOrientation
+): br.com.certiface.domain.model.fortface.FortfaceScreenOrientation {
+  val value = firstString(map, key)?.uppercase()?.replace(" ", "_") ?: return default
+  return when (value) {
+    "PORTRAIT" -> br.com.certiface.domain.model.fortface.FortfaceScreenOrientation.PORTRAIT
+    "LANDSCAPE" -> br.com.certiface.domain.model.fortface.FortfaceScreenOrientation.LANDSCAPE
+    "AUTOMATIC", "AUTO" -> br.com.certiface.domain.model.fortface.FortfaceScreenOrientation.AUTOMATIC
     else -> default
   }
 }

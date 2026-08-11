@@ -14,11 +14,12 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Environment } from '@certiface/sdk';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Environment, type SaasProvider } from '@certiface/sdk';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { RootTabParamList } from '../navigation/AppNavigator';
-import { useUserStore } from '../store/userStore';
+import { useUserStore, type FeatureType } from '../store/userStore';
 
 type SessionNavigationProp = BottomTabNavigationProp<
   RootTabParamList,
@@ -29,40 +30,108 @@ const SessionScreen = () => {
   const navigation = useNavigation<SessionNavigationProp>();
   const {
     userData,
+    saasOperator,
     appKey,
+    journeyToken,
     setUserData,
+    setSaasOperator,
     setAppKey,
+    setJourneyToken,
     generateAppKey,
+    generateJourneyToken,
+    clearSaasSession,
     selectedFeature,
+    saasProvider,
     environment,
     setSelectedFeature,
+    setSaasProvider,
     setEnvironment,
     addResult,
   } = useUserStore();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const isSaas = selectedFeature === 'SAAS';
 
-  const handleCopyAppKey = () => {
-    if (!appKey) {
+  const handleCopy = (value: string, label: string) => {
+    if (!value) {
       return;
     }
-    Clipboard.setString(appKey);
-    Alert.alert('Copiado', 'App Key copiada para a área de transferência.');
+    Clipboard.setString(value);
+    Alert.alert('Copiado', `${label} copiado para a área de transferência.`);
   };
 
-  const handleGenerateAppKey = async () => {
+  const handleGenerate = async () => {
     try {
       setLoading(true);
-      const generated = await generateAppKey();
-      addResult(`AppKey gerada: ${generated}`);
+      if (isSaas) {
+        const token = await generateJourneyToken();
+        addResult(`Token SAAS (${saasProvider}) gerado: ${token}`);
+      } else {
+        const generated = await generateAppKey();
+        addResult(`AppKey gerada: ${generated}`);
+      }
       navigation.navigate('Home');
     } catch (error) {
-      Alert.alert('Erro', `Falha ao gerar App Key: ${error}`);
-      addResult(`ERRO: Falha ao gerar App Key: ${error}`);
+      const message = `Falha ao gerar ${isSaas ? 'token SAAS' : 'App Key'}: ${error}`;
+      Alert.alert('Erro', message);
+      addResult(`ERRO: ${message}`);
       navigation.navigate('Results');
     } finally {
       setLoading(false);
     }
   };
+
+  const handleClearSaas = async () => {
+    try {
+      setLoading(true);
+      await clearSaasSession();
+      addResult('Token SAAS removido');
+    } catch (error) {
+      addResult(`AVISO ao limpar sessão SAAS: ${error}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderFeatureOption = (feature: FeatureType, label: string) => (
+    <Pressable
+      key={feature}
+      style={[
+        styles.segmentOption,
+        selectedFeature === feature && styles.segmentOptionActive,
+      ]}
+      onPress={() => setSelectedFeature(feature)}
+    >
+      <Text
+        style={[
+          styles.segmentOptionText,
+          selectedFeature === feature && styles.segmentOptionTextActive,
+        ]}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
+
+  const renderSaasProviderOption = (provider: SaasProvider, label: string) => (
+    <Pressable
+      key={provider}
+      style={[
+        styles.segmentOption,
+        saasProvider === provider && styles.segmentOptionActive,
+      ]}
+      onPress={() => setSaasProvider(provider)}
+    >
+      <Text
+        style={[
+          styles.segmentOptionText,
+          saasProvider === provider && styles.segmentOptionTextActive,
+        ]}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -78,48 +147,32 @@ const SessionScreen = () => {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
-            <Text style={styles.title}>Credencial</Text>
-            <Text style={styles.subtitle}>Informe ou gere sua App Key</Text>
+            <Text style={styles.title}>
+              {isSaas ? 'Sessão SAAS' : 'Credencial'}
+            </Text>
+            <Text style={styles.subtitle}>
+              {isSaas
+                ? 'Gere journeyToken (FaceTec / Fortface)'
+                : 'Gere AppKey para iProov'}
+            </Text>
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.segmentTitle}>Feature</Text>
+            <Text style={styles.segmentTitle}>Produto</Text>
             <View style={styles.segment}>
-              <Pressable
-                style={[
-                  styles.segmentOption,
-                  selectedFeature === 'FACETEC' && styles.segmentOptionActive,
-                ]}
-                onPress={() => setSelectedFeature('FACETEC')}
-              >
-                <Text
-                  style={[
-                    styles.segmentOptionText,
-                    selectedFeature === 'FACETEC' &&
-                      styles.segmentOptionTextActive,
-                  ]}
-                >
-                  Facetec
-                </Text>
-              </Pressable>
-              <Pressable
-                style={[
-                  styles.segmentOption,
-                  selectedFeature === 'IPROOV' && styles.segmentOptionActive,
-                ]}
-                onPress={() => setSelectedFeature('IPROOV')}
-              >
-                <Text
-                  style={[
-                    styles.segmentOptionText,
-                    selectedFeature === 'IPROOV' &&
-                      styles.segmentOptionTextActive,
-                  ]}
-                >
-                  iProov
-                </Text>
-              </Pressable>
+              {renderFeatureOption('IPROOV', 'iProov')}
+              {renderFeatureOption('SAAS', 'SaaS')}
             </View>
+
+            {isSaas ? (
+              <>
+                <Text style={styles.segmentTitle}>Provider da jornada</Text>
+                <View style={styles.segment}>
+                  {renderSaasProviderOption('FACETEC', 'Facetec')}
+                  {renderSaasProviderOption('FORTFACE', 'Fortface')}
+                </View>
+              </>
+            ) : null}
 
             <Text style={styles.segmentTitle}>Ambiente</Text>
             <View style={styles.segment}>
@@ -161,7 +214,7 @@ const SessionScreen = () => {
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Dados do Usuário</Text>
+            <Text style={styles.sectionTitle}>Dados do usuário</Text>
 
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>CPF</Text>
@@ -197,37 +250,134 @@ const SessionScreen = () => {
                 placeholderTextColor="#94A3B8"
               />
             </View>
-
-            <View style={styles.inputGroup}>
-              <View style={styles.inputHeaderRow}>
-                <Text style={styles.inputLabel}>App Key Atual</Text>
-                <TouchableOpacity
-                  style={[styles.copyButton, !appKey && styles.buttonDisabled]}
-                  onPress={handleCopyAppKey}
-                  disabled={!appKey}
-                >
-                  <Text style={styles.copyButtonText}>Copiar</Text>
-                </TouchableOpacity>
-              </View>
-              <TextInput
-                style={[styles.input, styles.appKeyInput]}
-                value={appKey}
-                onChangeText={setAppKey}
-                placeholder="Cole sua App Key ou gere uma nova"
-                multiline
-                numberOfLines={4}
-                autoCapitalize="none"
-                autoCorrect={false}
-                placeholderTextColor="#94A3B8"
-              />
-            </View>
           </View>
+
+          {isSaas ? (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Sessão Certiface SAAS</Text>
+              {journeyToken ? (
+                <View style={styles.tokenBadge}>
+                  <Text style={styles.tokenBadgeText}>
+                    Token SAAS salvo localmente
+                  </Text>
+                </View>
+              ) : null}
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Login do operador</Text>
+                <TextInput
+                  style={styles.input}
+                  value={saasOperator.login}
+                  onChangeText={(text) => setSaasOperator({ login: text })}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  placeholderTextColor="#94A3B8"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Senha do operador</Text>
+                <View style={styles.passwordRow}>
+                  <TextInput
+                    style={[styles.input, styles.passwordInput]}
+                    value={saasOperator.password}
+                    onChangeText={(text) => setSaasOperator({ password: text })}
+                    secureTextEntry={!showPassword}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    placeholderTextColor="#94A3B8"
+                  />
+                  <TouchableOpacity
+                    style={styles.passwordToggle}
+                    onPress={() => setShowPassword((prev) => !prev)}
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      showPassword ? 'Ocultar senha' : 'Mostrar senha'
+                    }
+                  >
+                    <Ionicons
+                      name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                      size={22}
+                      color="#64748B"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <View style={styles.inputHeaderRow}>
+                  <Text style={styles.inputLabel}>Journey Token</Text>
+                  <TouchableOpacity
+                    style={[
+                      styles.copyButton,
+                      !journeyToken && styles.buttonDisabled,
+                    ]}
+                    onPress={() => handleCopy(journeyToken, 'Journey Token')}
+                    disabled={!journeyToken}
+                  >
+                    <Text style={styles.copyButtonText}>Copiar</Text>
+                  </TouchableOpacity>
+                </View>
+                <TextInput
+                  style={[styles.input, styles.tokenInput]}
+                  value={journeyToken}
+                  onChangeText={setJourneyToken}
+                  placeholder="Cole o journeyToken ou gere um novo"
+                  multiline
+                  numberOfLines={4}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  placeholderTextColor="#94A3B8"
+                />
+              </View>
+
+              {journeyToken ? (
+                <TouchableOpacity
+                  style={[styles.clearButton, loading && styles.buttonDisabled]}
+                  onPress={handleClearSaas}
+                  disabled={loading}
+                >
+                  <Text style={styles.clearButtonText}>Limpar sessão SAAS</Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          ) : (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>App Key</Text>
+              <View style={styles.inputGroup}>
+                <View style={styles.inputHeaderRow}>
+                  <Text style={styles.inputLabel}>App Key Atual</Text>
+                  <TouchableOpacity
+                    style={[
+                      styles.copyButton,
+                      !appKey && styles.buttonDisabled,
+                    ]}
+                    onPress={() => handleCopy(appKey, 'App Key')}
+                    disabled={!appKey}
+                  >
+                    <Text style={styles.copyButtonText}>Copiar</Text>
+                  </TouchableOpacity>
+                </View>
+                <TextInput
+                  style={[styles.input, styles.tokenInput]}
+                  value={appKey}
+                  onChangeText={setAppKey}
+                  placeholder="Cole sua App Key ou gere uma nova"
+                  multiline
+                  numberOfLines={4}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  placeholderTextColor="#94A3B8"
+                />
+              </View>
+            </View>
+          )}
         </ScrollView>
 
         <View style={styles.footer}>
           <TouchableOpacity
             style={[styles.generateButton, loading && styles.buttonDisabled]}
-            onPress={handleGenerateAppKey}
+            onPress={handleGenerate}
             disabled={loading}
           >
             {loading ? (
@@ -236,7 +386,9 @@ const SessionScreen = () => {
                 <Text style={styles.buttonText}>Gerando...</Text>
               </View>
             ) : (
-              <Text style={styles.buttonText}>Gerar App Key</Text>
+              <Text style={styles.buttonText}>
+                {isSaas ? 'Gerar token SAAS' : 'Gerar App Key'}
+              </Text>
             )}
           </TouchableOpacity>
         </View>
@@ -356,12 +508,39 @@ const styles = StyleSheet.create({
     color: '#0F172A',
     backgroundColor: '#F8FAFC',
   },
-  appKeyInput: {
+  passwordRow: {
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  passwordInput: {
+    paddingRight: 44,
+  },
+  passwordToggle: {
+    position: 'absolute',
+    right: 12,
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tokenInput: {
     minHeight: 84,
     textAlignVertical: 'top',
     fontFamily: 'monospace',
     fontSize: 12,
     backgroundColor: '#EFF6FF',
+  },
+  tokenBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#DCFCE7',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 14,
+  },
+  tokenBadgeText: {
+    color: '#15803D',
+    fontSize: 12,
+    fontWeight: '600',
   },
   generateButton: {
     backgroundColor: '#FFFFFF',
@@ -374,6 +553,16 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
+  },
+  clearButton: {
+    marginTop: 4,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  clearButtonText: {
+    color: '#DC2626',
+    fontSize: 14,
+    fontWeight: '700',
   },
   buttonDisabled: {
     opacity: 0.55,

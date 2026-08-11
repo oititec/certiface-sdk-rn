@@ -1,7 +1,14 @@
 export enum LivenessProvider {
-  FACETEC = 'FACETEC',
   IPROOV = 'IPROOV',
 }
+
+export type CertifaceFlow = 'IPROOV' | 'SAAS';
+
+/**
+ * Engines available when generating a SaaS journeyToken.
+ * The effective engine is resolved server-side from the token; not a startJourney param.
+ */
+export type SaasProvider = 'FACETEC' | 'FORTFACE';
 
 export enum Environment {
   HML = 'HML',
@@ -25,22 +32,23 @@ export interface FacetecSizes {
   guidanceRetryScreenImageBorderWidth?: number;
   frameBorderWidth?: number;
   frameCornerRadius?: number;
+  /** @platform android */
   frameElevation?: number;
   feedbackElevation?: number;
   feedbackCornerRadius?: number;
   guidanceButtonCornerRadius?: number;
+  /** @platform android */
   guidanceRetryScreenImageCornerRadius?: number;
   /** @platform android */
   readyScreenTextBackgroundCornerRadius?: number;
-  /** @platform android */
   ovalStrokeWidth?: number;
-  /** @platform android */
+  /** Android canônico; iOS também aceita via alias ovalProgressWidth */
   ovalProgressStrokeWidth?: number;
-  /** @platform android */
+  /** Android canônico; iOS também aceita via alias ovalProgressOffset */
   ovalProgressRadialOffset?: number;
-  /** @platform ios */
+  /** Alias de ovalProgressStrokeWidth (ambos) */
   ovalProgressWidth?: number;
-  /** @platform ios */
+  /** Alias de ovalProgressRadialOffset (ambos) */
   ovalProgressOffset?: number;
   /** @platform android */
   resultScreenAnimationRelativeScale?: number;
@@ -50,11 +58,13 @@ export interface FacetecSizes {
 
 export interface FacetecConfiguration {
   cancelButtonLocation?: FacetecButtonLocation;
+  /** @platform android */
   exitAnimationStyle?: FacetecExitAnimationStyle;
 }
 
 export interface FacetecFlags {
   overlayShowBrandingImage?: boolean;
+  /** @platform android */
   feedbackEnablePulsatingText?: boolean;
   /** @platform android */
   resultScreenShowUploadProgressBar?: boolean;
@@ -64,18 +74,24 @@ export interface FacetecColors {
   readyScreenHeader?: string;
   readyScreenSubtext?: string;
   readyScreenTextBackground?: string;
+  /** @platform android */
   readyScreenOvalFill?: string;
   resultScreenMessage?: string;
   resultScreenUploadProgressBarFill?: string;
+  /** Alias Android de `resultScreenUploadProgressBarFill`. */
+  resultScreenUploadProgressFill?: string;
   resultScreenUploadProgressBarTrack?: string;
   resultScreenForeground?: string;
+  /** @platform android */
   resultScreenBackground?: string;
   resultScreenActivityIndicator?: string;
   resultScreenResultAnimationBackground?: string;
   resultScreenResultAnimationForeground?: string;
   retryScreenHeader?: string;
   retryScreenSubtext?: string;
+  /** @platform android */
   retryScreenImageBorder?: string;
+  /** @platform android */
   retryScreenOvalStroke?: string;
   feedbackMessage?: string;
   feedbackBarBackground?: string;
@@ -86,7 +102,9 @@ export interface FacetecColors {
   guidanceButtonBackgroundHighlight?: string;
   guidanceButtonBackgroundDisabled?: string;
   guidanceButtonBorder?: string;
+  /** @platform android */
   guidanceForeground?: string;
+  /** @platform android */
   guidanceBackground?: string;
   frameBackground?: string;
   frameBorder?: string;
@@ -115,6 +133,7 @@ export interface FacetecTexts {
 
   resultUploadMessage?: string;
   resultSuccessMessage?: string;
+  processingMessage?: string;
 
   feedbackLookStraightInOval?: string;
   feedbackCenterFace?: string;
@@ -200,6 +219,8 @@ export interface IProovColors {
 
 export interface IProovTexts {
   title?: string;
+  /** Preferir `processing.texts.message`. */
+  processingMessage?: string;
 }
 
 export interface IProovAssets {
@@ -228,14 +249,27 @@ export type IProovOrientationGPA =
 
 export type IProovOrientationLA = 'PORTRAIT' | 'REVERSE_PORTRAIT';
 
+export type IProovFilterStyle = 'natural' | 'lineDrawing';
+
+export type IProovNaturalStyle = 'clear' | 'blur';
+
+export type IProovLineDrawingStyle = 'classic' | 'shaded' | 'vibrant';
+
 export interface IProovConfiguration {
   timeoutSecs?: number;
+  /** @platform android */
   orientationGpa?: IProovOrientationGPA;
+  /** @platform android */
   orientationLa?: IProovOrientationLA;
+  filterStyle?: IProovFilterStyle;
+  naturalStyle?: IProovNaturalStyle;
+  lineDrawingStyle?: IProovLineDrawingStyle;
 }
 
 export interface IProovFlags {
+  /** @platform android */
   isEnabledScreenShots?: boolean;
+  /** @platform android */
   disableExteriorEffects?: boolean;
   promptRoundedCorners?: boolean;
 }
@@ -256,15 +290,12 @@ export interface IProovTheme {
  */
 
 export interface InstructionsThemeColors {
+  /** @platform android */
   statusBar?: string;
   background?: string;
   backButtonIcon?: string;
   /** Tint do ícone quando `assets.backButtonIcon` está definido. Android e iOS. */
   backButtonColor?: string;
-  /** @platform ios permission */
-  backButtonBackground?: string;
-  /** @platform ios permission */
-  backButtonBorder?: string;
   bottomSheet?: string;
   title?: string;
   caption?: string;
@@ -277,6 +308,7 @@ export interface InstructionsThemeColors {
   continueButtonText?: string;
   continueButtonTextColor?: string;
   continueButtonBackground?: string;
+  /** @platform ios */
   continueButtonBorder?: string;
 }
 
@@ -321,10 +353,15 @@ export interface InstructionsThemeFonts {
 
 export interface InstructionsThemeSizes {
   bottomSheetCornerRadius?: number;
+  /** @platform ios */
   titleFontSize?: number;
+  /** @platform ios */
   captionFontSize?: number;
+  /** @platform ios */
   firstInstructionTitleFontSize?: number;
+  /** @platform ios */
   secondInstructionTitleFontSize?: number;
+  /** @platform ios */
   continueButtonFontSize?: number;
 }
 
@@ -392,10 +429,15 @@ export interface PermissionThemeFonts {
   title?: string;
   caption?: string;
   checkPermissionButton?: string;
+  /** @platform ios */
   bottomSheetTitle?: string;
+  /** @platform ios */
   bottomSheetCaption?: string;
+  /** @platform ios */
   openSettingsButton?: string;
+  /** @deprecated Use `openSettingsButton`. @platform ios */
   opentSettingsButton?: string;
+  /** @platform ios */
   closeButton?: string;
 }
 
@@ -404,12 +446,19 @@ export interface PermissionThemeFlags {
 }
 
 export interface PermissionThemeSizes {
+  /** @platform ios */
   titleFontSize?: number;
+  /** @platform ios */
   captionFontSize?: number;
+  /** @platform ios */
   checkPermissionButtonFontSize?: number;
+  /** @platform ios */
   bottomSheetTitleFontSize?: number;
+  /** @platform ios */
   bottomSheetCaptionFontSize?: number;
+  /** @platform ios */
   openSettingsButtonFontSize?: number;
+  /** @platform ios */
   closeButtonFontSize?: number;
 }
 
@@ -438,7 +487,7 @@ export interface ProcessingThemeFlags {
 
 export interface ProcessingThemeSizes {
   loadingIndicatorSize?: number;
-  /** @platform android iproov */
+  /** @platform android — iProov e Fortface */
   loadingIndicatorWidth?: number;
   /** @platform ios */
   spinnerSize?: number;
@@ -446,27 +495,43 @@ export interface ProcessingThemeSizes {
   spinnerWidth?: number;
 }
 
+export interface ProcessingThemeFonts {
+  /** @platform android */
+  message?: string;
+}
+
+export interface ProcessingThemeTexts {
+  message?: string;
+}
+
 export interface ProcessingTheme {
   colors?: ProcessingThemeColors;
+  texts?: ProcessingThemeTexts;
   flags?: ProcessingThemeFlags;
   sizes?: ProcessingThemeSizes;
+  fonts?: ProcessingThemeFonts;
 }
 
 /**
- * Result Theme
+ * Result Theme (iProov e Fortface). FaceTec usa `facetec.*` para a tela de resultado nativa.
  */
 
 export interface ResultThemeColors {
+  /** @platform android */
   successStatusBar?: string;
   successBackground?: string;
   successText?: string;
+  /** @platform android */
   errorStatusBar?: string;
   errorBackground?: string;
   errorText?: string;
+  /** @platform ios Fundo da tela de retry (não usar como cor do botão). */
   retryBackground?: string;
+  /** @platform ios Cor da mensagem de retry. */
   retryText?: string;
   retryButtonText?: string;
   retryButtonBackground?: string;
+  /** @platform ios */
   retryButtonBorder?: string;
 }
 
@@ -479,6 +544,7 @@ export interface ResultThemeTexts {
 export interface ResultThemeAssets {
   successImage?: string;
   errorImage?: string;
+  /** @platform ios */
   retryImage?: string;
 }
 
@@ -493,7 +559,9 @@ export interface ResultThemeFlags {
 }
 
 export interface ResultThemeSizes {
+  /** @platform ios */
   textFontSize?: number;
+  /** @platform ios */
   retryButtonFontSize?: number;
 }
 
@@ -506,10 +574,100 @@ export interface ResultTheme {
   sizes?: ResultThemeSizes;
 }
 
+/**
+ * Fortface Theme
+ */
+
+export type FortfaceCancelPosition = 'LEFT' | 'RIGHT';
+
+export type FortfaceScreenMode = 'FULL_SCREEN' | 'MODAL';
+
+export type FortfaceScreenOrientation = 'AUTOMATIC' | 'PORTRAIT' | 'LANDSCAPE';
+
+export interface FortfaceColors {
+  cameraBackground?: string;
+  cameraMessageText?: string;
+  cameraAlert?: string;
+  cameraNeutral?: string;
+  cameraSuccess?: string;
+  cameraBrightnessAlert?: string;
+  cameraLoading?: string;
+  cameraLoadingStroke?: string;
+  cameraIconBackground?: string;
+  modalOverlay?: string;
+}
+
+export interface FortfaceTexts {
+  cameraStartMessage?: string;
+  cameraFaceNoCenter?: string;
+  cameraFacePositioned?: string;
+  cameraNoFace?: string;
+  cameraFaceFar?: string;
+  cameraFaceNear?: string;
+  cameraFaceCenterLeft?: string;
+  cameraFaceCenterRight?: string;
+  cameraFaceCenterUp?: string;
+  cameraFaceCenterDown?: string;
+  cameraFacePitchUp?: string;
+  cameraFacePitchDown?: string;
+  cameraNoFaceYaw?: string;
+  cameraNoFaceRoll?: string;
+  cameraFaceRollLeft?: string;
+  cameraFaceRollRight?: string;
+  cameraFaceBrightnessLow?: string;
+  cameraFaceBrightnessHigh?: string;
+  processingMessage?: string;
+}
+
+export interface FortfaceAssets {
+  cancelButtonIcon?: string;
+  cameraLogo?: string;
+  brightnessHighIcon?: string;
+  brightnessLowIcon?: string;
+}
+
+export interface FortfaceFonts {
+  /** @platform android Nome (`sixty`) ou path (`fonts/sixty.ttf`). Precisa existir em `res/font` (basename). */
+  cameraMessage?: string;
+  /** @platform android Nome (`sixty`) ou path (`fonts/sixty.ttf`). Precisa existir em `res/font` (basename). */
+  cameraFooter?: string;
+}
+
+export interface FortfaceSizes {
+  /** Timeout da câmera em segundos. Mínimo efetivo no SDK: 20. */
+  cameraTimeout?: number;
+  cameraMinStabilizationTime?: number;
+  cameraMaxStabilizationTime?: number;
+  brightnessValidationTimeout?: number;
+  modalOverlayOpacity?: number;
+}
+
+export interface FortfaceFlags {
+  cancelButtonEnable?: boolean;
+  cameraFrameTextVisible?: boolean;
+}
+
+export interface FortfaceConfiguration {
+  cancelPosition?: FortfaceCancelPosition;
+  screenMode?: FortfaceScreenMode;
+  screenOrientation?: FortfaceScreenOrientation;
+  customizationJsonFileName?: string;
+}
+
+export interface FortfaceTheme {
+  colors?: FortfaceColors;
+  texts?: FortfaceTexts;
+  assets?: FortfaceAssets;
+  fonts?: FortfaceFonts;
+  sizes?: FortfaceSizes;
+  flags?: FortfaceFlags;
+  configuration?: FortfaceConfiguration;
+}
+
 export interface CertifaceTheme {
-  provider?: LivenessProvider;
   facetec?: FacetecTheme;
   iproov?: IProovTheme;
+  fortface?: FortfaceTheme;
   instructions?: InstructionsTheme;
   permission?: PermissionTheme;
   processing?: ProcessingTheme;

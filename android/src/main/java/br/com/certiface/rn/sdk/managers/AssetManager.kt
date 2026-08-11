@@ -139,10 +139,10 @@ object AssetManager {
         return processedAssets.containsKey(key)
     }
     
-    fun clear() {
+    fun clear(context: Context? = null) {
         processedAssets.clear()
         isInitialized = false
-        Log.d(TAG, "AssetManager cleared")
+        context?.let { AssetProcessor(it).cleanupCache() }
     }
     
     fun isReady(): Boolean = isInitialized

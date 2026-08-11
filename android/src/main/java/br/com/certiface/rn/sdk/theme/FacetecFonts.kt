@@ -6,7 +6,8 @@ import com.facebook.react.bridge.ReadableMap
 class FacetecFonts(
     private val instructionsFonts: ReadableMap?,
     private val permissionFonts: ReadableMap?,
-    private val facetecFonts: ReadableMap?
+    private val facetecFonts: ReadableMap?,
+    private val processingFonts: ReadableMap? = null
 ) {
     private val instructionsTitleFont: String = fontAssetPath(instructionsFonts?.getString("title"))
 
@@ -47,6 +48,8 @@ class FacetecFonts(
 
     private val feedbackMessageFont: String = fontAssetPath(facetecFonts?.getString("feedbackMessage"))
 
+    private val processingMessageFont: String = fontAssetPath(processingFonts?.getString("message"))
+
     fun apply(): HashMap<FacetecFontsKey, String> {
         return hashMapOf(
             FacetecFontsKey.INSTRUCTIONS_TITLE_FONT to instructionsTitleFont,
@@ -54,11 +57,11 @@ class FacetecFonts(
             FacetecFontsKey.INSTRUCTIONS_DOCUMENT_TYPES_INSTRUCTIONS_FONT to instructionsFirstInstructionTitleFont,
             FacetecFontsKey.INSTRUCTIONS_DOCUMENT_TIPS_INSTRUCTIONS_FONT to instructionsSecondInstructionTitleFont,
             FacetecFontsKey.INSTRUCTIONS_BUTTON_FONT to instructionsContinueButtonFont,
-            
+
             FacetecFontsKey.PERMISSION_TITLE_FONT to permissionTitleFont,
             FacetecFontsKey.PERMISSION_CAPTION_FONT to permissionCaptionFont,
             FacetecFontsKey.PERMISSION_BUTTON_FONT to permissionButtonFont,
-            
+
             FacetecFontsKey.GUIDANCE_CUSTOMIZATION_HEADER_FONT to guidanceHeaderFont,
             FacetecFontsKey.GUIDANCE_CUSTOMIZATION_SUBTEXT_FONT to guidanceSubtextFont,
             FacetecFontsKey.GUIDANCE_CUSTOMIZATION_BUTTON_FONT to guidanceButtonFont,
@@ -68,6 +71,7 @@ class FacetecFonts(
             FacetecFontsKey.GUIDANCE_CUSTOMIZATION_RETRY_SCREEN_SUBTEXT_FONT to retryScreenSubtextFont,
             FacetecFontsKey.RESULT_SCREEN_CUSTOMIZATION_MESSAGE_FONT to resultScreenMessageFont,
             FacetecFontsKey.FEEDBACK_CUSTOMIZATION_TEXT_FONT to feedbackMessageFont,
+            FacetecFontsKey.PROCESSING_MESSAGE_FONT to processingMessageFont,
         )
     }
 }

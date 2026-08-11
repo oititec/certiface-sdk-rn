@@ -1,43 +1,40 @@
 import type { CertifaceTheme } from '@certiface/sdk';
 
 export const customTheme: CertifaceTheme = {
-  // O provider efetivo vem do parâmetro `provider` em `CertifaceSDK.startJourney`.
-  // Este arquivo mantém FaceTec e iProov no mesmo tema para facilitar testes e repasse ao cliente.
+  // Fluxos: startJourney (iProov) ou startSaasJourney (FaceTec/Fortface via token).
+  // FaceTec: facetec.* (+ telas compartilhadas). iProov: iproov.* + instructions/permission/processing/result.
+  // Fortface (SaaS): fortface.* + instructions/permission/processing/result.
+  // result.* = iProov e Fortface. FaceTec usa facetec.* na tela de resultado nativa.
+
   facetec: {
-    // Cores da jornada FaceTec. Algumas chaves são específicas de Android/iOS; consulte a documentação para paridade visual.
     colors: {
-      // Ready Screen: controla a tela inicial nativa do FaceTec antes da captura.
       readyScreenHeader: '#FFD166',
       readyScreenSubtext: '#9CA3AF',
       readyScreenOvalFill: '#FF6B35',
       readyScreenTextBackground: '#444444',
-      // Result Screen: use `resultScreenMessage` para cor da mensagem final com melhor paridade entre plataformas.
       resultScreenMessage: '#EEF6F8',
       resultScreenForeground: '#EEF6F8',
       resultScreenBackground: '#1A1A1A',
       resultScreenActivityIndicator: '#EEF6F8',
       resultScreenUploadProgressBarFill: '#EEF6F8',
+      resultScreenUploadProgressFill: '#EEF6F8',
       resultScreenUploadProgressBarTrack: '#444444',
       resultScreenResultAnimationBackground: '#2E2E2E',
       resultScreenResultAnimationForeground: '#EEF6F8',
-      // Oval/frame: muda a borda e progresso do enquadramento facial.
       ovalStroke: '#FF6B35',
       ovalProgressFirst: '#FF6B35',
       ovalProgressSecond: '#FFD700',
       overlayBackground: '#80000000',
       frameBorder: '#FF6B35',
       frameBackground: '#1A1A1A',
-      // Feedback/guidance: muda barra de instruções exibida durante a captura.
       feedbackBarBackground: '#FFF8DC',
       feedbackMessage: '#333333',
       guidanceBackground: '#2E2E2E',
       guidanceForeground: '#FACC15',
-      // Retry Screen: textos e imagem quando o FaceTec pede nova tentativa.
       retryScreenHeader: '#FF5252',
       retryScreenSubtext: '#DD3333',
       retryScreenOvalStroke: '#FFFFFF',
       retryScreenImageBorder: '#FFFFFF',
-      // Botões de guidance: defina explicitamente para evitar diferença visual entre Android e iOS.
       guidanceButtonTextNormal: '#111827',
       guidanceButtonTextHighlight: '#111827',
       guidanceButtonTextDisabled: '#AAAAAA',
@@ -46,15 +43,12 @@ export const customTheme: CertifaceTheme = {
       guidanceButtonBackgroundDisabled: '#666666',
       guidanceButtonBorder: '#FF6B35',
     },
-    // Textos exibidos pelas telas nativas do FaceTec.
     texts: {
-      // Ready Screen: textos antes de iniciar a captura.
       readyHeader1: 'Prepare-se',
       readyHeader2: 'para verificação',
       readyMessage1: 'Posicione seu rosto',
       readyMessage2: 'dentro do círculo',
       readyButton: 'Iniciar',
-      // Retry Screen: mensagens quando a captura precisa ser repetida.
       retryHeader: 'Vamos tentar novamente',
       retrySubheader: 'Ajustes necessários',
       retryMessageSmile: 'Mantenha uma expressão neutra',
@@ -63,10 +57,9 @@ export const customTheme: CertifaceTheme = {
       retryYourPicture: 'Sua foto',
       retryIdealPicture: 'Foto ideal',
       retryButton: 'Tentar Novamente',
-      // Result Screen: mensagem durante envio e sucesso final.
       resultUploadMessage: 'Enviando validação',
       resultSuccessMessage: 'Verificação concluída!',
-      // Feedback: mensagens dinâmicas exibidas durante o posicionamento do rosto.
+      processingMessage: 'Processando sua verificação facial...',
       feedbackLookStraightInOval: 'Olhe diretamente para a câmera',
       feedbackCenterFace: 'Centralize seu rosto',
       feedbackFaceNotFound: 'Rosto não encontrado',
@@ -86,13 +79,9 @@ export const customTheme: CertifaceTheme = {
       feedbackConditionsTooBright: 'Ambiente muito claro',
       feedbackBrightenYourEnvironment: 'Melhore a iluminação do ambiente',
     },
-    // Assets Android devem estar em res/drawable ou res/anim; no iOS, em Images.xcassets quando aplicável.
     assets: {
-      // Branding no overlay. Só aparece quando `overlayShowBrandingImage` estiver true.
       overlayBrandImage: 'people',
-      // Ícone do botão cancelar/fechar da tela FaceTec.
       cancelButtonIcon: 'cancel_button',
-      // Assets de resultado abaixo são Android-only no SDK atual.
       resultScreenCustomActivityIndicatorImage:
         'animated_activity_indicator_offwhite',
       resultScreenCustomActivityIndicatorAnimation:
@@ -116,11 +105,9 @@ export const customTheme: CertifaceTheme = {
       guidanceButton: 'sixty',
     },
     sizes: {
-      // Guidance button: largura da borda e raio do botão nativo.
       guidanceButtonBorderWidth: 2,
       guidanceRetryScreenImageBorderWidth: 3,
-      // Frame/feedback: ajusta borda, raio e sombra do enquadramento facial.
-      frameBorderWidth: 2,
+      frameBorderWidth: 4,
       frameCornerRadius: 8,
       frameElevation: 5,
       feedbackElevation: 8,
@@ -128,57 +115,46 @@ export const customTheme: CertifaceTheme = {
       guidanceButtonCornerRadius: 12,
       guidanceRetryScreenImageCornerRadius: 12,
       readyScreenTextBackgroundCornerRadius: 12,
-      // Oval/progresso: espessura e offset do indicador de progresso da captura.
       ovalStrokeWidth: 4,
       ovalProgressStrokeWidth: 6,
-      ovalProgressRadialOffset: 0,
+      ovalProgressRadialOffset: 8,
       ovalProgressWidth: 6,
-      ovalProgressOffset: 0,
-      // Result Screen: escala da animação e velocidade do loading customizado.
+      ovalProgressOffset: 8,
       resultScreenAnimationRelativeScale: 1,
       resultScreenCustomActivityIndicatorRotationInterval: 1000,
     },
     flags: {
-      // false remove imagem de marca no overlay; true exige `overlayBrandImage`.
       overlayShowBrandingImage: false,
-      // Android-only: deixa o texto de feedback com efeito pulsante.
       feedbackEnablePulsatingText: true,
-      // Android-only: mostra barra de upload no resultado.
       resultScreenShowUploadProgressBar: true,
     },
     configuration: {
-      // Posição do botão cancelar dentro da tela nativa FaceTec.
       cancelButtonLocation: 'TOP_LEFT',
-      // Animação ao sair da jornada FaceTec.
       exitAnimationStyle: 'CIRCLE_FADE',
     },
   },
+
   iproov: {
-    // Fonte base do iProov. `fontResource` busca recurso nativo; `fontPath` é fallback em assets/fonts.
     fontResource: 'sixty',
     fontPath: 'fonts/sixty.ttf',
     colors: {
       closeButtonColor: '#FFFFFF',
-      // Header/prompt: altera título superior e faixa de instruções do iProov.
       title: '#F59E0B',
       titleBackground: '#2E2E2E',
       promptText: '#60A5FA',
       promptBackground: '#1A1A1A',
       background: '#FF6B35',
-      // Oval: estados visuais durante a captura.
       ovalReady: '#FF6B35',
       ovalNotReady: '#FF3030',
       ovalCapturing: '#22D3EE',
       ovalCompleted: '#FF6B35',
-      // Filtro line drawing: ativa customização do filtro de linhas do iProov.
-      filterLineDrawingForeground: '#FFFFFF',
-      filterLineDrawingBackground: '#000000',
     },
     texts: {
       title: 'Verificação Biométrica',
+      processingMessage: 'Processando sua verificação facial...',
     },
     assets: {
-      closeButtonIcon: 'close_icon',
+      closeButtonIcon: 'fc_arrow_left',
       logoImage: 'people',
     },
     fonts: {
@@ -194,37 +170,96 @@ export const customTheme: CertifaceTheme = {
       resultRetryButtonFont: 'sixty',
     },
     configuration: {
-      // Tempo máximo da jornada iProov.
       timeoutSecs: 60,
-      // Orientação do Genuine Presence Assurance.
       orientationGpa: 'PORTRAIT',
-      // Orientação do Liveness Assurance.
       orientationLa: 'PORTRAIT',
+      filterStyle: 'natural',
+      naturalStyle: 'clear',
     },
     flags: {
-      // Permite screenshots durante a jornada. Desative se houver política de segurança do app.
       isEnabledScreenShots: true,
-      // Remove efeitos visuais externos do iProov.
       disableExteriorEffects: false,
-      // Arredonda os cantos do prompt de instruções.
       promptRoundedCorners: true,
     },
   },
-  // Tela de instruções compartilhada por FaceTec e iProov antes da captura.
+
+  // Fortface — startSaasJourney (provider resolvido pelo token).
+  fortface: {
+    colors: {
+      cameraBackground: '#0D47A1',
+      cameraMessageText: '#FFFFFF',
+      cameraNeutral: '#CDCDCD',
+      cameraAlert: '#511f7d',
+      cameraSuccess: '#5FC213',
+      cameraBrightnessAlert: '#24B8C2',
+      cameraLoading: '#5FC213',
+      cameraLoadingStroke: '#FFFFFF',
+      cameraIconBackground: '#F1F1F1',
+      // Usado com screenMode: 'MODAL'.
+      modalOverlay: '#80000000',
+    },
+    texts: {
+      cameraStartMessage: 'Enquadre o rosto no oval',
+      cameraFaceNoCenter: 'Centralize o rosto',
+      cameraFacePositioned: 'Aguarde, não se mexa',
+      cameraNoFace: 'Posicione o rosto aqui',
+      cameraFaceFar: 'Aproxime o rosto',
+      cameraFaceNear: 'Afaste o rosto',
+      cameraFaceCenterLeft: 'Mova à esquerda',
+      cameraFaceCenterRight: 'Mova à direita',
+      cameraFaceCenterUp: 'Mova para cima',
+      cameraFaceCenterDown: 'Mova para baixo',
+      cameraFacePitchUp: 'Abaixe o rosto',
+      cameraFacePitchDown: 'Levante o rosto',
+      cameraNoFaceYaw: 'Olhe para frente',
+      cameraNoFaceRoll: 'Cabeça reta',
+      cameraFaceRollLeft: 'Incline à esquerda',
+      cameraFaceRollRight: 'Incline à direita',
+      cameraFaceBrightnessLow: 'Melhore a luz',
+      cameraFaceBrightnessHigh: 'Diminua a luz',
+      processingMessage: 'Processando sua verificação facial...',
+    },
+    assets: {
+      cancelButtonIcon: 'fortface_cancel_button_light',
+      brightnessHighIcon: 'ic_brightness_high',
+      brightnessLowIcon: 'ic_brightness_low',
+    },
+    fonts: {
+      cameraMessage: 'sixty',
+      cameraFooter: 'sixty',
+    },
+    sizes: {
+      cameraTimeout: 30,
+      cameraMinStabilizationTime: 2,
+      cameraMaxStabilizationTime: 6,
+      brightnessValidationTimeout: 10,
+      // Usado com screenMode: 'MODAL' (0–1).
+      modalOverlayOpacity: 0.6,
+    },
+    flags: {
+      cancelButtonEnable: true,
+      cameraFrameTextVisible: true,
+    },
+    configuration: {
+      cancelPosition: 'LEFT',
+      // Default do exemplo: FULL_SCREEN. Para overlay: screenMode: 'MODAL' + colors.modalOverlay + sizes.modalOverlayOpacity.
+      screenMode: 'FULL_SCREEN',
+      screenOrientation: 'PORTRAIT',
+      // Arquivo JSON de customização Fortface no assets do app (quando aplicável).
+      // customizationJsonFileName: 'fortface_customization.json',
+    },
+  },
+
   instructions: {
     configuration: {
-      // false pula a tela de instruções e inicia direto a captura.
       showInstructionScreen: true,
     },
     flags: {
-      // Android-only: true usa ícones escuros na status bar.
       statusBarIsDarkIcons: false,
     },
     colors: {
-      // statusBar é Android-only; background/bottomSheet valem para a tela de instruções.
       statusBar: '#9bd4ce',
       background: '#9bd4ce',
-      // `backButtonColor` aplica tint no ícone customizado de voltar.
       backButtonIcon: '#00A89C',
       backButtonColor: '#00A89C',
       bottomSheet: '#FFFFFF',
@@ -249,16 +284,12 @@ export const customTheme: CertifaceTheme = {
       continueButton: 'Continuar',
     },
     assets: {
-      // Use apenas o nome base do asset, sem extensão.
       backButtonIcon: 'fc_arrow_left',
       contextImage: 'woman_liveness_example',
-      // fillBounds preenche a área superior; fit preserva proporção sem cortar.
-      contextImageScale: 'fillBounds', // 'fillBounds' | 'fillWidth' | 'fillHeight' | 'fit' | 'crop' | 'inside' | 'none'
-      // 1 ocupa toda a área disponível acima do bottom sheet no Android.
+      contextImageScale: 'fillBounds',
       contextImageHeightFraction: 1,
       firstInstructionIcon: 'lamp_example',
       secondInstructionIcon: 'face',
-      // fillBounds faz o ícone preencher o círculo; fit mantém padding interno.
       instructionIconScale: 'fillBounds',
       instructionIconSize: 60,
     },
@@ -270,7 +301,6 @@ export const customTheme: CertifaceTheme = {
       continueButton: 'sixty',
     },
     sizes: {
-      // Ajusta altura visual do bottom sheet e hierarquia dos textos.
       bottomSheetCornerRadius: 16,
       titleFontSize: 20,
       captionFontSize: 16,
@@ -279,14 +309,13 @@ export const customTheme: CertifaceTheme = {
       continueButtonFontSize: 16,
     },
   },
-  // Tela de permissão. Bottom sheet, abrir configurações e fechar são customizações aplicadas no iOS.
+
+  // Bottom sheet / openSettings / closeButton: iOS-only. No Android a tela de permissão é simplificada.
   permission: {
     flags: {
-      // Android-only: true usa ícones escuros na status bar da tela de permissão.
       statusBarIsDarkIcons: false,
     },
     colors: {
-      // No Android, a tela é simplificada; bottomSheet/openSettings/closeButton são iOS.
       statusBar: '#9bd4ce',
       background: '#9bd4ce',
       backButtonIcon: '#374151',
@@ -319,7 +348,6 @@ export const customTheme: CertifaceTheme = {
       closeButton: 'Fechar',
     },
     assets: {
-      // Ícones usados na tela de permissão.
       backButtonIcon: 'close_icon',
       cameraImage: 'camera_permission',
     },
@@ -330,11 +358,10 @@ export const customTheme: CertifaceTheme = {
       bottomSheetTitle: 'sixty',
       bottomSheetCaption: 'sixty',
       openSettingsButton: 'sixty',
-      opentSettingsButton: 'sixty',
       closeButton: 'sixty',
     },
     sizes: {
-      // Tamanhos de fonte da permissão; campos de bottom sheet são aplicados no iOS.
+      // FontSize e bottom sheet: iOS-only em todos os providers no Android.
       titleFontSize: 20,
       captionFontSize: 16,
       checkPermissionButtonFontSize: 16,
@@ -344,40 +371,41 @@ export const customTheme: CertifaceTheme = {
       closeButtonFontSize: 16,
     },
   },
-  // Tela de processamento entre captura e resultado.
+
   processing: {
     flags: {
-      // Android-only: controla contraste da status bar enquanto processa.
       statusBarIsDarkIcons: true,
     },
     colors: {
-      // Tela exibida entre a captura e a resposta final.
       statusBar: '#1A1A1A',
       background: '#1A1A1A',
       loading: '#FFFFFF',
     },
+    texts: {
+      message: 'Processando sua verificação facial...',
+    },
     sizes: {
-      // Android usa loadingIndicator*; iOS usa spinner*.
-      loadingIndicatorSize: 100, // 1 - 300
+      loadingIndicatorSize: 100,
       loadingIndicatorWidth: 10,
-      spinnerSize: 5, // 1 - 10
-      spinnerWidth: 10,
+      spinnerSize: 5,
+      spinnerWidth: 2,
+    },
+    fonts: {
+      message: 'sixty',
     },
   },
-  // Tela de sucesso/erro. No iOS: `retryBackground` pinta a tela de retry; use `retryButtonBackground` para o botão.
+
+  // iProov + Fortface. FaceTec usa facetec.texts/colors/fonts de resultado.
   result: {
     colors: {
-      // successStatusBar/errorStatusBar são Android-only.
       successStatusBar: '#E8F5E8',
       successBackground: '#E8F5E8',
       successText: '#2E7D32',
       errorStatusBar: '#1f7365',
       errorBackground: '#1f7365',
       errorText: '#423c3c',
-      // retryBackground muda o fundo da tela no iOS e serve como fallback do botão no Android.
       retryBackground: '#dbabab',
       retryText: '#1f7365',
-      // Use retryButton* para controlar o botão de tentar novamente com paridade.
       retryButtonText: '#FF6B35',
       retryButtonBackground: '#FFFFFF',
       retryButtonBorder: '#FFFFFF',
@@ -388,7 +416,6 @@ export const customTheme: CertifaceTheme = {
       retryButton: 'Tentar Novamente',
     },
     assets: {
-      // retryImage é aplicado no iOS; Android usa os ícones de sucesso/erro.
       successImage: 'success_icon',
       errorImage: 'error_icon',
       retryImage: 'return_button',
@@ -398,7 +425,6 @@ export const customTheme: CertifaceTheme = {
       retryButton: 'sixty',
     },
     flags: {
-      // Android-only: contraste dos ícones da status bar em sucesso/erro.
       successStatusBarIsDarkIcons: true,
       errorStatusBarIsDarkIcons: true,
     },

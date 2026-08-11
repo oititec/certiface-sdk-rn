@@ -6,6 +6,7 @@ import br.com.certiface.designsystem.R
 import br.com.certiface.designsystem.ui.builders.InstructionImageScale
 import br.com.certiface.domain.model.iproov.OrientationGPA
 import br.com.certiface.domain.model.iproov.OrientationLA
+import br.com.certiface.domain.model.iproov.DomainFilterTheme
 import br.com.certiface.manager.exports.FilterTheme
 import br.com.certiface.manager.exports.IProovDrawablesKey
 import br.com.certiface.manager.exports.IProovFontsKey
@@ -50,6 +51,8 @@ object IProovThemeFactory {
     val permissionFontsMap = permissionTheme?.getMap("fonts")
     val resultTheme = theme?.getMap("result")
     val resultFontsMap = resultTheme?.getMap("fonts")
+    val processingTheme = theme?.getMap("processing")
+    val processingFontsMap = processingTheme?.getMap("fonts")
     val iproovFontsMap = iproovTheme?.getMap("fonts")
     val iproovFontResource = iproovTheme?.getString("fontResource")
     val iproovFontPath = iproovTheme?.getString("fontPath")
@@ -61,6 +64,7 @@ object IProovThemeFactory {
       instructionsFontsMap = instructionsFontsMap,
       permissionFontsMap = permissionFontsMap,
       resultFontsMap = resultFontsMap,
+      processingFontsMap = processingFontsMap,
       resolvedFontResource = resolvedIProovFontResource,
       fontResource = iproovFontResource,
       fontPath = iproovFontPath
@@ -92,24 +96,12 @@ object IProovThemeFactory {
     setDisableExteriorEffects(optBoolean(iproovFlags, "disableExteriorEffects", false))
     setTimeoutSecs(optInt(iproovConfiguration, "timeoutSecs", 60))
     setPromptRoundedCorners(optBoolean(iproovFlags, "promptRoundedCorners", true))
-    setFontsKey(iProovFonts)
+    if (iProovFonts.isNotEmpty()) {
+      setFontsKey(iProovFonts)
+    }
     val filterForeground = firstString(colors, "filterLineDrawingForeground")
     val filterBackground = firstString(colors, "filterLineDrawingBackground")
-    setFilter(
-      if (filterForeground != null || filterBackground != null) {
-        FilterTheme.LineDrawing(
-          style = LineDrawingStyle.CLASSIC,
-          background = filterBackground?.let {
-            ThemeColorValidator.parseColorOrThrow(it, "filterLineDrawingBackground")
-          },
-          foreground = filterForeground?.let {
-            ThemeColorValidator.parseColorOrThrow(it, "filterLineDrawingForeground")
-          }
-        )
-      } else {
-        FilterTheme.Natural(NaturalStyle.CLEAR)
-      }
-    )
+    setFilter(resolveIProovFilter(iproovConfiguration, filterForeground, filterBackground))
 
     setOrientation(
       gpa = parseOrientationGpa(iproovConfiguration, "orientationGpa", OrientationGPA.PORTRAIT),
@@ -139,8 +131,8 @@ object IProovThemeFactory {
     val instructionsTexts = instructionsTheme?.getMap("texts")
     val instructionsConfiguration = instructionsTheme?.getMap("configuration")
     val instructionsFlags = instructionsTheme?.getMap("flags")
-    val showInstructionScreen = instructionsConfiguration?.getBoolean("showInstructionScreen") ?: true
-    val instructionStatusBarDarkIcons = instructionsFlags?.getBoolean("statusBarIsDarkIcons") ?: false
+    val showInstructionScreen = optBoolean(instructionsConfiguration, "showInstructionScreen", true)
+    val instructionStatusBarDarkIcons = optBoolean(instructionsFlags, "statusBarIsDarkIcons", false)
 
     val iproovDrawablesRaw = AssetProcessor.processIProovAssets(theme)
     val iproovDrawables = resolveIProovDrawables(context, iproovDrawablesRaw)
@@ -213,11 +205,15 @@ object IProovThemeFactory {
       instructionsAssets?.getString("contextImageScale")
         ?.let { setContextImageScale(InstructionImageScale.fromString(it)) }
       if (instructionsAssets?.hasKey("contextImageHeightFraction") == true)
-        setContextImageHeightFraction(instructionsAssets.getDouble("contextImageHeightFraction").toFloat())
+        setContextImageHeightFraction(
+          optFloatOrNull(instructionsAssets, "contextImageHeightFraction") ?: 0.5f
+        )
       instructionsAssets?.getString("instructionIconScale")
         ?.let { setInstructionIconScale(InstructionImageScale.fromString(it)) }
       if (instructionsAssets?.hasKey("instructionIconSize") == true)
-        setInstructionIconSize(instructionsAssets.getDouble("instructionIconSize").toInt())
+        setInstructionIconSize(
+          clampedThemeInt(instructionsAssets, "instructionIconSize", 16, 256) ?: 60
+        )
     }
 
     val permissionColors = permissionTheme?.getMap("colors")
@@ -245,18 +241,23 @@ object IProovThemeFactory {
       drawableRes(IProovDrawablesKey.PERMISSION_BACK_BUTTON_ICON)?.let { setBackButtonIcon(it) }
     }
 
-    val processingTheme = theme?.getMap("processing")
     val processingColors = processingTheme?.getMap("colors")
     val processingFlags = processingTheme?.getMap("flags")
     val processingSizes = processingTheme?.getMap("sizes")
+    val processingTexts = processingTheme?.getMap("texts")
+    val iproovTexts = iproovTheme?.getMap("texts")
 
     setProcessingTheme {
       setBackgroundColor(firstString(processingColors, "backgroundColor", "background") ?: "#000000")
       setLoadingDialogColor(firstString(processingColors, "loadingDialogColor", "loading") ?: "#FFFFFF")
       setStatusBarColor(firstString(processingColors, "statusBarColor", "statusBar") ?: "#000000")
       setStatusBarIsDarkIcons(optBoolean(processingFlags, "statusBarIsDarkIcons", true))
-      setLoadingIndicatorSize(optInt(processingSizes, "loadingIndicatorSize", 100))
-      setLoadingIndicatorWidth(optInt(processingSizes, "loadingIndicatorWidth", 10))
+      setLoadingIndicatorSize(clampedInt(processingSizes, "loadingIndicatorSize", 100, 8, 512))
+      setLoadingIndicatorWidth(clampedInt(processingSizes, "loadingIndicatorWidth", 10, 1, 64))
+      (
+        firstString(processingTexts, "message")
+          ?: firstString(iproovTexts, "processingMessage")
+      )?.let { setProcessingMessage(it) }
     }
 
     val resultColors = resultTheme?.getMap("colors")
@@ -282,9 +283,9 @@ object IProovThemeFactory {
       setErrorText(firstString(resultTexts, "errorText", "error") ?: firstString(texts, "errorText") ?: "Algo deu errado na verificação.")
       setErrorTextColor(firstString(resultColors, "errorTextColor", "errorText") ?: "#D93025")
 
-      setRetryButtonColor(firstString(resultColors, "retryButtonColor", "retryButtonBackground", "retryBackground") ?: "#0F9D58")
+      setRetryButtonColor(firstString(resultColors, "retryButtonColor", "retryButtonBackground") ?: "#0F9D58")
       setRetryButtonText(firstString(resultTexts, "retryButtonText", "retryButton") ?: firstString(texts, "retryButtonText") ?: "Tentar novamente")
-      setRetryButtonTextColor(firstString(resultColors, "retryButtonTextColor", "retryButtonText", "retryText") ?: "#FFFFFF")
+      setRetryButtonTextColor(firstString(resultColors, "retryButtonTextColor", "retryButtonText") ?: "#FFFFFF")
     }
   }
 
@@ -294,6 +295,7 @@ object IProovThemeFactory {
     instructionsFontsMap: ReadableMap?,
     permissionFontsMap: ReadableMap?,
     resultFontsMap: ReadableMap?,
+    processingFontsMap: ReadableMap?,
     resolvedFontResource: Int,
     fontResource: String?,
     fontPath: String?
@@ -306,7 +308,13 @@ object IProovThemeFactory {
       else -> resolvedFontResource
     }
 
-    if (iproovFontsMap == null && instructionsFontsMap == null && permissionFontsMap == null && resultFontsMap == null) {
+    if (
+      iproovFontsMap == null &&
+      instructionsFontsMap == null &&
+      permissionFontsMap == null &&
+      resultFontsMap == null &&
+      processingFontsMap == null
+    ) {
       return buildDefaultIProovFonts(baseValue)
     }
 
@@ -317,11 +325,28 @@ object IProovThemeFactory {
     resultFontsMap?.getString("retryButton")?.trim()?.takeIf { it.isNotEmpty() }?.let {
       configuredFonts[IProovFontsKey.RESULT_RETRY_BUTTON_FONT] = fontAssetPath(it)
     }
-    if (context == null) {
-      return configuredFonts
+    processingFontsMap?.getString("message")?.trim()?.takeIf { it.isNotEmpty() }?.let {
+      configuredFonts[IProovFontsKey.PROCESSING_MESSAGE_FONT] = fontAssetPath(it)
     }
 
-    return configuredFonts.mapValues { (_, fontPathValue) ->
+    val filteredFonts = configuredFonts.mapNotNull { (key, path) ->
+      val name = path
+        .removePrefix("fonts/")
+        .substringBeforeLast(".ttf")
+        .substringBeforeLast(".otf")
+        .trim()
+      if (name.isEmpty() || name == "ubuntu_regular") {
+        null
+      } else {
+        key to path
+      }
+    }.toMap()
+
+    if (context == null) {
+      return filteredFonts
+    }
+
+    return filteredFonts.mapValues { (_, fontPathValue) ->
       FontResolver.resolveFromAssetPath(context, fontPathValue)
     }
   }
@@ -353,8 +378,8 @@ object IProovThemeFactory {
 
     return drawables.mapNotNull { (key, value) ->
       if (key in reservedForDirectSetters) return@mapNotNull null
-      val resourceId = resolveDrawableResourceId(context, value)
-      key to (resourceId ?: value)
+      val resourceId = resolveDrawableResourceId(context, value) ?: return@mapNotNull null
+      key to resourceId
     }.toMap()
   }
 
@@ -420,6 +445,7 @@ object IProovThemeFactory {
       IProovFontsKey.PERMISSION_BUTTON_FONT to baseFontValue,
       IProovFontsKey.RESULT_MESSAGE_FONT to baseFontValue,
       IProovFontsKey.RESULT_RETRY_BUTTON_FONT to baseFontValue,
+      IProovFontsKey.PROCESSING_MESSAGE_FONT to baseFontValue,
     )
   }
 
@@ -441,5 +467,60 @@ object IProovThemeFactory {
     }
 
     return resolvedFontResource
+  }
+
+  private fun resolveIProovFilter(
+    configuration: ReadableMap?,
+    filterForeground: String?,
+    filterBackground: String?
+  ): DomainFilterTheme {
+    val explicitFilterStyle = firstString(configuration, "filterStyle")
+      ?.lowercase()
+      ?.replace(" ", "")
+      ?.replace("_", "")
+    val useLineDrawing = when (explicitFilterStyle) {
+      "linedrawing" -> true
+      "natural" -> false
+      else -> filterForeground != null || filterBackground != null
+    }
+
+    if (useLineDrawing) {
+      return FilterTheme.LineDrawing(
+        style = parseLineDrawingStyle(configuration),
+        background = filterBackground?.let {
+          ThemeColorValidator.parseColorOrThrow(it, "filterLineDrawingBackground")
+        },
+        foreground = filterForeground?.let {
+          ThemeColorValidator.parseColorOrThrow(it, "filterLineDrawingForeground")
+        }
+      )
+    }
+
+    return FilterTheme.Natural(parseNaturalStyle(configuration))
+  }
+
+  private fun parseNaturalStyle(configuration: ReadableMap?): NaturalStyle {
+    return when (
+      firstString(configuration, "naturalStyle")
+        ?.lowercase()
+        ?.replace(" ", "")
+        ?.replace("_", "")
+    ) {
+      "blur" -> NaturalStyle.BLUR
+      else -> NaturalStyle.CLEAR
+    }
+  }
+
+  private fun parseLineDrawingStyle(configuration: ReadableMap?): LineDrawingStyle {
+    return when (
+      firstString(configuration, "lineDrawingStyle")
+        ?.lowercase()
+        ?.replace(" ", "")
+        ?.replace("_", "")
+    ) {
+      "shaded" -> LineDrawingStyle.SHADED
+      "vibrant" -> LineDrawingStyle.VIBRANT
+      else -> LineDrawingStyle.CLASSIC
+    }
   }
 }

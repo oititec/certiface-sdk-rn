@@ -1,4 +1,4 @@
 storeFile=release.keystore
-storePassword=SUA_SENHA_DA_STORE
-keyAlias=SEU_KEY_ALIAS
-keyPassword=certiface@@2026
+storePassword=YOUR_STORE_PASSWORD
+keyAlias=YOUR_KEY_ALIAS
+keyPassword=YOUR_KEY_PASSWORD

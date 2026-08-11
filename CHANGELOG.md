@@ -1,5 +1,58 @@
 # Changelog
 
+## [2.0.1] - 11/08/2026
+
+### Alterado
+
+- API pública: fluxos de jornada alinhados a **SaaS** e **iProov** (`LivenessProvider` só `IPROOV`; `CertifaceFlow`; `SaasProvider` só na geração de token)
+- Android/iOS: `startJourney` aceita apenas `IPROOV`; FaceTec/Fortface via `startSaasJourney`
+- README e guia do cliente atualizados para a API atual
+- Example: marketing version / versionCode `2.0.1`
+
+## [2.0.0] - 01/08/2026
+
+### Adicionado
+
+- Android SaaS: `startSaasJourney` com providers FaceTec e Fortface (`journeyToken`)
+- Theme Fortface (Android): cores, textos, assets, fontes de câmera, processing/result compartilhados
+- `processing.texts.message` canônico (com fallback legado por provider)
+
+### Corrigido
+
+- Bridge Android: `setProcessingMessage` no iProov; drawables Fortface com resolução app+SDK
+- Fontes parciais FaceTec/iProov não forçam mais `ubuntu_regular` nas keys omitidas
+- `startJourney(FACETEC)` legado rejeita a Promise com mensagem clara (usar SaaS)
+
+### Alterado
+
+- Dependência Android `certifacesdk` `2.0.0` (repositório production)
+- Dependência iOS `CertifaceSDK` `2.0.0` via CocoaPods/artifactory (sem branches git)
+- Types: Fortface / SaaS disponíveis; typo `opentSettingsButton` deprecated
+- Example `customTheme` como referência completa de customização
+- Example iOS: pods git (`feature/30418-fortface` / `ios-certiface-fortface`) comentados; pin em `CertifaceSDK` `2.0.0`
+
+## [1.1.5] - 29/07/2026
+
+### Adicionado
+
+- iProov: `configuration.filterStyle` (`natural` | `lineDrawing`), `naturalStyle` (`clear` | `blur`) e `lineDrawingStyle` (`classic` | `shaded` | `vibrant`)
+
+### Corrigido
+
+- iOS iProov: `setFilterStyle` aplicado (paridade com Android Natural/LineDrawing)
+- iOS iProov: `timeoutSecs` e `promptRoundedCorners` bridged
+- iOS iProov: close button aplica ícone + tint juntos (`.alwaysTemplate`)
+- iOS: tint do back button nas instruções (composer com template)
+- iOS: escala do spinner — `loadingIndicatorSize` (1–300) convertido para scale 1–10 (não mais usado como scale bruto)
+- Android iProov: botão retry sem fallback enganoso de `retryBackground` / `retryText`
+- Android FaceTec: prioridade `resultScreenMessage` antes de `resultScreenForeground`
+- Android FaceTec: aliases `ovalProgressWidth` / `ovalProgressOffset`
+
+### Alterado
+
+- Types: `@platform` alinhados (orientation, screenshots, exterior effects, props FaceTec Android-only, retry iOS-only)
+- Example `customTheme`: Natural CLEAR por padrão; comentários de plataforma e assets de close/error ajustados
+
 ## [1.1.4] - 27/07/2026
 
 ### Alterado

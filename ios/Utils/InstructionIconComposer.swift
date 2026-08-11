@@ -69,15 +69,17 @@ final class InstructionIconComposer {
     guard rect.width > 0, rect.height > 0 else { return }
 
     let drawRect: CGRect
+    let iconWidth = max(icon.size.width, 1)
+    let iconHeight = max(icon.size.height, 1)
     switch contentMode {
     case .scaleToFill:
       drawRect = rect
     case .scaleAspectFill:
-      let widthRatio = rect.width / icon.size.width
-      let heightRatio = rect.height / icon.size.height
+      let widthRatio = rect.width / iconWidth
+      let heightRatio = rect.height / iconHeight
       let scale = max(widthRatio, heightRatio)
-      let width = icon.size.width * scale
-      let height = icon.size.height * scale
+      let width = iconWidth * scale
+      let height = iconHeight * scale
       drawRect = CGRect(
         x: rect.midX - width / 2,
         y: rect.midY - height / 2,
@@ -85,11 +87,11 @@ final class InstructionIconComposer {
         height: height
       )
     default:
-      let widthRatio = rect.width / icon.size.width
-      let heightRatio = rect.height / icon.size.height
+      let widthRatio = rect.width / iconWidth
+      let heightRatio = rect.height / iconHeight
       let scale = min(widthRatio, heightRatio)
-      let width = icon.size.width * scale
-      let height = icon.size.height * scale
+      let width = iconWidth * scale
+      let height = iconHeight * scale
       drawRect = CGRect(
         x: rect.midX - width / 2,
         y: rect.midY - height / 2,

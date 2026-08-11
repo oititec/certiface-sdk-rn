@@ -1,15 +1,18 @@
 #import "RnSdk.h"
 #import "RnSdk-Swift.h"
 #import <AVFoundation/AVFoundation.h>
+#import <stdatomic.h>
 
 @implementation RnSdk {
   RnSdkImpl *moduleImpl;
+  atomic_bool cameraPermissionInFlight;
 }
 
 - (instancetype)init {
   self = [super init];
   if (self) {
     moduleImpl = [RnSdkImpl new];
+    atomic_init(&cameraPermissionInFlight, false);
   }
   return self;
 }
@@ -34,8 +37,15 @@ RCT_EXPORT_MODULE(CertifaceRnSdk)
     return;
   }
 
+  bool expected = false;
+  if (!atomic_compare_exchange_strong(&cameraPermissionInFlight, &expected, true)) {
+    reject(@"ERROR", @"Camera permission request already in progress", nil);
+    return;
+  }
+
   [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
                            completionHandler:^(BOOL granted) {
+    atomic_store(&cameraPermissionInFlight, false);
     dispatch_async(dispatch_get_main_queue(), ^{
       resolve(@(granted));
     });
@@ -59,6 +69,25 @@ RCT_EXPORT_MODULE(CertifaceRnSdk)
     onSuccess(@[ result ]);
   }
                              onError:^(NSString *_Nonnull error) {
+    onError(@[ error ]);
+  }];
+}
+
+- (void)startSaasJourney:(NSString *)token
+             environment:(NSString *)environment
+               onSuccess:(RCTResponseSenderBlock)onSuccess
+                 onError:(RCTResponseSenderBlock)onError
+         isCustomEnabled:(NSNumber *)isCustomEnabled
+                   theme:(NSDictionary *)theme {
+  BOOL customEnabled = isCustomEnabled ? [isCustomEnabled boolValue] : NO;
+  [moduleImpl startSaasJourneyWithToken:token
+                            environment:environment
+                        isCustomEnabled:customEnabled
+                                  theme:theme
+                              onSuccess:^(NSString *_Nonnull result) {
+    onSuccess(@[ result ]);
+  }
+                                onError:^(NSString *_Nonnull error) {
     onError(@[ error ]);
   }];
 }

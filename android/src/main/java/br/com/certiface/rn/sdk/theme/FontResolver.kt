@@ -47,13 +47,28 @@ object FontResolver {
     val packages = listOf(
       context.packageName,
       "br.com.certiface.rn.sdk",
-      "br.com.certiface.designsystem"
+      "br.com.certiface.designsystem",
+      "br.com.fortface.sdk"
     )
     for (pkg in packages) {
       val resourceId = context.resources.getIdentifier(normalized, "font", pkg)
       if (resourceId != 0) return resourceId
     }
     return defaultFontRes
+  }
+
+  fun resolveCameraFontResId(context: Context?, assetPathOrName: String): Int? {
+    if (context == null) return null
+    val name = assetPathOrName
+      .trim()
+      .removePrefix("fonts/")
+      .substringAfterLast('/')
+      .substringBeforeLast(".ttf")
+      .substringBeforeLast(".otf")
+      .trim()
+    if (name.isEmpty() || name == DEFAULT_ASSET_MARKER) return null
+    val resourceId = resolveFontResourceId(context, name)
+    return resourceId.takeIf { it != 0 && it != defaultFontRes }
   }
 
   fun fontAssetExists(context: Context, assetPath: String): Boolean {

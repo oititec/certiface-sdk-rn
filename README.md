@@ -5,13 +5,13 @@
 
 # @certiface/sdk
 
-SDK React Native para verificação biométrica de liveness (prova de vida), distribuído como `@certiface/sdk`. Integre detecção facial avançada com FaceTec e iProov em aplicações Android e iOS com suporte completo a personalização de temas e interface nativa de alta performance.
+SDK React Native para verificação biométrica de liveness (prova de vida). Integra FaceTec, Fortface e iProov em Android e iOS, com temas customizáveis e API TypeScript.
 
 </div>
 
 ---
 
-## 📦 Instalação
+## Instalação
 
 ```bash
 npm install @certiface/sdk
@@ -23,11 +23,11 @@ ou
 yarn add @certiface/sdk
 ```
 
-## ⚙️ Configuração
+## Configuração
 
 ### Android
 
-1. Configure os repositórios necessários no `android/build.gradle`:
+1. Configure os repositórios no `android/build.gradle`:
 
 ```gradle
 allprojects {
@@ -37,11 +37,24 @@ allprojects {
         maven {
             url 'https://raw.githubusercontent.com/oititec/android-certiface-sdk-versions-beta/main'
         }
+        maven {
+            url 'https://cdn-fortface-sdk.fortface.com.br'
+            content {
+                includeGroup 'br.com.fortface'
+            }
+            credentials(HttpHeaderCredentials) {
+                name = 'X-Sdk'
+                value = 'certiface'
+            }
+            authentication {
+                header(HttpHeaderAuthentication)
+            }
+        }
     }
 }
 ```
 
-2. Adicione as permissões no `android/app/src/main/AndroidManifest.xml`:
+2. Permissões em `android/app/src/main/AndroidManifest.xml`:
 
 ```xml
 <uses-permission android:name="android.permission.CAMERA" />
@@ -50,119 +63,78 @@ allprojects {
 
 ### iOS
 
-1. Configure as fontes do CocoaPods no `ios/Podfile`:
+1. Fontes no `ios/Podfile`:
 
 ```ruby
 source 'https://github.com/oititec/ios-artifactory.git'
 source 'https://github.com/CocoaPods/Specs.git'
 ```
 
-2. Adicione as permissões no `ios/YourApp/Info.plist`:
+2. Permissões no `Info.plist`:
 
 ```xml
 <key>NSCameraUsageDescription</key>
 <string>Precisamos acessar sua câmera para verificação de identidade</string>
-<key>NSPhotoLibraryUsageDescription</key>
-<string>Precisamos acessar suas fotos para verificação de identidade</string>
 ```
 
-3. Execute a instalação dos pods:
+3. Instale os pods:
 
 ```bash
 cd ios && pod install
 ```
 
-## 🚀 Uso Básico
+## Qual fluxo usar?
+
+| Fluxo | Método | Credencial | Providers |
+| ----- | ------ | ---------- | --------- |
+| **SaaS** (recomendado) | `CertifaceSDK.startSaasJourney` | `journeyToken` | FaceTec ou Fortface (resolvido no servidor) |
+| **AppKey** | `CertifaceSDK.startJourney` | `appKey` | **iProov** |
+
+> FaceTec via `startJourney(appKey, ..., FACETEC)` não é mais suportado. Use `startSaasJourney` com `journeyToken`.
+
+## Uso básico
 
 ### Importação
 
 ```typescript
 import {
   CertifaceSDK,
+  CertifaceError,
   LivenessProvider,
   Environment,
+  type CertifaceFlow,
   type CertifaceTheme,
   type LivenessResult,
+  type SaasProvider,
 } from '@certiface/sdk';
 ```
 
-Todas as chamadas à API passam pelo objeto `CertifaceSDK` (por exemplo `CertifaceSDK.startJourney(...)`).
-
-### Exemplo Simples
+### SaaS (FaceTec / Fortface)
 
 ```typescript
-import React from 'react';
-import { Button, Alert } from 'react-native';
-import { CertifaceSDK, Environment, LivenessProvider } from '@certiface/sdk';
+const journeyToken = 'your-journey-token';
 
-export default function App() {
-  const handleVerification = async () => {
-    try {
-      const appKey = 'your-app-key-here';
-      const result = await CertifaceSDK.startJourney(
-        appKey,
-        Environment.HML,
-        LivenessProvider.FACETEC,
-        false
-      );
+const result = await CertifaceSDK.startSaasJourney(
+  journeyToken,
+  Environment.HML,
+  false
+);
 
-      Alert.alert('Sucesso!', `Verificação concluída: ${result.codID}`);
-    } catch (error) {
-      Alert.alert('Erro', `Falha: ${error.message}`);
-    }
-  };
-
-  return <Button title="Iniciar Verificação" onPress={handleVerification} />;
-}
+const resultWithTheme = await CertifaceSDK.startSaasJourney(
+  journeyToken,
+  Environment.PRD,
+  true,
+  customTheme
+);
 ```
 
-### Resultado Esperado
-
-Quando bem-sucedido, `CertifaceSDK.startJourney` retorna um objeto `LivenessResult`:
-
-```typescript
-{
-  valid: true,
-  codID: "abc123def456",
-  protocol: "20231105-001"
-}
-```
-
-## 📚 API
-
-### `CertifaceSDK`
-
-Objeto com os métodos expostos pelo SDK:
-
-| Método | Descrição |
-| ------ | --------- |
-| `CertifaceSDK.startJourney(...)` | Inicia a jornada de liveness |
-| `CertifaceSDK.checkCameraPermission()` | Verifica se a câmera está autorizada |
-| `CertifaceSDK.requestCameraPermission()` | Solicita permissão da câmera |
-
-### `CertifaceSDK.startJourney(appKey, environment, provider, isCustomEnabled?, theme?)`
-
-Inicia o processo de verificação de liveness.
-
-**Parâmetros:**
-
-| Nome              | Tipo               | Obrigatório | Descrição                                      |
-| ----------------- | ------------------ | ----------- | ---------------------------------------------- |
-| `appKey`          | `string`           | ✅          | Chave de aplicação fornecida pela Certiface         |
-| `environment`     | `Environment`      | ✅          | Ambiente de execução (`HML` ou `PRD`)          |
-| `provider`        | `LivenessProvider` | ✅          | Provedor de liveness (`FACETEC` ou `IPROOV`)   |
-| `isCustomEnabled` | `boolean`          | ❌          | Habilita tema personalizado (padrão: `false`)  |
-| `theme`           | `CertifaceTheme`        | ❌          | Objeto com configurações de tema personalizado |
-
-**Retorna:** `Promise<LivenessResult>` com o resultado da verificação
-
-**Exemplo:**
+### iProov (appKey)
 
 ```typescript
 const result = await CertifaceSDK.startJourney(
   'your-app-key',
   Environment.HML,
-  LivenessProvider.FACETEC,
+  LivenessProvider.IPROOV,
   false
 );
 
@@ -175,141 +147,172 @@ const resultWithTheme = await CertifaceSDK.startJourney(
 );
 ```
 
----
-
-### `LivenessResult`
-
-Tipo de retorno de `CertifaceSDK.startJourney`:
+### Resultado
 
 ```typescript
 interface LivenessResult {
   valid: boolean;
-  codID: string | null;
-  protocol: string | null;
+  codID: string;
+  cause: string;
+  protocol: string;
+  scanResultBlob: string;
 }
 ```
 
-**Propriedades:**
+## API
 
-| Nome       | Tipo             | Descrição                                |
-| ---------- | ---------------- | ---------------------------------------- |
-| `valid`    | `boolean`        | Indica se a verificação foi bem-sucedida |
-| `codID`    | `string \| null` | Código de identificação da verificação   |
-| `protocol` | `string \| null` | Protocolo da sessão de verificação       |
+### `CertifaceSDK`
 
----
+| Método | Descrição |
+| ------ | --------- |
+| `startSaasJourney(...)` | Jornada SaaS com `journeyToken` (FaceTec / Fortface) |
+| `startJourney(...)` | Jornada com `appKey` (**iProov**) |
+| `checkCameraPermission()` | Verifica permissão da câmera |
+| `requestCameraPermission()` | Solicita permissão da câmera |
 
-### `CertifaceSDK.checkCameraPermission()`
+### `startSaasJourney(token, environment, isCustomEnabled?, theme?)`
 
-Verifica se a permissão da câmera foi concedida.
+| Nome | Tipo | Obrigatório | Descrição |
+| ---- | ---- | ----------- | --------- |
+| `token` | `string` | sim | `journeyToken` da Certiface |
+| `environment` | `Environment` | sim | `HML` ou `PRD` |
+| `isCustomEnabled` | `boolean` | não | Tema custom (padrão `false`) |
+| `theme` | `CertifaceTheme` | não | Tema (FaceTec e/ou Fortface + telas comuns) |
 
-**Retorna:** `Promise<boolean>`
+**Retorna:** `Promise<LivenessResult>`
 
-**Exemplo:**
+### `startJourney(appKey, environment, provider, isCustomEnabled?, theme?)`
+
+| Nome | Tipo | Obrigatório | Descrição |
+| ---- | ---- | ----------- | --------- |
+| `appKey` | `string` | sim | AppKey Certiface |
+| `environment` | `Environment` | sim | `HML` ou `PRD` |
+| `provider` | `LivenessProvider` | sim | Use `LivenessProvider.IPROOV` |
+| `isCustomEnabled` | `boolean` | não | Tema custom (padrão `false`) |
+| `theme` | `CertifaceTheme` | não | Tema iProov + telas comuns |
+
+**Retorna:** `Promise<LivenessResult>`
+
+### Permissões
 
 ```typescript
 const hasPermission = await CertifaceSDK.checkCameraPermission();
 if (!hasPermission) {
-  console.log('Permissão não concedida');
+  const granted = await CertifaceSDK.requestCameraPermission();
+  if (!granted) {
+    // usuário negou
+  }
 }
 ```
 
-**Resultado:**
-
-- `true` - Permissão concedida
-- `false` - Permissão negada
-
----
-
-### `CertifaceSDK.requestCameraPermission()`
-
-Solicita permissão da câmera ao usuário.
-
-**Retorna:** `Promise<boolean>`
-
-**Exemplo:**
+### Erros (`CertifaceError`)
 
 ```typescript
-const granted = await CertifaceSDK.requestCameraPermission();
-if (granted) {
-  console.log('Usuário concedeu permissão');
+import { CertifaceSDK, CertifaceError, Environment } from '@certiface/sdk';
+
+try {
+  await CertifaceSDK.startSaasJourney(token, Environment.HML);
+} catch (error) {
+  if (error instanceof CertifaceError) {
+    console.log(error.code, error.message, error.invalidParam);
+  }
 }
 ```
 
-**Resultado:**
+Códigos comuns:
 
-- `true` - Usuário concedeu permissão
-- `false` - Usuário negou permissão
+| Código | Significado |
+| ------ | ----------- |
+| `JOURNEY_IN_PROGRESS` | Já existe uma jornada em andamento |
+| `JOURNEY_TIMEOUT` | Jornada expirou sem resposta do nativo |
+| `UNSUPPORTED_OPERATION` | Provider não-iProov em `startJourney` (use SaaS) |
+| `INVALID_PARAMS` | Tema inválido (`invalidParam` indica o campo) |
+| `NO_ACTIVITY` | Sem Activity / rootViewController |
+| `TOKEN_NULO` / `APP_KEY_NULO` / `ENVIRONMENT_NULO` | Parâmetro obrigatório ausente |
 
----
-
-## 🎨 Personalização de Tema
-
-O SDK oferece suporte a temas personalizados para os provedores **FaceTec** e **iProov**.
-
-### Estrutura do Tema
-
-```typescript
-import { CertifaceSDK, LivenessProvider, Environment, type CertifaceTheme } from '@certiface/sdk';
-
-const customTheme: CertifaceTheme = {
-  facetec: {
-    colors: {
-      frameBackground: '#1A1A1A',
-      frameBorder: '#FF6B35',
-      ovalStroke: '#FF6B35',
-      ovalProgressFirst: '#FF6B35',
-      ovalProgressSecond: '#FFD700',
-    },
-    texts: {
-      readyHeader1: 'Prepare-se',
-      readyHeader2: 'para verificação',
-      readyButton: 'Iniciar',
-    },
-    fonts: {
-      readyScreenHeader: 'CustomFont',
-    },
-  },
-};
-
-await CertifaceSDK.startJourney(
-  appKey,
-  Environment.HML,
-  LivenessProvider.FACETEC,
-  true,
-  customTheme
-);
-```
-
-### Opções de Provider
+### Enums / tipos
 
 ```typescript
 enum LivenessProvider {
-  FACETEC = 'FACETEC',
   IPROOV = 'IPROOV',
 }
-```
 
-### Opções de Environment
+type CertifaceFlow = 'IPROOV' | 'SAAS';
 
-```typescript
+type SaasProvider = 'FACETEC' | 'FORTFACE';
+
 enum Environment {
   HML = 'HML',
   PRD = 'PRD',
 }
 ```
 
-## 💡 Exemplos
+`LivenessProvider` é só para `startJourney` (iProov). Os fluxos de produto são **IPROOV** e **SAAS** (`CertifaceFlow`). `SaasProvider` tipa a engine na **geração do token**, não o método de jornada.
 
-### Exemplo com Gerenciamento de Permissões
+## Personalização de tema
+
+Suporte a temas para **FaceTec**, **Fortface** e **iProov** (além de `instructions`, `permission`, `processing`, `result`).
+
+```typescript
+import {
+  CertifaceSDK,
+  Environment,
+  LivenessProvider,
+  type CertifaceTheme,
+} from '@certiface/sdk';
+
+const customTheme: CertifaceTheme = {
+  facetec: {
+    colors: {
+      frameBackground: '#1A1A1A',
+      ovalStroke: '#FF6B35',
+    },
+    texts: {
+      readyHeader1: 'Prepare-se',
+      readyButton: 'Iniciar',
+    },
+  },
+  fortface: {
+    colors: {
+      cameraMessage: '#FFFFFF',
+    },
+  },
+  instructions: {
+    configuration: {
+      showInstructionScreen: true,
+    },
+  },
+};
+
+await CertifaceSDK.startSaasJourney(
+  journeyToken,
+  Environment.HML,
+  true,
+  customTheme
+);
+
+await CertifaceSDK.startJourney(
+  appKey,
+  Environment.HML,
+  LivenessProvider.IPROOV,
+  true,
+  customTheme
+);
+```
+
+No fluxo SaaS com tema custom, o SDK monta customização FaceTec **e** Fortface (o provider efetivo é definido pelo token no servidor).
+
+## Exemplos
+
+### Permissão + SaaS
 
 ```typescript
 import React, { useState } from 'react';
 import { View, Button, Alert, ActivityIndicator } from 'react-native';
 import {
   CertifaceSDK,
+  CertifaceError,
   Environment,
-  LivenessProvider,
   type LivenessResult,
 } from '@certiface/sdk';
 
@@ -318,37 +321,33 @@ export default function LivenessScreen() {
 
   const handleVerification = async () => {
     setLoading(true);
-
     try {
       const hasPermission = await CertifaceSDK.checkCameraPermission();
-
       if (!hasPermission) {
         const granted = await CertifaceSDK.requestCameraPermission();
         if (!granted) {
           Alert.alert('Erro', 'Permissão da câmera é necessária');
-          setLoading(false);
           return;
         }
       }
 
-      const appKey = 'your-app-key-here';
-      const result: LivenessResult = await CertifaceSDK.startJourney(
-        appKey,
+      const result: LivenessResult = await CertifaceSDK.startSaasJourney(
+        'your-journey-token',
         Environment.HML,
-        LivenessProvider.FACETEC,
         false
       );
 
       if (result.valid) {
-        Alert.alert(
-          'Verificação Aprovada!',
-          `Protocolo: ${result.protocol}\nCódigo: ${result.codID}`
-        );
+        Alert.alert('Aprovado', `Protocolo: ${result.protocol}`);
       } else {
-        Alert.alert('Verificação Recusada');
+        Alert.alert('Recusado', result.cause || 'Verificação não aprovada');
       }
     } catch (error) {
-      Alert.alert('Erro', error.message);
+      if (error instanceof CertifaceError) {
+        Alert.alert('Erro', `${error.code}: ${error.message}`);
+      } else {
+        Alert.alert('Erro', String(error));
+      }
     } finally {
       setLoading(false);
     }
@@ -357,244 +356,27 @@ export default function LivenessScreen() {
   return (
     <View style={{ flex: 1, justifyContent: 'center', padding: 20 }}>
       {loading ? (
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" />
       ) : (
-        <Button title="Iniciar Verificação" onPress={handleVerification} />
+        <Button title="Iniciar verificação" onPress={handleVerification} />
       )}
     </View>
   );
 }
 ```
 
-**Resultado de Sucesso:**
+### iProov com tema
 
 ```typescript
-{
-  valid: true,
-  codID: "abc123def456",
-  protocol: "20231105-001"
-}
-```
+import { CertifaceSDK, Environment, LivenessProvider } from '@certiface/sdk';
 
-**Resultado de Erro:**
-
-```typescript
-{
-  valid: false,
-  codID: null,
-  protocol: null
-}
-```
-
----
-
-### Exemplo com Tema Customizado Completo
-
-```typescript
-import React from 'react';
-import { Button, Alert } from 'react-native';
-import {
-  CertifaceSDK,
-  LivenessProvider,
-  Environment,
-  type CertifaceTheme,
-  type LivenessResult,
-} from '@certiface/sdk';
-
-const customTheme: CertifaceTheme = {
-  facetec: {
-    colors: {
-      frameBackground: '#1A1A1A',
-      frameBorder: '#FF6B35',
-      ovalStroke: '#FF6B35',
-      ovalProgressFirst: '#FF6B35',
-      ovalProgressSecond: '#FFD700',
-      guidanceButtonBackgroundNormal: '#FF6B35',
-      guidanceButtonTextNormal: '#FFFFFF',
-    },
-    texts: {
-      readyHeader1: 'Prepare-se',
-      readyHeader2: 'para a verificação',
-      readyMessage1: 'Posicione seu rosto',
-      readyMessage2: 'dentro do círculo',
-      readyButton: 'Começar',
-      feedbackCenterFace: 'Centralize seu rosto',
-      feedbackHoldSteady: 'Mantenha-se parado',
-    },
-  },
-  instructions: {
-    colors: {
-      background: '#2E2E2E',
-      title: '#FFFFFF',
-      continueButtonBackground: '#FF6B35',
-    },
-    texts: {
-      title: 'Verificação de Identidade',
-      caption: 'Siga as instruções',
-      continueButton: 'Continuar',
-    },
-  },
-  result: {
-    colors: {
-      successBackground: '#E8F5E8',
-      successText: '#2E7D32',
-      errorBackground: '#FFEBEE',
-      errorText: '#C62828',
-    },
-    texts: {
-      success: 'Verificação concluída com sucesso!',
-      error: 'Erro na verificação. Tente novamente.',
-    },
-  },
-};
-
-export default function ThemedVerification() {
-  const handleStart = async () => {
-    try {
-      const appKey = 'your-app-key-here';
-      const result: LivenessResult = await CertifaceSDK.startJourney(
-        appKey,
-        Environment.PRD,
-        LivenessProvider.FACETEC,
-        true,
-        customTheme
-      );
-
-      if (result.valid) {
-        Alert.alert('Sucesso!', `Protocolo: ${result.protocol}`);
-      }
-    } catch (error) {
-      Alert.alert('Erro', error.message);
-    }
-  };
-
-  return <Button title="Iniciar com Tema Custom" onPress={handleStart} />;
-}
-```
-
----
-
-### Exemplo com TypeScript e Tratamento de Erros
-
-```typescript
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import {
-  CertifaceSDK,
-  Environment,
-  LivenessProvider,
-  type LivenessResult,
-} from '@certiface/sdk';
-
-export default function VerificationComponent() {
-  const [result, setResult] = useState<LivenessResult | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const handleVerification = async () => {
-    setLoading(true);
-    setResult(null);
-
-    try {
-      const appKey = process.env.CERTIFACE_APP_KEY || 'your-app-key';
-      const data: LivenessResult = await CertifaceSDK.startJourney(
-        appKey,
-        Environment.HML,
-        LivenessProvider.FACETEC,
-        false
-      );
-
-      setResult(data);
-
-      if (data.valid) {
-        Alert.alert('Sucesso', 'Identidade verificada!');
-      } else {
-        Alert.alert('Falha', 'Verificação não aprovada');
-      }
-    } catch (error) {
-      Alert.alert('Erro', `Não foi possível completar: ${error.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={[styles.button, loading && styles.buttonDisabled]}
-        onPress={handleVerification}
-        disabled={loading}
-      >
-        <Text style={styles.buttonText}>
-          {loading ? 'Verificando...' : 'Iniciar Verificação'}
-        </Text>
-      </TouchableOpacity>
-
-      {result && (
-        <View style={styles.resultContainer}>
-          <Text style={styles.resultTitle}>Resultado:</Text>
-          <Text>Status: {result.valid ? 'Aprovado' : 'Reprovado'}</Text>
-          {result.protocol && <Text>Protocolo: {result.protocol}</Text>}
-          {result.codID && <Text>Código: {result.codID}</Text>}
-        </View>
-      )}
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  button: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonDisabled: {
-    backgroundColor: '#cccccc',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  resultContainer: {
-    marginTop: 20,
-    padding: 15,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-  },
-  resultTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-});
-```
-
-**Possíveis Resultados:**
-
-**Sucesso:**
-
-```typescript
-{
-  valid: true,
-  codID: "abc123def456",
-  protocol: "20231105-001"
-}
-```
-
-**Falha:**
-
-```typescript
-{
-  valid: false,
-  codID: null,
-  protocol: null
-}
+await CertifaceSDK.startJourney(
+  'your-app-key',
+  Environment.HML,
+  LivenessProvider.IPROOV,
+  true,
+  customTheme
+);
 ```
 
 ---
@@ -933,14 +715,14 @@ fonts: {
 
 ## ✨ Funcionalidades
 
-- ✅ Verificação de liveness com FaceTec e iProov
-- ✅ Gerenciamento automático de permissões
-- ✅ Suporte completo a temas personalizados
-- ✅ Interface TypeScript com tipagem completa
-- ✅ Suporte para Android e iOS
-- ✅ Integração com TurboModules para performance otimizada
-- ✅ API em JavaScript baseada em `CertifaceSDK` e Promises
-- ✅ Compatível com React Native 0.60+
+- ✅ Verificação de liveness com FaceTec, Fortface (SaaS) e iProov
+- ✅ Fluxo SaaS com `journeyToken` e fluxo legado com `appKey` (iProov)
+- ✅ Gerenciamento de permissões de câmera
+- ✅ Temas personalizados (FaceTec, Fortface, iProov)
+- ✅ `CertifaceError` com código e `invalidParam`
+- ✅ TypeScript completo
+- ✅ Android e iOS via TurboModules
+- ✅ React Native ≥ 0.79
 
 ## 📋 Requisitos
 

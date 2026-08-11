@@ -8,7 +8,7 @@ export interface LivenessResult {
 
 export interface LivenessSuccessResponse {
   status: 'success';
-  result: LivenessResult;
+  result?: LivenessResult;
 }
 
 export interface LivenessErrorPayload {

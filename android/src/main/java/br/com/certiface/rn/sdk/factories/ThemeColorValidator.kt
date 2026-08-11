@@ -6,18 +6,17 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.ReadableType
 
 internal object ThemeColorValidator {
-  private const val FACETEC_KEY = "facetec"
-  private const val IPROOV_KEY = "iproov"
+  private val PROVIDER_KEYS = setOf("facetec", "iproov", "fortface")
+  private const val MAX_DEPTH = 12
 
   fun validate(theme: ReadableMap?, activeProviderKey: String) {
     theme ?: return
-    val excludedProviderKey = if (activeProviderKey == FACETEC_KEY) IPROOV_KEY else FACETEC_KEY
     val iterator = theme.keySetIterator()
     while (iterator.hasNextKey()) {
       val key = iterator.nextKey()
-      if (key == excludedProviderKey) continue
+      if (key in PROVIDER_KEYS && key != activeProviderKey) continue
       if (theme.getType(key) == ReadableType.Map) {
-        theme.getMap(key)?.let { validateNode(it) }
+        theme.getMap(key)?.let { validateNode(it, 0) }
       }
     }
   }
@@ -30,7 +29,11 @@ internal object ThemeColorValidator {
     }
   }
 
-  private fun validateNode(map: ReadableMap) {
+  private fun validateNode(map: ReadableMap, depth: Int) {
+    if (depth > MAX_DEPTH) {
+      throw CustomThemeException("theme", "structure")
+    }
+
     if (map.hasKey("colors") && map.getType("colors") == ReadableType.Map) {
       val colors = map.getMap("colors") ?: return
       val iterator = colors.keySetIterator()
@@ -47,7 +50,7 @@ internal object ThemeColorValidator {
     while (iterator.hasNextKey()) {
       val key = iterator.nextKey()
       if (map.getType(key) == ReadableType.Map) {
-        map.getMap(key)?.let { validateNode(it) }
+        map.getMap(key)?.let { validateNode(it, depth + 1) }
       }
     }
   }

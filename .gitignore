@@ -42,7 +42,26 @@ local.properties
 android.iml
 example/android/app/key.properties
 example/android/app/keystore-base64.txt
-#example/android/app/release.keystore
+example/android/app/release.keystore
+release.keystore
+*.jks
+*.p12
+*.mobileprovision
+!example/android/app/debug.keystore
+
+# Local credentials / Firebase (keep *.example templates where useful)
+example/src/config/credentials.ts
+example/src/config/credentials.local.ts
+example/**/google-services.json
+**/google-services.json
+!**/google-services.json.example
+.env
+.env.*
+!.env.example
+**/.env.local
+**/secrets.json
+**/service-account*.json
+**/GoogleService-Info.plist
 
 # Cocoapods
 #
@@ -52,7 +71,6 @@ example/ios/Pods
 example/vendor/
 
 # Fastlane
-example/**/google-services.json
 example/**/fastlane/report.xml
 example/**/fastlane/nul
 example/**/fastlane/Preview.html
