@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.2] - 11/08/2026
+
+### Alterado
+
+- Bump de versão para publicação no npm (`2.0.1` já havia sido usada no registry e não pode ser republicada)
+
 ## [2.0.1] - 11/08/2026
 
 ### Alterado
