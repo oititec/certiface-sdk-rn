@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.0.1] - 11/08/2026
+
+### Alterado
+
+- API pública: fluxos de jornada alinhados a **SaaS** e **iProov** (`LivenessProvider` só `IPROOV`; `CertifaceFlow`; `SaasProvider` só na geração de token)
+- Android/iOS: `startJourney` aceita apenas `IPROOV`; FaceTec/Fortface via `startSaasJourney`
+- README e guia do cliente atualizados para a API atual
+- Example: marketing version / versionCode `2.0.1`
+
 ## [2.0.0] - 01/08/2026
 
 ### Adicionado
