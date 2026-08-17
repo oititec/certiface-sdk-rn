@@ -6,6 +6,7 @@
 //
 
 import CertifaceSDK
+import CertifaceFacetec
 import CertifaceIProov
 import CertifaceFortface
 import UIKit
@@ -534,7 +535,6 @@ final class ThemeFactory {
       firstValue(in: colors, keys: "resultScreenUploadProgressBarTrack", "resultScreenUploadProgressTrack"),
       with: builder.setResultScreenUploadProgressBarTrackColor(_:)
     )
-    builder.setResultScreenAnimationStyle(.blob(appearance: getResultStyleApperance(from: colors)))
     setColor(
       firstValue(in: colors, keys: "retryScreenHeader") ?? "#FF5252",
       with: builder.setRetryScreenHeaderColor(_:)
@@ -573,6 +573,18 @@ final class ThemeFactory {
     let flags = livenessTheme["flags"] as? [String: Any] ?? [:]
     let showBrandingImage = flags["overlayShowBrandingImage"] as? Bool ?? true
     let assets = livenessTheme["assets"] as? [String: String] ?? [:]
+    applyResultScreenAnimationStyle(
+      in: builder,
+      colors: colors,
+      assets: assets,
+      sizes: sizes
+    )
+    if let showUploadProgressBar = flags["resultScreenShowUploadProgressBar"] as? Bool {
+      _ = builder.setResultScreenUploadProgressBarEnabled(showUploadProgressBar)
+    }
+    if let animationScale = doubleThemeValue(sizes["resultScreenAnimationRelativeScale"]) {
+      _ = builder.setResultScreenAnimationScale(CGFloat(animationScale))
+    }
     if showBrandingImage {
       setImage(assets["overlayBrandImage"], with: builder.setOverlayBrandImage(_:))
     }
@@ -622,14 +634,14 @@ final class ThemeFactory {
 
   private static func customizeLivenessTexts(
     from theme: [String: Any]
-  ) -> [Liveness3DTextKey : String] {
+  ) -> [CertifaceSDK.Liveness3DTextKey: String] {
     guard let livenessTheme = theme["facetec"] as? [String: Any] else {
       return [:]
     }
     guard let texts = livenessTheme["texts"] as? [String: String] else {
       return [:]
     }
-    let keys: [String: Liveness3DTextKey] = [
+    let keys: [String: CertifaceSDK.Liveness3DTextKey] = [
       "readyHeader1": .readyHeader1,
       "readyHeader2": .readyHeader2,
       "readyMessage1": .readyMessage1,
@@ -664,7 +676,7 @@ final class ThemeFactory {
       "retryIdealPicture": .retryIdealPicture,
       "retryButton": .retryButton,
     ]
-    var livenessTexts = [Liveness3DTextKey : String]()
+    var livenessTexts: [CertifaceSDK.Liveness3DTextKey: String] = [:]
 
     for (themeKey, textKey) in keys {
       guard let value = texts[themeKey]?.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -1003,26 +1015,43 @@ final class ThemeFactory {
     return (lastPathComponent as NSString).deletingPathExtension
   }
 
-  private static func getResultStyleApperance(from colors: [String: String]) -> BlobAnimationAppearance {
-    func getColor(from colorHex: String?, defaultColor: UIColor) -> UIColor {
-      guard let colorHex, let color = UIColor(hex: colorHex) else {
-        return defaultColor
-      }
-      return color
+  private static func applyResultScreenAnimationStyle(
+    in builder: Liveness3DThemeBuilder,
+    colors: [String: String],
+    assets: [String: String],
+    sizes: [String: Any]
+  ) {
+    let indicatorColor = UIColor(hex: colors["resultScreenActivityIndicator"] ?? "") ?? .black
+    let checkmarkForeground = UIColor(hex: colors["resultScreenResultAnimationForeground"] ?? "") ?? .white
+    let checkmarkBackground = UIColor(hex: colors["resultScreenResultAnimationBackground"] ?? "") ?? .black
+    let rotationInterval = Int32(
+      intThemeValue(sizes["resultScreenCustomActivityIndicatorRotationInterval"]) ?? 1000
+    )
+    let imageName = firstValue(
+      in: assets,
+      keys: "resultScreenCustomActivityIndicatorImage",
+      "resultScreenCustomActivityIndicatorAnimation"
+    )
+    if let imageName, let image = RnSdkBundle.getImage(named: imageName) {
+      _ = builder.setResultScreenAnimationStyle(
+        .image(
+          appearance: CertifaceFacetec.ImageAnimationAppearance(
+            image: image,
+            rotationInterval: rotationInterval,
+            checkmarkForegroundColor: checkmarkForeground,
+            checkmarkBackgroundColor: checkmarkBackground
+          )
+        )
+      )
+      return
     }
-
-    return BlobAnimationAppearance(
-      blobColor: getColor(
-        from: colors["resultScreenActivityIndicator"],
-        defaultColor: .black
-      ),
-      checkmarkForegroundColor: getColor(
-        from: colors["resultScreenResultAnimationForeground"],
-        defaultColor: .white
-      ),
-      checkmarkBackgroundColor: getColor(
-        from: colors["resultScreenResultAnimationBackground"],
-        defaultColor: .black
+    _ = builder.setResultScreenAnimationStyle(
+      .spinner(
+        appearance: CertifaceFacetec.SpinnerAnimationAppearance(
+          spinnerColor: indicatorColor,
+          checkmarkForegroundColor: checkmarkForeground,
+          checkmarkBackgroundColor: checkmarkBackground
+        )
       )
     )
   }

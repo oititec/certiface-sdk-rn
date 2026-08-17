@@ -50,9 +50,7 @@ export interface FacetecSizes {
   ovalProgressWidth?: number;
   /** Alias de ovalProgressRadialOffset (ambos) */
   ovalProgressOffset?: number;
-  /** @platform android */
   resultScreenAnimationRelativeScale?: number;
-  /** @platform android */
   resultScreenCustomActivityIndicatorRotationInterval?: number;
 }
 
@@ -66,7 +64,6 @@ export interface FacetecFlags {
   overlayShowBrandingImage?: boolean;
   /** @platform android */
   feedbackEnablePulsatingText?: boolean;
-  /** @platform android */
   resultScreenShowUploadProgressBar?: boolean;
 }
 
