@@ -85,12 +85,95 @@ cd ios && pod install
 
 ## Qual fluxo usar?
 
-| Fluxo | Método | Credencial | Providers |
-| ----- | ------ | ---------- | --------- |
-| **SaaS** (recomendado) | `CertifaceSDK.startSaasJourney` | `journeyToken` | FaceTec ou Fortface (resolvido no servidor) |
+| Fluxo | Método | Credencial | Provider |
+| ----- | ------ | ---------- | -------- |
+| **SaaS** | `CertifaceSDK.startSaasJourney` | `journeyToken` (`uuid` da API) | FaceTec ou Fortface, definidos na geração do token |
 | **AppKey** | `CertifaceSDK.startJourney` | `appKey` | **iProov** |
 
-> FaceTec via `startJourney(appKey, ..., FACETEC)` não é mais suportado. Use `startSaasJourney` com `journeyToken`.
+A FaceTec deixou de autenticar com `appKey`. A sessão passa a ser criada no backend (API SaaS) e o app inicia a jornada com o token retornado.
+
+Substitua:
+
+```typescript
+await CertifaceSDK.startJourney(appKey, Environment.HML, 'FACETEC');
+```
+
+por:
+
+```typescript
+const token = await seuBackend.gerarToken();
+
+await CertifaceSDK.startSaasJourney(token, Environment.HML);
+```
+
+Se a chamada antiga for mantida, o SDK rejeita a Promise com `CertifaceError` (`UNSUPPORTED_OPERATION`). O fluxo iProov permanece o mesmo. FaceTec e Fortface não são parâmetros de `startSaasJourney`: o provider já foi definido em `livenessProvider` no `genToken`.
+
+## Gerar o `journeyToken` (FaceTec / Fortface)
+
+O app **não** chama a API Certiface. O backend autentica o operador, gera o token e devolve só o `uuid`.
+
+| Ambiente | Base URL | Enum no SDK |
+| -------- | -------- | ----------- |
+| Homologação | `https://apis-dev.biometria.io/certiface-saas` | `Environment.HML` |
+| Produção | `https://apis.biometria.io/certiface-saas` | `Environment.PRD` |
+
+O ambiente da API e o `Environment` passado ao SDK precisam ser o mesmo.
+
+### 1. Autenticar o operador
+
+No `POST /api/v1/login`, envie a senha como hash **MD5** (hexadecimal, minúsculas). Texto puro retorna `401`.
+
+```http
+POST /api/v1/login
+Content-Type: application/json
+
+{ "login": "<operador>", "password": "<md5-hex>" }
+```
+
+```json
+{ "token": "<jwt>" }
+```
+
+O JWT expira em cerca de 20 minutos. Use-o no header `Authorization: Bearer <jwt>` da chamada seguinte.
+
+### 2. Gerar o token
+
+O campo `livenessProvider` escolhe a engine da jornada:
+
+| Valor | Engine no app |
+| ----- | ------------- |
+| `"FACETEC"` | FaceTec |
+| `"FORTFACE"` | Fortface |
+
+```http
+POST /api/v1/protected/genToken
+Authorization: Bearer <jwt>
+Content-Type: application/json
+
+{
+  "documentNumber": "00000014141",
+  "birthDate": "20/12/1960",
+  "fullName": "Nome Completo",
+  "livenessProvider": "FACETEC"
+}
+```
+
+Para Fortface, use `"livenessProvider": "FORTFACE"`. O restante do body é o mesmo.
+
+| Campo | Formato |
+| ----- | ------- |
+| `documentNumber` | CPF |
+| `birthDate` | `dd/MM/yyyy` |
+| `fullName` | nome e sobrenome |
+| `livenessProvider` | `"FACETEC"` ou `"FORTFACE"` |
+
+```json
+{ "uuid": "<enviar-ao-app>", "url": "<jornada-web>" }
+```
+
+Envie o `uuid` para o app. Esse é o valor de `startSaasJourney`. O campo `url` é da jornada web e não deve ser aberto no React Native.
+
+Não informe `FACETEC` nem `FORTFACE` no método do SDK. O provider já foi definido no `genToken`.
 
 ## Uso básico
 
@@ -112,21 +195,19 @@ import {
 ### SaaS (FaceTec / Fortface)
 
 ```typescript
-const journeyToken = 'your-journey-token';
+const token = await seuBackend.gerarToken();
 
-const result = await CertifaceSDK.startSaasJourney(
-  journeyToken,
-  Environment.HML,
-  false
-);
-
-const resultWithTheme = await CertifaceSDK.startSaasJourney(
-  journeyToken,
-  Environment.PRD,
-  true,
-  customTheme
-);
+try {
+  const result = await CertifaceSDK.startSaasJourney(token, Environment.HML);
+  console.log(result.valid, result.protocol);
+} catch (error) {
+  if (error instanceof CertifaceError) {
+    console.log(error.code, error.message);
+  }
+}
 ```
+
+Com tema: `startSaasJourney(token, Environment.HML, true, customTheme)`.
 
 ### iProov (appKey)
 
@@ -225,10 +306,14 @@ Códigos comuns:
 | ------ | ----------- |
 | `JOURNEY_IN_PROGRESS` | Já existe uma jornada em andamento |
 | `JOURNEY_TIMEOUT` | Jornada expirou sem resposta do nativo |
-| `UNSUPPORTED_OPERATION` | Provider não-iProov em `startJourney` (use SaaS) |
+| `UNSUPPORTED_OPERATION` | o app ainda chama `startJourney` com FaceTec ou Fortface |
 | `INVALID_PARAMS` | Tema inválido (`invalidParam` indica o campo) |
 | `NO_ACTIVITY` | Sem Activity / rootViewController |
 | `TOKEN_NULO` / `APP_KEY_NULO` / `ENVIRONMENT_NULO` | Parâmetro obrigatório ausente |
+| HTTP `401` no login | a senha não foi enviada em MD5 |
+| token inválido | ambiente HML/PRD diferente entre backend e app |
+
+`appKey` autentica somente o iProov. FaceTec e Fortface usam o `uuid` de `genToken`.
 
 ### Enums / tipos
 
@@ -331,10 +416,11 @@ export default function LivenessScreen() {
         }
       }
 
+      const token = await seuBackend.gerarToken();
+
       const result: LivenessResult = await CertifaceSDK.startSaasJourney(
-        'your-journey-token',
-        Environment.HML,
-        false
+        token,
+        Environment.HML
       );
 
       if (result.valid) {
@@ -733,6 +819,7 @@ fonts: {
 
 ## 🔗 Links Úteis
 
+- [Certiface SaaS API](https://devcenter.certiface.io/docs/certiface-saas-api)
 - [Changelog](https://github.com/oititec/certiface-sdk-rn/releases)
 
 ## 📄 Licença

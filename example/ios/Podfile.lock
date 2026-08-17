@@ -1,8 +1,8 @@
 PODS:
   - boost (1.84.0)
-  - CertifaceModules (2.0.0)
-  - CertifaceSDK (2.0.0):
-    - CertifaceModules (= 2.0.0)
+  - CertifaceModules (2.0.1)
+  - CertifaceSDK (2.0.1):
+    - CertifaceModules (= 2.0.1)
     - CFFortfaceSDK (= 1.9.0)
     - iProov (= 12.5.0)
     - OILiveness3D_FT (= 9.7.130)
@@ -1861,8 +1861,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RnSdk (2.0.1):
-    - CertifaceSDK (= 2.0.0)
+  - RnSdk (2.0.3):
+    - CertifaceSDK (= 2.0.1)
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1915,7 +1915,7 @@ PODS:
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
-  - CertifaceSDK (= 2.0.0)
+  - CertifaceSDK (= 2.0.1)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - fast_float (from `../node_modules/react-native/third-party-podspecs/fast_float.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
@@ -2164,8 +2164,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
-  CertifaceModules: c1b8927422a5b91b0cbaa8049eb4a30863f6aeab
-  CertifaceSDK: 648597d497ffa08c5abeaab9786cd9005e3f1755
+  CertifaceModules: 402336e45a37bd545231caae108c0feced8a7c3c
+  CertifaceSDK: 4448114b3a634ac71826c2d5634dd21c39f9290f
   CFFortfaceSDK: eadd8a4a9c664c1d4e01a70dcea18dc0996263bf
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
@@ -2242,11 +2242,11 @@ SPEC CHECKSUMS:
   RNCClipboard: ea6045252d5c0753cf17f62290f647dc0096f6ac
   RNGestureHandler: 0397fea67f39d5a2d17fcf4a028e206f7ba098ba
   RNScreens: 7e56b051227a1a11c3068849d1a9a5dd457537df
-  RnSdk: bbadd71042d83a6a39176eae05858129e3e1f9e9
+  RnSdk: 8511cd6318f5e502878dbd1ef1760beba53ccb51
   RNVectorIcons: 1fe59cfa2d3ac94ceb9d373a59c54609471b8d56
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: c758bfb934100bb4bf9cbaccb52557cee35e8bdf
 
-PODFILE CHECKSUM: 3ff15f869cfaf7dffaec4f13003d3bdcd289c61f
+PODFILE CHECKSUM: 28be2d2ea3aedd2a3bb74d1fb4e21d79ac37ea49
 
 COCOAPODS: 1.15.2

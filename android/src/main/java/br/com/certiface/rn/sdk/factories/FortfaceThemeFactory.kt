@@ -21,7 +21,7 @@ object FortfaceThemeFactory {
       setInstructionsTheme {
         setShowInstructionScreen(showInstructionScreen)
       }
-      cancelButtonEnable(false)
+      setCancelButtonEnable(false)
     }
 
   fun buildCustom(theme: ReadableMap?, context: Context? = null): FortfaceTheme {
@@ -97,14 +97,14 @@ object FortfaceThemeFactory {
         setCustomizationJsonFileName(it)
       }
 
-      cancelButtonEnable(optBoolean(flags, "cancelButtonEnable", true))
-      cancelPosition(
+      setCancelButtonEnable(optBoolean(flags, "cancelButtonEnable", true))
+      setCancelPosition(
         parseFortfaceCancelPosition(configuration, "cancelPosition", FortfaceCancelPosition.LEFT)
       )
-      screenMode(
+      setScreenMode(
         parseFortfaceScreenMode(configuration, "screenMode", FortfaceScreenMode.FULL_SCREEN)
       )
-      screenOrientation(
+      setScreenOrientation(
         parseFortfaceScreenOrientation(
           configuration,
           "screenOrientation",
@@ -112,25 +112,30 @@ object FortfaceThemeFactory {
         )
       )
 
-      cameraTimeout(optInt(sizes, "cameraTimeout", 30).coerceAtLeast(20))
-      cameraMinStabilizationTime(optInt(sizes, "cameraMinStabilizationTime", 2))
-      cameraMaxStabilizationTime(optInt(sizes, "cameraMaxStabilizationTime", 3))
-      brightnessValidationTimeout(optInt(sizes, "brightnessValidationTimeout", 10))
-      cameraFrameTextVisible(optBoolean(flags, "cameraFrameTextVisible", true))
+      setCameraTimeout(optInt(sizes, "cameraTimeout", 30).coerceAtLeast(20))
+      setCameraMinStabilizationTime(optInt(sizes, "cameraMinStabilizationTime", 2))
+      setCameraMaxStabilizationTime(optInt(sizes, "cameraMaxStabilizationTime", 3))
+      setBrightnessValidationTimeout(optInt(sizes, "brightnessValidationTimeout", 10))
+      setCameraFrameTextVisible(optBoolean(flags, "cameraFrameTextVisible", true))
 
       if (sizes?.hasKey("modalOverlayOpacity") == true) {
-        modalOverlayOpacity(optFloatOrNull(sizes, "modalOverlayOpacity") ?: 0.5f)
+        setModalOverlayOpacity(optFloatOrNull(sizes, "modalOverlayOpacity") ?: 0.5f)
       }
 
-      firstString(colors, "modalOverlay")?.let { modalOverlayColor(it) }
-      firstString(colors, "cameraBackground")?.let { cameraBackgroundColor(it) }
-      firstString(colors, "cameraMessageText")?.let { cameraMessageTextColor(it) }
-      firstString(colors, "cameraAlert")?.let { cameraAlertColor(it) }
-      firstString(colors, "cameraNeutral")?.let { cameraNeutralColor(it) }
-      firstString(colors, "cameraSuccess")?.let { cameraSuccessColor(it) }
-      firstString(colors, "cameraBrightnessAlert")?.let { cameraBrightnessAlertColor(it) }
-      firstString(colors, "cameraLoading")?.let { cameraLoadingColor(it) }
-      firstString(colors, "cameraIconBackground")?.let { cameraIconBackgroundColor(it) }
+      firstString(colors, "modalOverlay")?.let { setModalOverlayColor(it) }
+      firstString(colors, "cameraBackground")?.let { setCameraBackgroundColor(it) }
+      firstString(colors, "cameraMessageText")?.let { setCameraMessageTextColor(it) }
+      firstString(colors, "cameraAlert")?.let { setCameraAlertColor(it) }
+      firstString(colors, "cameraNeutral")?.let { setCameraNeutralColor(it) }
+      firstString(colors, "cameraSuccess")?.let { setCameraSuccessColor(it) }
+      firstString(colors, "cameraBrightnessAlert")?.let { setCameraBrightnessAlertColor(it) }
+      firstString(colors, "cameraLoading")?.let { setCameraLoadingColor(it) }
+      firstString(colors, "cameraIconBackground")?.let { setCameraIconBackgroundColor(it) }
+
+      appDrawable(FortfaceDrawablesKey.SDK_CANCEL_BUTTON_IMAGE)?.let { setCancelButtonImage(it) }
+      appDrawable(FortfaceDrawablesKey.SDK_CAMERA_LOGO)?.let { setCameraLogo(it) }
+      appDrawable(FortfaceDrawablesKey.SDK_BRIGHTNESS_HIGH_ICON)?.let { setHighBrightnessIcon(it) }
+      appDrawable(FortfaceDrawablesKey.SDK_BRIGHTNESS_LOW_ICON)?.let { setLowBrightnessIcon(it) }
 
       setInstructionsTheme {
         setShowInstructionScreen(showInstructionScreen)
@@ -363,12 +368,8 @@ object FortfaceThemeFactory {
       if (name.isEmpty() || name == "ubuntu_regular") {
         null
       } else if (key in cameraFontKeys) {
-        val resId = FontResolver.resolveCameraFontResId(context, path)
-        if (resId != null) {
-          key to resId
-        } else {
-          key to path
-        }
+        val resId = FontResolver.resolveCameraFontResId(context, path) ?: return@mapNotNull null
+        key to resId
       } else {
         key to FontResolver.resolveFromAssetPath(context, path)
       }
