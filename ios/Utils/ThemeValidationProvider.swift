@@ -13,12 +13,12 @@ enum ThemeValidationProvider {
     }
   }
 
-  var excludedThemeKey: String {
+  var excludedThemeKeys: [String] {
     switch self {
     case .facetec:
-      return "iproov"
+      return ["iproov"]
     case .iproov:
-      return "facetec"
+      return ["facetec"]
     }
   }
 }

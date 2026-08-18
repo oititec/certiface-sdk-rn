@@ -69,7 +69,7 @@ repositories {
   mavenCentral()
   google()
   maven {
-    url 'https://raw.githubusercontent.com/oititec/android-certiface-sdk-versions/main'
+    url 'https://raw.githubusercontent.com/oititec/android-certiface-sdk-versions-beta/main'
   }
 }
 
@@ -79,7 +79,7 @@ dependencies {
   implementation "com.facebook.react:react-android"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-  implementation 'br.com.certiface:certifacesdk:1.2.2'
+  implementation 'br.com.certiface:certifacesdk:1.2.3-beta-1'
 }
 
 react {

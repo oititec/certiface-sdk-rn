@@ -40,10 +40,12 @@ const HomeScreen = () => {
     setSelectedFeature,
     setEnvironment,
     addResult,
+    canRunLiveness,
   } = useUserStore();
+  const livenessReady = canRunLiveness();
 
   const runJourney = async (variant: JourneyVariant) => {
-    if (!appKey) {
+    if (!canRunLiveness()) {
       addResult('ERRO: App Key não configurada');
       return;
     }
@@ -79,14 +81,14 @@ const HomeScreen = () => {
         `Iniciando jornada (${selectedFeature} | ${environment} | tema ${themeEnabled ? 'ON' : 'OFF'})`
       );
       const result: LivenessResult = await CertifaceSDK.startJourney(
-        appKey,
+        appKey.trim(),
         environment,
         livenessProvider,
         themeEnabled,
         themeEnabled ? selectedTheme : undefined
       );
 
-      const { valid, codID, protocol } = result;
+      const { valid, codID, protocol } = result ?? {};
       addResult(
         `✅ Sucesso: valid=${valid} codID=${codID} protocol=${protocol}`
       );
@@ -125,10 +127,10 @@ const HomeScreen = () => {
             <Text
               style={[
                 styles.statusText,
-                appKey ? styles.statusReady : styles.statusNotReady,
+                livenessReady ? styles.statusReady : styles.statusNotReady,
               ]}
             >
-              {appKey ? 'Pronta para uso' : 'Não configurada'}
+              {livenessReady ? 'Pronta para uso' : 'Não configurada'}
             </Text>
           </View>
 
@@ -216,10 +218,10 @@ const HomeScreen = () => {
             style={[
               styles.actionCard,
               styles.primaryAction,
-              (!appKey || loading) && styles.actionDisabled,
+              (!livenessReady || loading) && styles.actionDisabled,
             ]}
             onPress={() => runJourney('DEFAULT')}
-            disabled={!appKey || loading}
+            disabled={!livenessReady || loading}
           >
             <Text style={styles.primaryActionTitle}>Default</Text>
             <Text style={styles.primaryActionDescription}>Fluxo normal</Text>
@@ -229,10 +231,10 @@ const HomeScreen = () => {
             style={[
               styles.actionCard,
               styles.secondaryAction,
-              (!appKey || loading) && styles.actionDisabled,
+              (!livenessReady || loading) && styles.actionDisabled,
             ]}
             onPress={() => runJourney('CUSTOM')}
-            disabled={!appKey || loading}
+            disabled={!livenessReady || loading}
           >
             <Text style={styles.secondaryActionTitle}>Custom</Text>
             <Text style={styles.secondaryActionDescription}>
@@ -244,10 +246,10 @@ const HomeScreen = () => {
             style={[
               styles.actionCard,
               styles.secondaryAction,
-              (!appKey || loading) && styles.actionDisabled,
+              (!livenessReady || loading) && styles.actionDisabled,
             ]}
             onPress={() => runJourney('NO_INSTRUCTIONS')}
-            disabled={!appKey || loading}
+            disabled={!livenessReady || loading}
           >
             <Text style={styles.secondaryActionTitle}>Sem instruções</Text>
             <Text style={styles.secondaryActionDescription}>
@@ -259,10 +261,10 @@ const HomeScreen = () => {
             style={[
               styles.actionCard,
               styles.dangerAction,
-              (!appKey || loading) && styles.actionDisabled,
+              (!livenessReady || loading) && styles.actionDisabled,
             ]}
             onPress={() => runJourney('INVALID_THEME')}
-            disabled={!appKey || loading}
+            disabled={!livenessReady || loading}
           >
             <Text style={styles.dangerActionTitle}>Tema inválido</Text>
             <Text style={styles.dangerActionDescription}>

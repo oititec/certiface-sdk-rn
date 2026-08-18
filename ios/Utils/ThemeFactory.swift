@@ -7,6 +7,7 @@
 
 import CertifaceSDK
 import CertifaceIProov
+import CertifaceFacetec
 import UIKit
 
 final class ThemeFactory {
@@ -87,10 +88,12 @@ final class ThemeFactory {
     let instSizes = instructionsTheme["sizes"] as? [String: Any] ?? [:]
     _ = builder.setBottomSheetCornerRadius(CGFloat(doubleThemeValue(instSizes["bottomSheetCornerRadius"]) ?? 16))
 
-    resolveBackButtonTintColor(
+    if let backButtonTint = resolveBackButtonTintColor(
       colors: colors,
       hasCustomBackButtonImage: assetStrings["backButtonIcon"] != nil
-    ).map { builder.setBackButtonIconColor($0) }
+    ) {
+      _ = builder.setBackButtonIconColor(backButtonTint)
+    }
 
     setColor(firstValue(in: colors, keys: "title", "titleColor"), with: builder.setTitleColor(_:))
     setColor(firstValue(in: colors, keys: "caption", "captionColor"), with: builder.setCaptionColor(_:))
@@ -132,7 +135,8 @@ final class ThemeFactory {
     setImage(assetStrings["contextImage"], with: builder.setContextImage(_:))
 
     let iconScale = InstructionIconScaleMode.from(assets["instructionIconScale"] as? String)
-    let iconSize = CGFloat(doubleThemeValue(assets["instructionIconSize"]) ?? 60)
+    let rawIconSize = CGFloat(doubleThemeValue(assets["instructionIconSize"]) ?? 60)
+    let iconSize = min(max(rawIconSize, 16), 256)
 
     setInstructionIcon(
       assetStrings["firstInstructionIcon"],
@@ -493,7 +497,6 @@ final class ThemeFactory {
       firstValue(in: colors, keys: "resultScreenUploadProgressBarTrack", "resultScreenUploadProgressTrack"),
       with: builder.setResultScreenUploadProgressBarTrackColor(_:)
     )
-    builder.setResultScreenAnimationStyle(.blob(appearance: getResultStyleApperance(from: colors)))
     setColor(
       firstValue(in: colors, keys: "retryScreenHeader") ?? "#FF5252",
       with: builder.setRetryScreenHeaderColor(_:)
@@ -514,16 +517,36 @@ final class ThemeFactory {
     setColor(colors["frameBorder"], with: builder.setFrameBorderColor(_:))
     setColor(colors["frameBackground"], with: builder.setFrameBackgroundColor(_:))
     setColor(colors["ovalStroke"], with: builder.setOvalStrokeColor(_:))
-    _ = builder.setOvalStrokeWidth(intThemeValue(sizes["ovalStrokeWidth"]) ?? 4)
+    if let strokeWidth = intThemeValue(sizes["ovalStrokeWidth"]), strokeWidth > 0 {
+      _ = builder.setOvalStrokeWidth(strokeWidth)
+    }
     setColor(colors["ovalProgressFirst"], with: builder.setOvalProgressFirstColor(_:))
     setColor(colors["ovalProgressSecond"], with: builder.setOvalProgressSecondColor(_:))
-    _ = builder.setOvalProgressWidth(intThemeValue(sizes["ovalProgressStrokeWidth"] ?? sizes["ovalProgressWidth"]) ?? 6)
-    _ = builder.setOvalProgressOffset(intThemeValue(sizes["ovalProgressRadialOffset"] ?? sizes["ovalProgressOffset"]) ?? 8)
+    if let progressWidth = intThemeValue(sizes["ovalProgressStrokeWidth"] ?? sizes["ovalProgressWidth"]),
+       progressWidth > 0 {
+      _ = builder.setOvalProgressWidth(progressWidth)
+    }
+    if let progressOffset = intThemeValue(sizes["ovalProgressRadialOffset"] ?? sizes["ovalProgressOffset"]),
+       progressOffset > 0 {
+      _ = builder.setOvalProgressOffset(progressOffset)
+    }
     setColor(colors["overlayBackground"], with: builder.setOverlayBackgroundColor(_:))
 
     let flags = livenessTheme["flags"] as? [String: Any] ?? [:]
     let showBrandingImage = flags["overlayShowBrandingImage"] as? Bool ?? true
     let assets = livenessTheme["assets"] as? [String: String] ?? [:]
+    applyResultScreenAnimationStyle(
+      in: builder,
+      colors: colors,
+      assets: assets,
+      sizes: sizes
+    )
+    if let showUploadProgressBar = flags["resultScreenShowUploadProgressBar"] as? Bool {
+      _ = builder.setResultScreenUploadProgressBarEnabled(showUploadProgressBar)
+    }
+    if let animationScale = doubleThemeValue(sizes["resultScreenAnimationRelativeScale"]) {
+      _ = builder.setResultScreenAnimationScale(CGFloat(animationScale))
+    }
     if showBrandingImage {
       setImage(assets["overlayBrandImage"], with: builder.setOverlayBrandImage(_:))
     }
@@ -539,15 +562,15 @@ final class ThemeFactory {
     setImage(assets["cancelButtonIcon"], with: builder.setCancelButtonIcon(_:))
 
     let fonts = livenessTheme["fonts"] as? [String: String] ?? [:]
-    setFont(fonts["readyScreenHeader"], with: builder.setReadyScreenHeaderFont(_:), size: 0)
-    setFont(fonts["readyScreenSubtext"], with: builder.setReadyScreenMessageFont(_:), size: 0)
-    setFont(fonts["resultScreenMessage"], with: builder.setResultScreenMessageFont(_:), size: 0)
-    setFont(fonts["retryScreenHeader"], with: builder.setRetryScreenHeaderFont(_:), size: 0)
-    setFont(fonts["retryScreenSubtext"], with: builder.setRetryScreenCaptionFont(_:), size: 0)
-    setFont(fonts["feedbackMessage"], with: builder.setFeedbackMessageFont(_:), size: 0)
-    setFont(fonts["guidanceHeader"], with: builder.setGuidanceHeaderFont(_:), size: 0)
-    setFont(fonts["guidanceSubtext"], with: builder.setGuidanceSubtextFont(_:), size: 0)
-    setFont(fonts["guidanceButton"], with: builder.setGuidanceButtonFont(_:), size: 0)
+    setFont(fonts["readyScreenHeader"], with: builder.setReadyScreenHeaderFont(_:), size: 20)
+    setFont(fonts["readyScreenSubtext"], with: builder.setReadyScreenMessageFont(_:), size: 16)
+    setFont(fonts["resultScreenMessage"], with: builder.setResultScreenMessageFont(_:), size: 16)
+    setFont(fonts["retryScreenHeader"], with: builder.setRetryScreenHeaderFont(_:), size: 20)
+    setFont(fonts["retryScreenSubtext"], with: builder.setRetryScreenCaptionFont(_:), size: 16)
+    setFont(fonts["feedbackMessage"], with: builder.setFeedbackMessageFont(_:), size: 18)
+    setFont(fonts["guidanceHeader"], with: builder.setGuidanceHeaderFont(_:), size: 20)
+    setFont(fonts["guidanceSubtext"], with: builder.setGuidanceSubtextFont(_:), size: 16)
+    setFont(fonts["guidanceButton"], with: builder.setGuidanceButtonFont(_:), size: 16)
 
     if let width = intThemeValue(sizes["guidanceButtonBorderWidth"]) {
       _ = builder.setGuidanceButtonBorderWidth(width)
@@ -573,7 +596,7 @@ final class ThemeFactory {
 
   private static func customizeLivenessTexts(
     from theme: [String: Any]
-  ) -> [Liveness3DTextKey : String] {
+  ) -> [Liveness3DTextKey: String] {
     guard let livenessTheme = theme["facetec"] as? [String: Any] else {
       return [:]
     }
@@ -615,10 +638,14 @@ final class ThemeFactory {
       "retryIdealPicture": .retryIdealPicture,
       "retryButton": .retryButton,
     ]
-    var livenessTexts = [Liveness3DTextKey : String]()
+    var livenessTexts = Dictionary<Liveness3DTextKey, String>()
 
     for (themeKey, textKey) in keys {
-      livenessTexts[textKey] = texts[themeKey]
+      guard let value = texts[themeKey]?.trimmingCharacters(in: .whitespacesAndNewlines),
+            !value.isEmpty else {
+        continue
+      }
+      livenessTexts[textKey] = value
     }
 
     return livenessTexts
@@ -824,38 +851,7 @@ final class ThemeFactory {
   }
 
   private static func resolveFontName(_ fontName: String) -> String? {
-    let trimmed = fontName.trimmingCharacters(in: .whitespacesAndNewlines)
-    if UIFont(name: trimmed, size: UIFont.systemFontSize) != nil {
-      return trimmed
-    }
-
-    let pathComponent = (trimmed as NSString).lastPathComponent
-    if UIFont(name: pathComponent, size: UIFont.systemFontSize) != nil {
-      return pathComponent
-    }
-
-    let baseName = (pathComponent as NSString).deletingPathExtension
-    if UIFont(name: baseName, size: UIFont.systemFontSize) != nil {
-      return baseName
-    }
-
-    let wanted = baseName.lowercased()
-    for family in UIFont.familyNames {
-      if family.lowercased().contains(wanted) {
-        let familyCandidates = UIFont.fontNames(forFamilyName: family)
-        if let first = familyCandidates.first {
-          return first
-        }
-      }
-      for candidate in UIFont.fontNames(forFamilyName: family) {
-        let candidateNormalized = candidate.lowercased()
-        if candidateNormalized == wanted || candidateNormalized.contains(wanted) {
-          return candidate
-        }
-      }
-    }
-
-    return nil
+    FontNameResolver.resolve(fontName)
   }
 
   private static func applyIProovBaseFont(
@@ -891,30 +887,44 @@ final class ThemeFactory {
     return (lastPathComponent as NSString).deletingPathExtension
   }
 
-  private static func getResultStyleApperance(from colors: [String: String]) -> BlobAnimationAppearance {
-    func getColor(from colorHex: String?, defaultColor: UIColor) -> UIColor {
-      guard let colorHex, let color = UIColor(hex: colorHex) else {
-        return defaultColor
-      }
-      return color
+  private static func applyResultScreenAnimationStyle(
+    in builder: Liveness3DThemeBuilder,
+    colors: [String: String],
+    assets: [String: String],
+    sizes: [String: Any]
+  ) {
+    let indicatorColor = UIColor(hex: colors["resultScreenActivityIndicator"] ?? "") ?? .black
+    let checkmarkForeground = UIColor(hex: colors["resultScreenResultAnimationForeground"] ?? "") ?? .white
+    let checkmarkBackground = UIColor(hex: colors["resultScreenResultAnimationBackground"] ?? "") ?? .black
+    let rotationInterval = Int32(
+      intThemeValue(sizes["resultScreenCustomActivityIndicatorRotationInterval"]) ?? 1000
+    )
+    let imageName = firstValue(
+      in: assets,
+      keys: "resultScreenCustomActivityIndicatorImage",
+      "resultScreenCustomActivityIndicatorAnimation"
+    )
+    if let imageName, let image = RnSdkBundle.getImage(named: imageName) {
+      _ = builder.setResultScreenAnimationStyle(
+        .image(
+          appearance: CertifaceFacetec.ImageAnimationAppearance(
+            image: image,
+            rotationInterval: rotationInterval,
+            checkmarkForegroundColor: checkmarkForeground,
+            checkmarkBackgroundColor: checkmarkBackground
+          )
+        )
+      )
+      return
     }
-
-    let blobColor = getColor(
-      from: colors["resultScreenActivityIndicator"],
-      defaultColor: .black
-    )
-    let checkmarkForegroundColor = getColor(
-      from: colors["resultScreenResultAnimationForeground"],
-      defaultColor: .black
-    )
-    let checkmarkBackgroundColor = getColor(
-      from: colors["resultScreenResultAnimationBackground"],
-      defaultColor: .black
-    )
-    return BlobAnimationAppearance(
-      blobColor: blobColor,
-      checkmarkForegroundColor: checkmarkForegroundColor,
-      checkmarkBackgroundColor: checkmarkBackgroundColor
+    _ = builder.setResultScreenAnimationStyle(
+      .spinner(
+        appearance: CertifaceFacetec.SpinnerAnimationAppearance(
+          spinnerColor: indicatorColor,
+          checkmarkForegroundColor: checkmarkForeground,
+          checkmarkBackgroundColor: checkmarkBackground
+        )
+      )
     )
   }
 }

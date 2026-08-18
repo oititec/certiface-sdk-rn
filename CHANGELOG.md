@@ -1,10 +1,14 @@
 # Changelog
 
-## [1.1.5] - 29/07/2026
+## [1.1.5] - 18/08/2026
 
 ### Adicionado
 
 - iProov: `configuration.filterStyle` (`natural` | `lineDrawing`), `naturalStyle` (`clear` | `blur`) e `lineDrawingStyle` (`classic` | `shaded` | `vibrant`)
+- Android: `requestCameraPermission` resolve a Promise após o resultado real do sistema
+- iOS: payload de sucesso preenche `cause`, `protocol` e `scanResultBlob`
+- Android: `setProcessingMessage` / `PROCESSING_MESSAGE_FONT` via `processing.texts.message` (ou `processingMessage`) e `processing.fonts.message`
+- iOS FaceTec: spinner/image no result screen (em vez de blob)
 
 ### Corrigido
 
@@ -16,11 +20,16 @@
 - Android iProov: botão retry sem fallback enganoso de `retryBackground` / `retryText`
 - Android FaceTec: prioridade `resultScreenMessage` antes de `resultScreenForeground`
 - Android FaceTec: aliases `ovalProgressWidth` / `ovalProgressOffset`
+- Android/iOS: fontes omitidas não forçam mais `ubuntu_regular` nas keys vazias
+- Android: drawables de tema só entram no mapa se o resourceId for resolvido
+- JS: rejeita `PARSE_ERROR` quando o payload de sucesso vem sem `result`
 
 ### Alterado
 
-- Types: `@platform` alinhados (orientation, screenshots, exterior effects, props FaceTec Android-only, retry iOS-only)
+- Types: `@platform` alinhados (orientation, screenshots, exterior effects, sizes iOS, retry iOS-only)
+- Dependência Android `certifacesdk` atualizada para `1.2.3-beta-1`
 - Example `customTheme`: Natural CLEAR por padrão; comentários de plataforma e assets de close/error ajustados
+- Android: limites e downsample de assets em base64 (máx. 2M chars / 1.5M bytes / 2048 px)
 
 ## [1.1.4] - 27/07/2026
 

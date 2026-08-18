@@ -38,14 +38,17 @@ const SessionScreen = () => {
     setSelectedFeature,
     setEnvironment,
     addResult,
+    canRunLiveness,
   } = useUserStore();
   const [loading, setLoading] = useState(false);
+  const hasAppKey = canRunLiveness();
 
   const handleCopyAppKey = () => {
-    if (!appKey) {
+    const trimmedAppKey = appKey.trim();
+    if (!trimmedAppKey) {
       return;
     }
-    Clipboard.setString(appKey);
+    Clipboard.setString(trimmedAppKey);
     Alert.alert('Copiado', 'App Key copiada para a área de transferência.');
   };
 
@@ -202,9 +205,9 @@ const SessionScreen = () => {
               <View style={styles.inputHeaderRow}>
                 <Text style={styles.inputLabel}>App Key Atual</Text>
                 <TouchableOpacity
-                  style={[styles.copyButton, !appKey && styles.buttonDisabled]}
+                  style={[styles.copyButton, !hasAppKey && styles.buttonDisabled]}
                   onPress={handleCopyAppKey}
-                  disabled={!appKey}
+                  disabled={!hasAppKey}
                 >
                   <Text style={styles.copyButtonText}>Copiar</Text>
                 </TouchableOpacity>

@@ -35,6 +35,7 @@ target 'RnSdkExample' do
       :mac_catalyst_enabled => false,
     )
     rn_abs = File.expand_path(config[:reactNativePath], Pod::Config.instance.installation_root)
+    app_abs = File.expand_path('..', Pod::Config.instance.installation_root)
     with_env = File.join(rn_abs, 'scripts/xcode/with-environment.sh')
     script_phases = File.join(rn_abs, 'scripts/react_native_pods_utils/script_phases.sh')
     installer.pods_project.targets.each do |target|
@@ -46,6 +47,7 @@ target 'RnSdkExample' do
         next if phase.shell_script.nil?
         script = phase.shell_script
         script = script.gsub(/export RCT_SCRIPT_RN_DIR=.*\n/, "export RCT_SCRIPT_RN_DIR=\"#{rn_abs}\"\n")
+        script = script.gsub(/export RCT_SCRIPT_APP_PATH=.*\n/, "export RCT_SCRIPT_APP_PATH=\"#{app_abs}\"\n")
         script = script.gsub(
           'WITH_ENVIRONMENT="$RCT_SCRIPT_RN_DIR/scripts/xcode/with-environment.sh"',
           "WITH_ENVIRONMENT=\"#{with_env}\""

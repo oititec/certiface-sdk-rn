@@ -138,9 +138,10 @@ object AssetProcessor {
         drawables: Map<FacetecDrawablesKey, Any>
     ): Map<FacetecDrawablesKey, Any> {
         if (context == null || drawables.isEmpty()) return emptyMap()
-        return drawables.mapValues { (_, value) ->
-            resolveDrawableResourceId(context, value) ?: value
-        }
+        return drawables.mapNotNull { (key, value) ->
+            val resourceId = resolveDrawableResourceId(context, value) ?: return@mapNotNull null
+            key to resourceId
+        }.toMap()
     }
 
     fun processIProovAssets(theme: ReadableMap?): Map<IProovDrawablesKey, Any> {

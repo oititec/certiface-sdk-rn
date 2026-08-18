@@ -11,6 +11,7 @@ internal fun firstString(map: ReadableMap?, vararg keys: String): String? {
   map ?: return null
   for (key in keys) {
     if (!map.hasKey(key)) continue
+    if (map.getType(key) != ReadableType.String) continue
     val value = map.getString(key)?.trim()
     if (!value.isNullOrEmpty()) return value
   }
@@ -46,6 +47,13 @@ internal fun optFloat(map: ReadableMap?, key: String, default: Float): Float {
   }
 }
 
+internal fun optFloatOrNull(map: ReadableMap?, key: String): Float? {
+  map ?: return null
+  if (!map.hasKey(key)) return null
+  if (map.getType(key) != ReadableType.Number) return null
+  return map.getDouble(key).toFloat()
+}
+
 internal fun optBoolean(map: ReadableMap?, key: String, default: Boolean): Boolean {
   map ?: return default
   if (!map.hasKey(key)) return default
@@ -53,6 +61,28 @@ internal fun optBoolean(map: ReadableMap?, key: String, default: Boolean): Boole
     ReadableType.Boolean -> map.getBoolean(key)
     else -> default
   }
+}
+
+internal fun clampedInt(
+  map: ReadableMap?,
+  key: String,
+  default: Int,
+  min: Int,
+  max: Int
+): Int {
+  return optInt(map, key, default).coerceIn(min, max)
+}
+
+internal fun clampedThemeInt(
+  map: ReadableMap?,
+  key: String,
+  min: Int,
+  max: Int
+): Int? {
+  map ?: return null
+  if (!map.hasKey(key)) return null
+  if (map.getType(key) != ReadableType.Number) return null
+  return map.getDouble(key).toInt().coerceIn(min, max)
 }
 
 internal fun parseFacetecButtonLocation(

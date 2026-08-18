@@ -5,6 +5,8 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 export type FeatureType = 'IPROOV' | 'FACETEC';
 
+const MAX_RESULTS = 50;
+
 interface UserData {
   cpf: string;
   nome: string;
@@ -27,6 +29,7 @@ interface UserStore {
   setCustomThemeEnabled: (enabled: boolean) => void;
   addResult: (result: string) => void;
   clearResults: () => void;
+  canRunLiveness: () => boolean;
   generateCredential: () => Promise<any>;
   generateAppKey: () => Promise<string>;
   setLivenessProvider: (provider: LivenessProvider) => void;
@@ -64,13 +67,17 @@ export const useUserStore = create<UserStore>()(
       setCustomThemeEnabled: (enabled) =>
         set({ isCustomThemeEnabled: enabled }),
       addResult: (result) =>
-        set((state) => ({
-          results: [
+        set((state) => {
+          const next = [
             ...state.results,
             `${new Date().toLocaleTimeString()}: ${result}`,
-          ],
-        })),
+          ];
+          return {
+            results: next.length > MAX_RESULTS ? next.slice(-MAX_RESULTS) : next,
+          };
+        }),
       clearResults: () => set({ results: [] }),
+      canRunLiveness: () => get().appKey.trim().length > 0,
       generateCredential: async () => {
         const myHeaders = new Headers();
         myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');

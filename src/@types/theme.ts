@@ -43,9 +43,7 @@ export interface FacetecSizes {
   ovalProgressWidth?: number;
   /** Alias de ovalProgressRadialOffset (ambos) */
   ovalProgressOffset?: number;
-  /** @platform android */
   resultScreenAnimationRelativeScale?: number;
-  /** @platform android */
   resultScreenCustomActivityIndicatorRotationInterval?: number;
 }
 
@@ -59,7 +57,6 @@ export interface FacetecFlags {
   overlayShowBrandingImage?: boolean;
   /** @platform android */
   feedbackEnablePulsatingText?: boolean;
-  /** @platform android */
   resultScreenShowUploadProgressBar?: boolean;
 }
 
@@ -71,6 +68,7 @@ export interface FacetecColors {
   readyScreenOvalFill?: string;
   resultScreenMessage?: string;
   resultScreenUploadProgressBarFill?: string;
+  resultScreenUploadProgressFill?: string;
   resultScreenUploadProgressBarTrack?: string;
   resultScreenForeground?: string;
   /** @platform android */
@@ -124,6 +122,7 @@ export interface FacetecTexts {
 
   resultUploadMessage?: string;
   resultSuccessMessage?: string;
+  processingMessage?: string;
 
   feedbackLookStraightInOval?: string;
   feedbackCenterFace?: string;
@@ -209,6 +208,7 @@ export interface IProovColors {
 
 export interface IProovTexts {
   title?: string;
+  processingMessage?: string;
 }
 
 export interface IProovAssets {
@@ -341,10 +341,15 @@ export interface InstructionsThemeFonts {
 
 export interface InstructionsThemeSizes {
   bottomSheetCornerRadius?: number;
+  /** @platform ios */
   titleFontSize?: number;
+  /** @platform ios */
   captionFontSize?: number;
+  /** @platform ios */
   firstInstructionTitleFontSize?: number;
+  /** @platform ios */
   secondInstructionTitleFontSize?: number;
+  /** @platform ios */
   continueButtonFontSize?: number;
 }
 
@@ -412,10 +417,15 @@ export interface PermissionThemeFonts {
   title?: string;
   caption?: string;
   checkPermissionButton?: string;
+  /** @platform ios */
   bottomSheetTitle?: string;
+  /** @platform ios */
   bottomSheetCaption?: string;
+  /** @platform ios */
   openSettingsButton?: string;
+  /** @deprecated Use `openSettingsButton`. @platform ios */
   opentSettingsButton?: string;
+  /** @platform ios */
   closeButton?: string;
 }
 
@@ -424,12 +434,19 @@ export interface PermissionThemeFlags {
 }
 
 export interface PermissionThemeSizes {
+  /** @platform ios */
   titleFontSize?: number;
+  /** @platform ios */
   captionFontSize?: number;
+  /** @platform ios */
   checkPermissionButtonFontSize?: number;
+  /** @platform ios */
   bottomSheetTitleFontSize?: number;
+  /** @platform ios */
   bottomSheetCaptionFontSize?: number;
+  /** @platform ios */
   openSettingsButtonFontSize?: number;
+  /** @platform ios */
   closeButtonFontSize?: number;
 }
 
@@ -458,7 +475,7 @@ export interface ProcessingThemeFlags {
 
 export interface ProcessingThemeSizes {
   loadingIndicatorSize?: number;
-  /** @platform android iproov */
+  /** @platform android */
   loadingIndicatorWidth?: number;
   /** @platform ios */
   spinnerSize?: number;
@@ -466,10 +483,21 @@ export interface ProcessingThemeSizes {
   spinnerWidth?: number;
 }
 
+export interface ProcessingThemeFonts {
+  /** @platform android */
+  message?: string;
+}
+
+export interface ProcessingThemeTexts {
+  message?: string;
+}
+
 export interface ProcessingTheme {
   colors?: ProcessingThemeColors;
+  texts?: ProcessingThemeTexts;
   flags?: ProcessingThemeFlags;
   sizes?: ProcessingThemeSizes;
+  fonts?: ProcessingThemeFonts;
 }
 
 /**
@@ -519,7 +547,9 @@ export interface ResultThemeFlags {
 }
 
 export interface ResultThemeSizes {
+  /** @platform ios */
   textFontSize?: number;
+  /** @platform ios */
   retryButtonFontSize?: number;
 }
 

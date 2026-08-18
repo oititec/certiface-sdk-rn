@@ -31,37 +31,59 @@ class LivenessExecutor(val appkey: String, val feature: Features) {
     isCustomEnabled: Boolean = false,
     theme: ReadableMap? = null
   ) {
-    val sdkEnvironment = when (environment) {
-      "HML" -> Environment.HML
-      "PRD" -> Environment.PRD
-      else -> Environment.HML
-    }
-
-    CertifaceSDK.initialize(
-      context,
-      SDKConfig(
-        environment = sdkEnvironment,
-        appKey = appkey
-      )
-    )
-
-    val strategy = strategies[feature]
-      ?: error("Nenhuma strategy pra feature $feature")
-
-    val callback = object : ResultCallback<LivenessResult> {
-      override fun onSuccess(result: LivenessResponse) {
-        execOnSuccess(result.livenessResult)
-      }
-
-      override fun onError(result: LivenessResponse) {
-        execOnError(serializeErrorResponse(result.errorResponse))
-      }
-    }
-
     try {
+      val sdkEnvironment = when (environment) {
+        "HML" -> Environment.HML
+        "PRD" -> Environment.PRD
+        else -> Environment.HML
+      }
+
+      CertifaceSDK.initialize(
+        context,
+        SDKConfig(
+          environment = sdkEnvironment,
+          appKey = appkey
+        )
+      )
+
+      val strategy = strategies[feature]
+      if (strategy == null) {
+        execOnError(
+          JSONObject()
+            .put("code", "PROVIDER_INVALIDO")
+            .put("message", "Nenhuma strategy pra feature $feature")
+            .toString()
+        )
+        return
+      }
+
+      val callback = object : ResultCallback<LivenessResult> {
+        override fun onSuccess(result: LivenessResponse) {
+          execOnSuccess(result.livenessResult)
+        }
+
+        override fun onError(result: LivenessResponse) {
+          execOnError(serializeErrorResponse(result.errorResponse))
+        }
+      }
+
       strategy.start(context, appkey, isCustomEnabled, theme, callback)
     } catch (e: CustomThemeException) {
       execOnError(e.toErrorPayloadJson())
+    } catch (e: UnsupportedOperationException) {
+      execOnError(
+        JSONObject()
+          .put("code", "UNSUPPORTED_OPERATION")
+          .put("message", e.message ?: "Operação não suportada")
+          .toString()
+      )
+    } catch (e: Exception) {
+      execOnError(
+        JSONObject()
+          .put("code", "SDK_INIT_ERROR")
+          .put("message", e.message ?: "Falha ao iniciar o SDK.")
+          .toString()
+      )
     }
   }
 

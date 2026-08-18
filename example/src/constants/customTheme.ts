@@ -16,6 +16,7 @@ export const customTheme: CertifaceTheme = {
       resultScreenBackground: '#1A1A1A',
       resultScreenActivityIndicator: '#EEF6F8',
       resultScreenUploadProgressBarFill: '#EEF6F8',
+      resultScreenUploadProgressFill: '#EEF6F8',
       resultScreenUploadProgressBarTrack: '#444444',
       resultScreenResultAnimationBackground: '#2E2E2E',
       resultScreenResultAnimationForeground: '#EEF6F8',
@@ -65,6 +66,7 @@ export const customTheme: CertifaceTheme = {
       // Result Screen: mensagem durante envio e sucesso final.
       resultUploadMessage: 'Enviando validação',
       resultSuccessMessage: 'Verificação concluída!',
+      processingMessage: 'Processando...',
       // Feedback: mensagens dinâmicas exibidas durante o posicionamento do rosto.
       feedbackLookStraightInOval: 'Olhe diretamente para a câmera',
       feedbackCenterFace: 'Centralize seu rosto',
@@ -130,9 +132,9 @@ export const customTheme: CertifaceTheme = {
       // Oval/progresso: espessura e offset do indicador de progresso da captura.
       ovalStrokeWidth: 4,
       ovalProgressStrokeWidth: 6,
-      ovalProgressRadialOffset: 0,
+      ovalProgressRadialOffset: 8,
       ovalProgressWidth: 6,
-      ovalProgressOffset: 0,
+      ovalProgressOffset: 8,
       // Result Screen: escala da animação e velocidade do loading customizado.
       resultScreenAnimationRelativeScale: 1,
       resultScreenCustomActivityIndicatorRotationInterval: 1000,
@@ -175,6 +177,7 @@ export const customTheme: CertifaceTheme = {
     },
     texts: {
       title: 'Verificação Biométrica',
+      processingMessage: 'Processando...',
     },
     assets: {
       // Glifo monocromático distinto do default (seta). Evite cancel_button (círculo + tint = bola).
@@ -359,10 +362,16 @@ export const customTheme: CertifaceTheme = {
       loading: '#FFFFFF',
     },
     sizes: {
-      // Android: loadingIndicatorSize 1-300 (px-ish). iOS converte para scale 1-10 (100 → ~5).
-      // Para forçar scale iOS explícito: spinnerSize (1-10) e spinnerWidth.
       loadingIndicatorSize: 100,
       loadingIndicatorWidth: 10,
+      spinnerSize: 5,
+      spinnerWidth: 10,
+    },
+    texts: {
+      message: 'Processando...',
+    },
+    fonts: {
+      message: 'sixty',
     },
   },
   // Tela de sucesso/erro. No iOS: `retryBackground`/`retryText` pintam a tela de retry; no botão use retryButton*.
