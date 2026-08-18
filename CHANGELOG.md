@@ -27,7 +27,7 @@
 ### Alterado
 
 - Types: `@platform` alinhados (orientation, screenshots, exterior effects, sizes iOS, retry iOS-only)
-- Dependência Android `certifacesdk` atualizada para `1.2.3-beta-1`
+- Dependência Android `certifacesdk` atualizada para `1.2.3`
 - Dependência iOS `CertifaceSDK` atualizada para `1.8.1`
 - Example `customTheme`: Natural CLEAR por padrão; comentários de plataforma e assets de close/error ajustados
 - Android: limites e downsample de assets em base64 (máx. 2M chars / 1.5M bytes / 2048 px)
