@@ -28,8 +28,6 @@ target 'RnSdkExample' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  pod 'CertifaceSDK', git: 'https://github.com/oititec/ios-oiti-sdk.git', branch: 'bugfix/31829-custom-iproov'
-
   post_install do |installer|
     react_native_post_install(
       installer,

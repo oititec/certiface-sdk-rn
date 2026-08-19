@@ -1913,7 +1913,6 @@ PODS:
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
-  - CertifaceSDK (from `https://github.com/oititec/ios-oiti-sdk.git`, branch `bugfix/31829-custom-iproov`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - fast_float (from `../node_modules/react-native/third-party-podspecs/fast_float.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
@@ -1998,6 +1997,7 @@ SPEC REPOS:
     - SocketRocket
   https://github.com/oititec/ios-artifactory.git:
     - CertifaceModules
+    - CertifaceSDK
     - OILiveness3D_FT
   trunk:
     - iProov
@@ -2005,9 +2005,6 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
-  CertifaceSDK:
-    :branch: bugfix/31829-custom-iproov
-    :git: https://github.com/oititec/ios-oiti-sdk.git
   DoubleConversion:
     :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
   fast_float:
@@ -2162,15 +2159,10 @@ EXTERNAL SOURCES:
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
-CHECKOUT OPTIONS:
-  CertifaceSDK:
-    :commit: 223683b62ce7bed71c24ff1f815d64a88b7cb9f3
-    :git: https://github.com/oititec/ios-oiti-sdk.git
-
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   CertifaceModules: 2d8dfe1dca3e76093561f6594b3d14513b104518
-  CertifaceSDK: 5e86d515c37b7d66b52e67ad4fbce5d790629d8f
+  CertifaceSDK: 0d5fc5a349f1840dd1aa809b635d866bb4f89e00
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
   FBLazyVector: 84b955f7b4da8b895faf5946f73748267347c975
@@ -2240,7 +2232,7 @@ SPEC CHECKSUMS:
   React-timing: a90f4654cbda9c628614f9bee68967f1768bd6a5
   React-utils: a612d50555b6f0f90c74b7d79954019ad47f5de6
   ReactAppDependencyProvider: 04d5eb15eb46be6720e17a4a7fa92940a776e584
-  ReactCodegen: d5d00f580b573d3a9e1b05019942612287f34010
+  ReactCodegen: c63eda03ba1d94353fb97b031fc84f75a0d125ba
   ReactCommon: 76d2dc87136d0a667678668b86f0fca0c16fdeb0
   RNCAsyncStorage: a1c8cc8a99c32de1244a9cf707bf9d83d0de0f71
   RNCClipboard: ea6045252d5c0753cf17f62290f647dc0096f6ac
@@ -2251,6 +2243,6 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: c758bfb934100bb4bf9cbaccb52557cee35e8bdf
 
-PODFILE CHECKSUM: 02743dd573bc94fb7737acd27ac4f05281bd13b4
+PODFILE CHECKSUM: 53638e90cf9e7fcb70d21b26b5633eab8891fb2e
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2
