@@ -128,10 +128,12 @@ final class ThemeFactory {
     let instSizes = instructionsTheme["sizes"] as? [String: Any] ?? [:]
     _ = builder.setBottomSheetCornerRadius(CGFloat(doubleThemeValue(instSizes["bottomSheetCornerRadius"]) ?? 16))
 
-    resolveBackButtonTintColor(
+    if let backButtonTint = resolveBackButtonTintColor(
       colors: colors,
       hasCustomBackButtonImage: assetStrings["backButtonIcon"] != nil
-    ).map { builder.setBackButtonIconColor($0) }
+    ) {
+      _ = builder.setBackButtonIconColor(backButtonTint)
+    }
 
     setColor(firstValue(in: colors, keys: "title", "titleColor"), with: builder.setTitleColor(_:))
     setColor(firstValue(in: colors, keys: "caption", "captionColor"), with: builder.setCaptionColor(_:))
@@ -705,15 +707,15 @@ final class ThemeFactory {
     let configuration = fortfaceTheme["configuration"] as? [String: String] ?? [:]
     let fonts = fortfaceTheme["fonts"] as? [String: String] ?? [:]
     let assets = fortfaceTheme["assets"] as? [String: String] ?? [:]
+    let sizes = fortfaceTheme["sizes"] as? [String: Any] ?? [:]
 
+    setImage(assets["cancelButtonIcon"], with: builder.setCancelButtonIcon(_:))
     let cancelPositionKey = configuration["cancelPosition"]?.uppercased()
-    _ = builder.setCancelButton(
-      FortfaceCancelButton(
-        position: cancelPositionKey == "RIGHT" ? .right : .left,
-        enable: flags["cancelButtonEnable"] as? Bool,
-        iconColor: colorFromHex(colors["cancelButton"])
-      )
-    )
+    _ = builder.setCancelButtonPosition(cancelPositionKey == "RIGHT" ? .right : .left)
+    if let cancelEnabled = flags["cancelButtonEnable"] as? Bool {
+      _ = builder.setCancelButtonEnabled(cancelEnabled)
+    }
+    setColor(colors["cancelButton"], with: builder.setCancelButtonIconColor(_:))
 
     let screenModeKey = configuration["screenMode"]?.uppercased()
     _ = builder.setScreenMode(screenModeKey == "MODAL" ? .modal : .fullscreen)
@@ -728,55 +730,83 @@ final class ThemeFactory {
       _ = builder.setScreenOrientation(.automatic)
     }
 
-    if let backgroundColor = colorFromHex(colors["cameraBackground"]) {
-      _ = builder.setCameraBackground(FortfaceCameraBackground(color: backgroundColor))
+    if let timeout = doubleThemeValue(sizes["cameraTimeout"]) {
+      _ = builder.setCameraTimeout(timeout)
+    }
+    if let minStabilization = doubleThemeValue(sizes["cameraMinStabilizationTime"]) {
+      _ = builder.setCameraMinStabilizationTime(minStabilization)
+    }
+    if let maxStabilization = doubleThemeValue(sizes["cameraMaxStabilizationTime"]) {
+      _ = builder.setCameraMaxStabilizationTime(maxStabilization)
+    }
+    if let brightnessTimeout = doubleThemeValue(sizes["brightnessValidationTimeout"]) {
+      _ = builder.setBrightnessMessageTimeout(brightnessTimeout)
     }
 
-    _ = builder.setCameraColor(
-      FortfaceCameraColor(
-        neutral: colorFromHex(colors["cameraNeutral"]),
-        alert: colorFromHex(colors["cameraAlert"]),
-        success: colorFromHex(colors["cameraSuccess"]),
-        brightness: colorFromHex(colors["cameraBrightnessAlert"]),
-        brightnessBackground: colorFromHex(colors["cameraBrightnessAlert"]),
-        loadingBackground: colorFromHex(colors["cameraLoading"]),
-        loadingStroke: colorFromHex(colors["cameraLoadingStroke"]) ?? .white,
-        messageTextColorResource: colorFromHex(colors["cameraMessageText"])
-      )
+    setColor(colors["cameraBackground"], with: builder.setCameraBackgroundColor(_:))
+    setColor(colors["cameraNeutral"], with: builder.setCameraNeutralColor(_:))
+    setColor(colors["cameraAlert"], with: builder.setCameraAlertColor(_:))
+    setColor(colors["cameraSuccess"], with: builder.setCameraSuccessColor(_:))
+    setColor(colors["cameraBrightnessAlert"], with: builder.setCameraBrightnessColor(_:))
+    setColor(
+      firstValue(in: colors, keys: "cameraIconBackground", "cameraBrightnessBackground"),
+      with: builder.setCameraBrightnessBackgroundColor(_:)
     )
+    setColor(colors["cameraLoading"], with: builder.setCameraLoadingBackgroundColor(_:))
+    setColor(colors["cameraLoadingStroke"], with: builder.setCameraLoadingStrokeColor(_:))
+    setColor(colors["cameraMessageText"], with: builder.setCameraMessageColor(_:))
 
     if let cameraFrameTextVisible = flags["cameraFrameTextVisible"] as? Bool {
-      _ = builder.setCameraFrameText(FortfaceCameraFrameText(visible: cameraFrameTextVisible))
+      _ = builder.setCameraFrameVisible(cameraFrameTextVisible)
     }
 
-    let cameraFont = fonts["cameraMessage"] ?? fonts["cameraFooter"]
-    _ = builder.setCameraMessages(
-      FortfaceCameraMessages(
-        familyFont: cameraFont,
-        positioned: texts["cameraFacePositioned"],
-        noFace: texts["cameraNoFace"],
-        faceNear: texts["cameraFaceNear"],
-        faceFar: texts["cameraFaceFar"],
-        noFaceYaw: texts["cameraNoFaceYaw"],
-        facePitchIsUp: texts["cameraFacePitchUp"],
-        facePitchIsDown: texts["cameraFacePitchDown"],
-        highBrightness: texts["cameraFaceBrightnessHigh"],
-        lowBrightness: texts["cameraFaceBrightnessLow"],
-        faceCenterLeft: texts["cameraFaceCenterLeft"],
-        faceCenterRight: texts["cameraFaceCenterRight"],
-        faceCenterUp: texts["cameraFaceCenterUp"],
-        faceCenterDown: texts["cameraFaceCenterDown"],
-        faceRollRight: texts["cameraFaceRollRight"],
-        faceRollLeft: texts["cameraFaceRollLeft"],
-        noFaceRoll: texts["cameraNoFaceRoll"]
-      )
-    )
+    if let cameraFont = fonts["cameraMessage"] ?? fonts["cameraFooter"] {
+      _ = builder.setCameraMessageFont(cameraFont)
+    }
+
+    let cameraMessages = fortfaceCameraMessages(from: texts)
+    if !cameraMessages.isEmpty {
+      _ = builder.setCameraMessages(cameraMessages)
+    }
 
     if let logoName = assets["cameraLogo"], let logo = RnSdkBundle.getImage(named: logoName) {
-      _ = builder.setCameraLogo(FortfaceCameraLogo(icon: logo, iconSmall: logo))
+      _ = builder.setCameraIcon(logo)
+      _ = builder.setCameraSmallIcon(logo)
     }
 
     return builder
+  }
+
+  private static func fortfaceCameraMessages(
+    from texts: [String: String]
+  ) -> [CertifaceFortface.FortfaceTextKey: String] {
+    var messages: [CertifaceFortface.FortfaceTextKey: String] = [:]
+    let mapping: [(String, CertifaceFortface.FortfaceTextKey)] = [
+      ("cameraFacePositioned", .positioned),
+      ("cameraNoFace", .noFace),
+      ("cameraFaceNear", .faceNear),
+      ("cameraFaceFar", .faceFar),
+      ("cameraNoFaceYaw", .noFaceYaw),
+      ("cameraFacePitchUp", .facePitchIsUp),
+      ("cameraFacePitchDown", .facePitchIsDown),
+      ("cameraFaceBrightnessHigh", .highBrightness),
+      ("cameraFaceBrightnessLow", .lowBrightness),
+      ("cameraFaceCenterLeft", .faceCenterLeft),
+      ("cameraFaceCenterRight", .faceCenterRight),
+      ("cameraFaceCenterUp", .faceCenterUp),
+      ("cameraFaceCenterDown", .faceCenterDown),
+      ("cameraFaceRollRight", .faceRollRight),
+      ("cameraFaceRollLeft", .faceRollLeft),
+      ("cameraNoFaceRoll", .noFaceRoll),
+    ]
+    for (themeKey, textKey) in mapping {
+      guard let value = texts[themeKey]?.trimmingCharacters(in: .whitespacesAndNewlines),
+            !value.isEmpty else {
+        continue
+      }
+      messages[textKey] = value
+    }
+    return messages
   }
 
   // MARK: - Utils
