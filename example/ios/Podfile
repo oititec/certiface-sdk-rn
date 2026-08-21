@@ -30,8 +30,8 @@ target 'RnSdkExample' do
 
   # pod 'CFFortfaceSDK', git: 'https://github.com/oititec/ios-certiface-fortface.git', branch: 'main'
   # pod 'CertifaceModules', git: 'https://github.com/oititec/ios-oiti-sdk.git', branch: 'feature/30418-fortface'
-  # pod 'CertifaceSDK', git: 'https://github.com/oititec/ios-oiti-sdk.git', branch: 'feature/30418-fortface'
-  pod 'CertifaceSDK', '2.0.1'
+  # pod 'CertifaceSDK', '3.0.0'
+  pod 'CertifaceSDK', git: 'https://github.com/oititec/ios-oiti-sdk.git', branch: 'feature/31817-fortaface-update'
 
   post_install do |installer|
     react_native_post_install(

@@ -194,6 +194,7 @@ export const customTheme: CertifaceTheme = {
       cameraBrightnessAlert: '#24B8C2',
       cameraLoading: '#5FC213',
       cameraLoadingStroke: '#FFFFFF',
+      // iOS: fundo do indicador de lighting (não use a mesma cor de cameraBrightnessAlert).
       cameraIconBackground: '#F1F1F1',
       // Usado com screenMode: 'MODAL'.
       modalOverlay: '#80000000',
@@ -221,6 +222,7 @@ export const customTheme: CertifaceTheme = {
     },
     assets: {
       cancelButtonIcon: 'fortface_cancel_button_light',
+      // Android-only no CertifaceFortface 3.0.0 (iOS não expõe brightnessIcons ainda).
       brightnessHighIcon: 'ic_brightness_high',
       brightnessLowIcon: 'ic_brightness_low',
     },
