@@ -2166,7 +2166,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CertifaceSDK:
-    :commit: aca43980e3c52a4bbed163eeeadd19e75b04c42f
+    :commit: 66c6c6cdc11e3fae64dd3f8a11943884e52362a6
     :git: https://github.com/oititec/ios-oiti-sdk.git
 
 SPEC CHECKSUMS:
@@ -2256,4 +2256,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 1e689daac784b54a85c237266c6144986093b7ff
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2
