@@ -9,8 +9,8 @@
 ### Alterado
 
 - Example: marketing version / versionCode `2.0.3`
-- Android nativo `certifacesdk` `2.0.2` (repositório beta)
-- Bridge Fortface: builder `set*` alinhado ao SDK `2.0.2`
+- Android nativo `certifacesdk` `2.0.3` (repositório production)
+- Bridge Fortface: builder `set*` alinhado ao SDK `2.0.3`
 
 ## [2.0.2] - 11/08/2026
 

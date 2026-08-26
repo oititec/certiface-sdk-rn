@@ -1915,7 +1915,7 @@ PODS:
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
-  - CertifaceSDK (from `https://github.com/oititec/ios-oiti-sdk.git`, branch `feature/31817-fortaface-update`)
+  - CertifaceSDK (= 3.0.0)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - fast_float (from `../node_modules/react-native/third-party-podspecs/fast_float.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
@@ -1998,6 +1998,7 @@ DEPENDENCIES:
 SPEC REPOS:
   https://github.com/oititec/ios-artifactory.git:
     - CertifaceModules
+    - CertifaceSDK
     - CFFortfaceSDK
     - OILiveness3D_FT
   trunk:
@@ -2007,9 +2008,6 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
-  CertifaceSDK:
-    :branch: feature/31817-fortaface-update
-    :git: https://github.com/oititec/ios-oiti-sdk.git
   DoubleConversion:
     :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
   fast_float:
@@ -2164,15 +2162,10 @@ EXTERNAL SOURCES:
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
-CHECKOUT OPTIONS:
-  CertifaceSDK:
-    :commit: 66c6c6cdc11e3fae64dd3f8a11943884e52362a6
-    :git: https://github.com/oititec/ios-oiti-sdk.git
-
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   CertifaceModules: 402336e45a37bd545231caae108c0feced8a7c3c
-  CertifaceSDK: 2285a42fbcb6bf0fbe196eafd409ca897368ed3c
+  CertifaceSDK: 4f32ec353832e3d9bd90fa9203d8cceada52bce9
   CFFortfaceSDK: eadd8a4a9c664c1d4e01a70dcea18dc0996263bf
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
@@ -2254,6 +2247,6 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: c758bfb934100bb4bf9cbaccb52557cee35e8bdf
 
-PODFILE CHECKSUM: 1e689daac784b54a85c237266c6144986093b7ff
+PODFILE CHECKSUM: f1a426a4658feb09df8fec9f2dc2a863927d9ac5
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.15.2
