@@ -20,6 +20,8 @@ import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { RootTabParamList } from '../navigation/AppNavigator';
 import { useUserStore, type FeatureType } from '../store/userStore';
+import { maskBirthDate } from '../utils/maskBirthDate';
+import { maskCpf } from '../utils/maskCpf';
 
 type SessionNavigationProp = BottomTabNavigationProp<
   RootTabParamList,
@@ -221,9 +223,10 @@ const SessionScreen = () => {
               <TextInput
                 style={styles.input}
                 value={userData.cpf}
-                onChangeText={(text) => setUserData({ cpf: text })}
+                onChangeText={(text) => setUserData({ cpf: maskCpf(text) })}
                 placeholder="000.000.000-00"
                 keyboardType="numeric"
+                maxLength={14}
                 placeholderTextColor="#94A3B8"
               />
             </View>
@@ -244,9 +247,12 @@ const SessionScreen = () => {
               <TextInput
                 style={styles.input}
                 value={userData.nascimento}
-                onChangeText={(text) => setUserData({ nascimento: text })}
+                onChangeText={(text) =>
+                  setUserData({ nascimento: maskBirthDate(text) })
+                }
                 placeholder="DD/MM/AAAA"
                 keyboardType="numeric"
+                maxLength={10}
                 placeholderTextColor="#94A3B8"
               />
             </View>

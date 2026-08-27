@@ -252,8 +252,8 @@ object IProovThemeFactory {
       setLoadingDialogColor(firstString(processingColors, "loadingDialogColor", "loading") ?: "#FFFFFF")
       setStatusBarColor(firstString(processingColors, "statusBarColor", "statusBar") ?: "#000000")
       setStatusBarIsDarkIcons(optBoolean(processingFlags, "statusBarIsDarkIcons", true))
-      setLoadingIndicatorSize(clampedInt(processingSizes, "loadingIndicatorSize", 100, 8, 512))
-      setLoadingIndicatorWidth(clampedInt(processingSizes, "loadingIndicatorWidth", 10, 1, 64))
+      setLoadingIndicatorSize(clampedInt(processingSizes, "loadingIndicatorSize", 100, 50, 512))
+      setLoadingIndicatorWidth(clampedInt(processingSizes, "loadingIndicatorWidth", 10, 4, 64))
       (
         firstString(processingTexts, "message")
           ?: firstString(iproovTexts, "processingMessage")

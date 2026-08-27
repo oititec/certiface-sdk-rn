@@ -390,9 +390,7 @@ final class ThemeFactory {
     )
     setColor(firstValue(in: colors, keys: "loading", "loadingDialogColor"), with: builder.setSpinnerColor(_:))
     let processingSizes = loadingTheme["sizes"] as? [String: Any] ?? [:]
-    _ = builder.setSpinnerWidth(
-      CGFloat(doubleThemeValue(processingSizes["spinnerWidth"] ?? processingSizes["loadingIndicatorWidth"]) ?? 10)
-    )
+    _ = builder.setSpinnerWidth(resolveIProovSpinnerWidth(from: processingSizes))
     _ = builder.setSpinnerScaleFactor(resolveIProovSpinnerScaleFactor(from: processingSizes))
 
     return builder
@@ -503,9 +501,7 @@ final class ThemeFactory {
     )
     setColor(firstValue(in: colors, keys: "loading", "loadingDialogColor"), with: builder.setSpinnerColor(_:))
     let processingSizes = loadingTheme["sizes"] as? [String: Any] ?? [:]
-    _ = builder.setSpinnerWidth(
-      CGFloat(doubleThemeValue(processingSizes["spinnerWidth"] ?? processingSizes["loadingIndicatorWidth"]) ?? 10)
-    )
+    _ = builder.setSpinnerWidth(resolveIProovSpinnerWidth(from: processingSizes))
     _ = builder.setSpinnerScaleFactor(resolveIProovSpinnerScaleFactor(from: processingSizes))
 
     return builder
@@ -990,12 +986,17 @@ final class ThemeFactory {
     }
   }
 
+  private static func resolveIProovSpinnerWidth(from processingSizes: [String: Any]) -> CGFloat {
+    let raw = doubleThemeValue(processingSizes["spinnerWidth"] ?? processingSizes["loadingIndicatorWidth"]) ?? 10
+    return CGFloat(min(max(raw, 4), 64))
+  }
+
   private static func resolveIProovSpinnerScaleFactor(from processingSizes: [String: Any]) -> Int {
     if let spinnerSize = intThemeValue(processingSizes["spinnerSize"]) {
-      return min(max(spinnerSize, 1), 10)
+      return min(max(spinnerSize, 3), 10)
     }
     if let androidSize = intThemeValue(processingSizes["loadingIndicatorSize"]) {
-      return min(max(Int((Double(androidSize) / 20.0).rounded()), 1), 10)
+      return min(max(Int((Double(androidSize) / 20.0).rounded()), 3), 10)
     }
     return 5
   }

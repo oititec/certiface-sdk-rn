@@ -483,12 +483,13 @@ export interface ProcessingThemeFlags {
 }
 
 export interface ProcessingThemeSizes {
+  /** Android: 50–512 (dp). Valores menores são elevados a 50. */
   loadingIndicatorSize?: number;
-  /** @platform android — iProov e Fortface */
+  /** @platform android — iProov e Fortface. 4–64 (dp). */
   loadingIndicatorWidth?: number;
-  /** @platform ios */
+  /** @platform ios Escala 3–10. Valores menores são elevados a 3. */
   spinnerSize?: number;
-  /** @platform ios */
+  /** @platform ios 4–64. Valores menores são elevados a 4. */
   spinnerWidth?: number;
 }
 
