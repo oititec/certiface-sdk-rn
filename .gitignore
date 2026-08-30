@@ -115,5 +115,4 @@ android/generated
 .secrets
 example/deploy-version.env
 example/deploy-version.json
-example/.deploy-build-state.json
-example/ios/.provisioning-profile.json
+.package.json.publish-backup
