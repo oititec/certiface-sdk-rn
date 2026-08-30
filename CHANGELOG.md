@@ -1,10 +1,23 @@
 # Changelog
 
+## [2.0.3] - 26/08/2026
+
+### Adicionado
+
+- README: geração do `journeyToken` SaaS (FaceTec / Fortface) via login + `genToken`
+
+### Alterado
+
+- Example: marketing version / versionCode `2.0.3`
+- Android nativo `certifacesdk` `2.0.3` (repositório production)
+- Bridge Fortface: builder `set*` alinhado ao SDK `2.0.3`
+
 ## [2.0.2] - 11/08/2026
 
 ### Alterado
 
 - Bump de versão para publicação no npm (`2.0.1` já havia sido usada no registry e não pode ser republicada)
+- Dependência nativa iOS `CertifaceSDK` `2.0.1` (alinhada ao Android `certifacesdk:2.0.1`)
 
 ## [2.0.1] - 11/08/2026
 

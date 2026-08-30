@@ -53,9 +53,9 @@ export const useUserStore = create<UserStore>()(
   persist(
     (set, get) => ({
       userData: {
-        cpf: '08670833956',
-        nome: 'Teste Mobile Homolog',
-        nascimento: '08/10/1996',
+        cpf: '',
+        nome: '',
+        nascimento: '',
       },
       saasOperator: {
         login: '',
@@ -131,7 +131,7 @@ export const useUserStore = create<UserStore>()(
         const appKeyBody = new URLSearchParams();
         appKeyBody.append('user', user);
         appKeyBody.append('token', JSON.stringify(credential));
-        appKeyBody.append('cpf', userData.cpf);
+        appKeyBody.append('cpf', userData.cpf.replace(/\D/g, ''));
         appKeyBody.append('nome', userData.nome);
         appKeyBody.append('nascimento', userData.nascimento);
 
@@ -196,28 +196,35 @@ export const useUserStore = create<UserStore>()(
     {
       name: 'certiface-example-store',
       storage: createJSONStorage(() => AsyncStorage),
-      version: 3,
-      migrate: (persisted: any) => {
+      version: 4,
+      migrate: (persisted: any, fromVersion: number) => {
         if (!persisted || typeof persisted !== 'object') {
           return persisted;
         }
         const { livenessProvider: _removed, ...rest } = persisted;
         const legacyFeature = rest.selectedFeature;
-        if (legacyFeature === 'FACETEC' || legacyFeature === 'FORTFACE') {
+        const next =
+          legacyFeature === 'FACETEC' || legacyFeature === 'FORTFACE'
+            ? {
+                ...rest,
+                selectedFeature: 'SAAS',
+                saasProvider: legacyFeature === 'FACETEC' ? 'FACETEC' : 'FORTFACE',
+                journeyToken: rest.journeyToken ?? '',
+                saasOperator: rest.saasOperator ?? { login: '', password: '' },
+              }
+            : {
+                ...rest,
+                journeyToken: rest.journeyToken ?? '',
+                saasOperator: rest.saasOperator ?? { login: '', password: '' },
+                saasProvider: rest.saasProvider ?? 'FORTFACE',
+              };
+        if (fromVersion < 4) {
           return {
-            ...rest,
-            selectedFeature: 'SAAS',
-            saasProvider: legacyFeature === 'FACETEC' ? 'FACETEC' : 'FORTFACE',
-            journeyToken: rest.journeyToken ?? '',
-            saasOperator: rest.saasOperator ?? { login: '', password: '' },
+            ...next,
+            userData: { cpf: '', nome: '', nascimento: '' },
           };
         }
-        return {
-          ...rest,
-          journeyToken: rest.journeyToken ?? '',
-          saasOperator: rest.saasOperator ?? { login: '', password: '' },
-          saasProvider: rest.saasProvider ?? 'FORTFACE',
-        };
+        return next;
       },
       partialize: (state) => ({
         userData: state.userData,

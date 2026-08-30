@@ -1,7 +1,7 @@
 {
   "name": "@certiface/sdk-example",
-  "version": "2.0.2",
-  "versionCode": 2000020,
+  "version": "2.0.3",
+  "versionCode": 2000030,
   "private": true,
   "scripts": {
     "postinstall": "node ./scripts/fix-react-native-fmt-podspecs.js && node ./scripts/patch-react-native-with-environment-sh.js && node ./scripts/link-example-fonts.js",

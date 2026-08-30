@@ -6,6 +6,7 @@
 //
 
 import CertifaceSDK
+import CertifaceFacetec
 import CertifaceIProov
 import CertifaceFortface
 import UIKit
@@ -127,10 +128,12 @@ final class ThemeFactory {
     let instSizes = instructionsTheme["sizes"] as? [String: Any] ?? [:]
     _ = builder.setBottomSheetCornerRadius(CGFloat(doubleThemeValue(instSizes["bottomSheetCornerRadius"]) ?? 16))
 
-    resolveBackButtonTintColor(
+    if let backButtonTint = resolveBackButtonTintColor(
       colors: colors,
       hasCustomBackButtonImage: assetStrings["backButtonIcon"] != nil
-    ).map { builder.setBackButtonIconColor($0) }
+    ) {
+      _ = builder.setBackButtonIconColor(backButtonTint)
+    }
 
     setColor(firstValue(in: colors, keys: "title", "titleColor"), with: builder.setTitleColor(_:))
     setColor(firstValue(in: colors, keys: "caption", "captionColor"), with: builder.setCaptionColor(_:))
@@ -387,9 +390,7 @@ final class ThemeFactory {
     )
     setColor(firstValue(in: colors, keys: "loading", "loadingDialogColor"), with: builder.setSpinnerColor(_:))
     let processingSizes = loadingTheme["sizes"] as? [String: Any] ?? [:]
-    _ = builder.setSpinnerWidth(
-      CGFloat(doubleThemeValue(processingSizes["spinnerWidth"] ?? processingSizes["loadingIndicatorWidth"]) ?? 10)
-    )
+    _ = builder.setSpinnerWidth(resolveIProovSpinnerWidth(from: processingSizes))
     _ = builder.setSpinnerScaleFactor(resolveIProovSpinnerScaleFactor(from: processingSizes))
 
     return builder
@@ -500,9 +501,7 @@ final class ThemeFactory {
     )
     setColor(firstValue(in: colors, keys: "loading", "loadingDialogColor"), with: builder.setSpinnerColor(_:))
     let processingSizes = loadingTheme["sizes"] as? [String: Any] ?? [:]
-    _ = builder.setSpinnerWidth(
-      CGFloat(doubleThemeValue(processingSizes["spinnerWidth"] ?? processingSizes["loadingIndicatorWidth"]) ?? 10)
-    )
+    _ = builder.setSpinnerWidth(resolveIProovSpinnerWidth(from: processingSizes))
     _ = builder.setSpinnerScaleFactor(resolveIProovSpinnerScaleFactor(from: processingSizes))
 
     return builder
@@ -534,7 +533,6 @@ final class ThemeFactory {
       firstValue(in: colors, keys: "resultScreenUploadProgressBarTrack", "resultScreenUploadProgressTrack"),
       with: builder.setResultScreenUploadProgressBarTrackColor(_:)
     )
-    builder.setResultScreenAnimationStyle(.blob(appearance: getResultStyleApperance(from: colors)))
     setColor(
       firstValue(in: colors, keys: "retryScreenHeader") ?? "#FF5252",
       with: builder.setRetryScreenHeaderColor(_:)
@@ -573,6 +571,18 @@ final class ThemeFactory {
     let flags = livenessTheme["flags"] as? [String: Any] ?? [:]
     let showBrandingImage = flags["overlayShowBrandingImage"] as? Bool ?? true
     let assets = livenessTheme["assets"] as? [String: String] ?? [:]
+    applyResultScreenAnimationStyle(
+      in: builder,
+      colors: colors,
+      assets: assets,
+      sizes: sizes
+    )
+    if let showUploadProgressBar = flags["resultScreenShowUploadProgressBar"] as? Bool {
+      _ = builder.setResultScreenUploadProgressBarEnabled(showUploadProgressBar)
+    }
+    if let animationScale = doubleThemeValue(sizes["resultScreenAnimationRelativeScale"]) {
+      _ = builder.setResultScreenAnimationScale(CGFloat(animationScale))
+    }
     if showBrandingImage {
       setImage(assets["overlayBrandImage"], with: builder.setOverlayBrandImage(_:))
     }
@@ -622,14 +632,14 @@ final class ThemeFactory {
 
   private static func customizeLivenessTexts(
     from theme: [String: Any]
-  ) -> [Liveness3DTextKey : String] {
+  ) -> [CertifaceSDK.Liveness3DTextKey: String] {
     guard let livenessTheme = theme["facetec"] as? [String: Any] else {
       return [:]
     }
     guard let texts = livenessTheme["texts"] as? [String: String] else {
       return [:]
     }
-    let keys: [String: Liveness3DTextKey] = [
+    let keys: [String: CertifaceSDK.Liveness3DTextKey] = [
       "readyHeader1": .readyHeader1,
       "readyHeader2": .readyHeader2,
       "readyMessage1": .readyMessage1,
@@ -664,7 +674,7 @@ final class ThemeFactory {
       "retryIdealPicture": .retryIdealPicture,
       "retryButton": .retryButton,
     ]
-    var livenessTexts = [Liveness3DTextKey : String]()
+    var livenessTexts: [CertifaceSDK.Liveness3DTextKey: String] = [:]
 
     for (themeKey, textKey) in keys {
       guard let value = texts[themeKey]?.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -693,15 +703,15 @@ final class ThemeFactory {
     let configuration = fortfaceTheme["configuration"] as? [String: String] ?? [:]
     let fonts = fortfaceTheme["fonts"] as? [String: String] ?? [:]
     let assets = fortfaceTheme["assets"] as? [String: String] ?? [:]
+    let sizes = fortfaceTheme["sizes"] as? [String: Any] ?? [:]
 
+    setImage(assets["cancelButtonIcon"], with: builder.setCancelButtonIcon(_:))
     let cancelPositionKey = configuration["cancelPosition"]?.uppercased()
-    _ = builder.setCancelButton(
-      FortfaceCancelButton(
-        position: cancelPositionKey == "RIGHT" ? .right : .left,
-        enable: flags["cancelButtonEnable"] as? Bool,
-        iconColor: colorFromHex(colors["cancelButton"])
-      )
-    )
+    _ = builder.setCancelButtonPosition(cancelPositionKey == "RIGHT" ? .right : .left)
+    if let cancelEnabled = flags["cancelButtonEnable"] as? Bool {
+      _ = builder.setCancelButtonEnabled(cancelEnabled)
+    }
+    setColor(colors["cancelButton"], with: builder.setCancelButtonIconColor(_:))
 
     let screenModeKey = configuration["screenMode"]?.uppercased()
     _ = builder.setScreenMode(screenModeKey == "MODAL" ? .modal : .fullscreen)
@@ -716,55 +726,83 @@ final class ThemeFactory {
       _ = builder.setScreenOrientation(.automatic)
     }
 
-    if let backgroundColor = colorFromHex(colors["cameraBackground"]) {
-      _ = builder.setCameraBackground(FortfaceCameraBackground(color: backgroundColor))
+    if let timeout = doubleThemeValue(sizes["cameraTimeout"]) {
+      _ = builder.setCameraTimeout(timeout)
+    }
+    if let minStabilization = doubleThemeValue(sizes["cameraMinStabilizationTime"]) {
+      _ = builder.setCameraMinStabilizationTime(minStabilization)
+    }
+    if let maxStabilization = doubleThemeValue(sizes["cameraMaxStabilizationTime"]) {
+      _ = builder.setCameraMaxStabilizationTime(maxStabilization)
+    }
+    if let brightnessTimeout = doubleThemeValue(sizes["brightnessValidationTimeout"]) {
+      _ = builder.setBrightnessMessageTimeout(brightnessTimeout)
     }
 
-    _ = builder.setCameraColor(
-      FortfaceCameraColor(
-        neutral: colorFromHex(colors["cameraNeutral"]),
-        alert: colorFromHex(colors["cameraAlert"]),
-        success: colorFromHex(colors["cameraSuccess"]),
-        brightness: colorFromHex(colors["cameraBrightnessAlert"]),
-        brightnessBackground: colorFromHex(colors["cameraBrightnessAlert"]),
-        loadingBackground: colorFromHex(colors["cameraLoading"]),
-        loadingStroke: colorFromHex(colors["cameraLoadingStroke"]) ?? .white,
-        messageTextColorResource: colorFromHex(colors["cameraMessageText"])
-      )
+    setColor(colors["cameraBackground"], with: builder.setCameraBackgroundColor(_:))
+    setColor(colors["cameraNeutral"], with: builder.setCameraNeutralColor(_:))
+    setColor(colors["cameraAlert"], with: builder.setCameraAlertColor(_:))
+    setColor(colors["cameraSuccess"], with: builder.setCameraSuccessColor(_:))
+    setColor(colors["cameraBrightnessAlert"], with: builder.setCameraBrightnessColor(_:))
+    setColor(
+      firstValue(in: colors, keys: "cameraIconBackground", "cameraBrightnessBackground"),
+      with: builder.setCameraBrightnessBackgroundColor(_:)
     )
+    setColor(colors["cameraLoading"], with: builder.setCameraLoadingBackgroundColor(_:))
+    setColor(colors["cameraLoadingStroke"], with: builder.setCameraLoadingStrokeColor(_:))
+    setColor(colors["cameraMessageText"], with: builder.setCameraMessageColor(_:))
 
     if let cameraFrameTextVisible = flags["cameraFrameTextVisible"] as? Bool {
-      _ = builder.setCameraFrameText(FortfaceCameraFrameText(visible: cameraFrameTextVisible))
+      _ = builder.setCameraFrameVisible(cameraFrameTextVisible)
     }
 
-    let cameraFont = fonts["cameraMessage"] ?? fonts["cameraFooter"]
-    _ = builder.setCameraMessages(
-      FortfaceCameraMessages(
-        familyFont: cameraFont,
-        positioned: texts["cameraFacePositioned"],
-        noFace: texts["cameraNoFace"],
-        faceNear: texts["cameraFaceNear"],
-        faceFar: texts["cameraFaceFar"],
-        noFaceYaw: texts["cameraNoFaceYaw"],
-        facePitchIsUp: texts["cameraFacePitchUp"],
-        facePitchIsDown: texts["cameraFacePitchDown"],
-        highBrightness: texts["cameraFaceBrightnessHigh"],
-        lowBrightness: texts["cameraFaceBrightnessLow"],
-        faceCenterLeft: texts["cameraFaceCenterLeft"],
-        faceCenterRight: texts["cameraFaceCenterRight"],
-        faceCenterUp: texts["cameraFaceCenterUp"],
-        faceCenterDown: texts["cameraFaceCenterDown"],
-        faceRollRight: texts["cameraFaceRollRight"],
-        faceRollLeft: texts["cameraFaceRollLeft"],
-        noFaceRoll: texts["cameraNoFaceRoll"]
-      )
-    )
+    if let cameraFont = fonts["cameraMessage"] ?? fonts["cameraFooter"] {
+      _ = builder.setCameraMessageFont(cameraFont)
+    }
+
+    let cameraMessages = fortfaceCameraMessages(from: texts)
+    if !cameraMessages.isEmpty {
+      _ = builder.setCameraMessages(cameraMessages)
+    }
 
     if let logoName = assets["cameraLogo"], let logo = RnSdkBundle.getImage(named: logoName) {
-      _ = builder.setCameraLogo(FortfaceCameraLogo(icon: logo, iconSmall: logo))
+      _ = builder.setCameraIcon(logo)
+      _ = builder.setCameraSmallIcon(logo)
     }
 
     return builder
+  }
+
+  private static func fortfaceCameraMessages(
+    from texts: [String: String]
+  ) -> [CertifaceFortface.FortfaceTextKey: String] {
+    var messages: [CertifaceFortface.FortfaceTextKey: String] = [:]
+    let mapping: [(String, CertifaceFortface.FortfaceTextKey)] = [
+      ("cameraFacePositioned", .positioned),
+      ("cameraNoFace", .noFace),
+      ("cameraFaceNear", .faceNear),
+      ("cameraFaceFar", .faceFar),
+      ("cameraNoFaceYaw", .noFaceYaw),
+      ("cameraFacePitchUp", .facePitchIsUp),
+      ("cameraFacePitchDown", .facePitchIsDown),
+      ("cameraFaceBrightnessHigh", .highBrightness),
+      ("cameraFaceBrightnessLow", .lowBrightness),
+      ("cameraFaceCenterLeft", .faceCenterLeft),
+      ("cameraFaceCenterRight", .faceCenterRight),
+      ("cameraFaceCenterUp", .faceCenterUp),
+      ("cameraFaceCenterDown", .faceCenterDown),
+      ("cameraFaceRollRight", .faceRollRight),
+      ("cameraFaceRollLeft", .faceRollLeft),
+      ("cameraNoFaceRoll", .noFaceRoll),
+    ]
+    for (themeKey, textKey) in mapping {
+      guard let value = texts[themeKey]?.trimmingCharacters(in: .whitespacesAndNewlines),
+            !value.isEmpty else {
+        continue
+      }
+      messages[textKey] = value
+    }
+    return messages
   }
 
   // MARK: - Utils
@@ -948,12 +986,17 @@ final class ThemeFactory {
     }
   }
 
+  private static func resolveIProovSpinnerWidth(from processingSizes: [String: Any]) -> CGFloat {
+    let raw = doubleThemeValue(processingSizes["spinnerWidth"] ?? processingSizes["loadingIndicatorWidth"]) ?? 10
+    return CGFloat(min(max(raw, 4), 64))
+  }
+
   private static func resolveIProovSpinnerScaleFactor(from processingSizes: [String: Any]) -> Int {
     if let spinnerSize = intThemeValue(processingSizes["spinnerSize"]) {
-      return min(max(spinnerSize, 1), 10)
+      return min(max(spinnerSize, 3), 10)
     }
     if let androidSize = intThemeValue(processingSizes["loadingIndicatorSize"]) {
-      return min(max(Int((Double(androidSize) / 20.0).rounded()), 1), 10)
+      return min(max(Int((Double(androidSize) / 20.0).rounded()), 3), 10)
     }
     return 5
   }
@@ -1003,26 +1046,43 @@ final class ThemeFactory {
     return (lastPathComponent as NSString).deletingPathExtension
   }
 
-  private static func getResultStyleApperance(from colors: [String: String]) -> BlobAnimationAppearance {
-    func getColor(from colorHex: String?, defaultColor: UIColor) -> UIColor {
-      guard let colorHex, let color = UIColor(hex: colorHex) else {
-        return defaultColor
-      }
-      return color
+  private static func applyResultScreenAnimationStyle(
+    in builder: Liveness3DThemeBuilder,
+    colors: [String: String],
+    assets: [String: String],
+    sizes: [String: Any]
+  ) {
+    let indicatorColor = UIColor(hex: colors["resultScreenActivityIndicator"] ?? "") ?? .black
+    let checkmarkForeground = UIColor(hex: colors["resultScreenResultAnimationForeground"] ?? "") ?? .white
+    let checkmarkBackground = UIColor(hex: colors["resultScreenResultAnimationBackground"] ?? "") ?? .black
+    let rotationInterval = Int32(
+      intThemeValue(sizes["resultScreenCustomActivityIndicatorRotationInterval"]) ?? 1000
+    )
+    let imageName = firstValue(
+      in: assets,
+      keys: "resultScreenCustomActivityIndicatorImage",
+      "resultScreenCustomActivityIndicatorAnimation"
+    )
+    if let imageName, let image = RnSdkBundle.getImage(named: imageName) {
+      _ = builder.setResultScreenAnimationStyle(
+        .image(
+          appearance: CertifaceFacetec.ImageAnimationAppearance(
+            image: image,
+            rotationInterval: rotationInterval,
+            checkmarkForegroundColor: checkmarkForeground,
+            checkmarkBackgroundColor: checkmarkBackground
+          )
+        )
+      )
+      return
     }
-
-    return BlobAnimationAppearance(
-      blobColor: getColor(
-        from: colors["resultScreenActivityIndicator"],
-        defaultColor: .black
-      ),
-      checkmarkForegroundColor: getColor(
-        from: colors["resultScreenResultAnimationForeground"],
-        defaultColor: .white
-      ),
-      checkmarkBackgroundColor: getColor(
-        from: colors["resultScreenResultAnimationBackground"],
-        defaultColor: .black
+    _ = builder.setResultScreenAnimationStyle(
+      .spinner(
+        appearance: CertifaceFacetec.SpinnerAnimationAppearance(
+          spinnerColor: indicatorColor,
+          checkmarkForegroundColor: checkmarkForeground,
+          checkmarkBackgroundColor: checkmarkBackground
+        )
       )
     )
   }

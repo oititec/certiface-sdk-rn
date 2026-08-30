@@ -80,6 +80,10 @@ const HomeScreen = () => {
                   showInstructionScreen: false,
                 },
               },
+              processing: {
+                ...customTheme.processing,
+                texts: {},
+              },
             }
           : customTheme;
 

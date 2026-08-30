@@ -342,7 +342,7 @@ object FacetecThemeFactory {
       setLoadingDialogColor(firstString(processingColors, "loadingDialogColor", "loading") ?: "#FFFFFF")
       setStatusBarColor(firstString(processingColors, "statusBarColor", "statusBar") ?: "#000000")
       setStatusBarIsDarkIcons(optBoolean(processingFlags, "statusBarIsDarkIcons", false))
-      setLoadingIndicatorSize(clampedInt(processingSizes, "loadingIndicatorSize", 80, 8, 512))
+      setLoadingIndicatorSize(clampedInt(processingSizes, "loadingIndicatorSize", 80, 50, 512))
       (
         firstString(processingTexts, "message")
           ?: firstString(facetecTexts, "processingMessage")

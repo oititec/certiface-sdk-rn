@@ -59,7 +59,6 @@ export const customTheme: CertifaceTheme = {
       retryButton: 'Tentar Novamente',
       resultUploadMessage: 'Enviando validação',
       resultSuccessMessage: 'Verificação concluída!',
-      processingMessage: 'Processando sua verificação facial...',
       feedbackLookStraightInOval: 'Olhe diretamente para a câmera',
       feedbackCenterFace: 'Centralize seu rosto',
       feedbackFaceNotFound: 'Rosto não encontrado',
@@ -151,7 +150,6 @@ export const customTheme: CertifaceTheme = {
     },
     texts: {
       title: 'Verificação Biométrica',
-      processingMessage: 'Processando sua verificação facial...',
     },
     assets: {
       closeButtonIcon: 'fc_arrow_left',
@@ -194,6 +192,7 @@ export const customTheme: CertifaceTheme = {
       cameraBrightnessAlert: '#24B8C2',
       cameraLoading: '#5FC213',
       cameraLoadingStroke: '#FFFFFF',
+      // iOS: fundo do indicador de lighting (não use a mesma cor de cameraBrightnessAlert).
       cameraIconBackground: '#F1F1F1',
       // Usado com screenMode: 'MODAL'.
       modalOverlay: '#80000000',
@@ -217,10 +216,10 @@ export const customTheme: CertifaceTheme = {
       cameraFaceRollRight: 'Incline à direita',
       cameraFaceBrightnessLow: 'Melhore a luz',
       cameraFaceBrightnessHigh: 'Diminua a luz',
-      processingMessage: 'Processando sua verificação facial...',
     },
     assets: {
       cancelButtonIcon: 'fortface_cancel_button_light',
+      // Android-only no CertifaceFortface 3.0.0 (iOS não expõe brightnessIcons ainda).
       brightnessHighIcon: 'ic_brightness_high',
       brightnessLowIcon: 'ic_brightness_low',
     },
@@ -385,10 +384,10 @@ export const customTheme: CertifaceTheme = {
       message: 'Processando sua verificação facial...',
     },
     sizes: {
-      loadingIndicatorSize: 100,
-      loadingIndicatorWidth: 10,
-      spinnerSize: 5,
-      spinnerWidth: 2,
+      loadingIndicatorSize: 50,
+      loadingIndicatorWidth: 4,
+      spinnerSize: 3,
+      spinnerWidth: 6,
     },
     fonts: {
       message: 'sixty',

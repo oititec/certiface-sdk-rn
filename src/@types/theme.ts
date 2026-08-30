@@ -50,9 +50,7 @@ export interface FacetecSizes {
   ovalProgressWidth?: number;
   /** Alias de ovalProgressRadialOffset (ambos) */
   ovalProgressOffset?: number;
-  /** @platform android */
   resultScreenAnimationRelativeScale?: number;
-  /** @platform android */
   resultScreenCustomActivityIndicatorRotationInterval?: number;
 }
 
@@ -66,7 +64,6 @@ export interface FacetecFlags {
   overlayShowBrandingImage?: boolean;
   /** @platform android */
   feedbackEnablePulsatingText?: boolean;
-  /** @platform android */
   resultScreenShowUploadProgressBar?: boolean;
 }
 
@@ -486,12 +483,13 @@ export interface ProcessingThemeFlags {
 }
 
 export interface ProcessingThemeSizes {
+  /** Android: 50–512 (dp). Valores menores são elevados a 50. */
   loadingIndicatorSize?: number;
-  /** @platform android — iProov e Fortface */
+  /** @platform android — iProov e Fortface. 4–64 (dp). */
   loadingIndicatorWidth?: number;
-  /** @platform ios */
+  /** @platform ios Escala 3–10. Valores menores são elevados a 3. */
   spinnerSize?: number;
-  /** @platform ios */
+  /** @platform ios 4–64. Valores menores são elevados a 4. */
   spinnerWidth?: number;
 }
 
@@ -585,14 +583,19 @@ export type FortfaceScreenMode = 'FULL_SCREEN' | 'MODAL';
 export type FortfaceScreenOrientation = 'AUTOMATIC' | 'PORTRAIT' | 'LANDSCAPE';
 
 export interface FortfaceColors {
+  /** @platform ios */
+  cancelButton?: string;
   cameraBackground?: string;
   cameraMessageText?: string;
   cameraAlert?: string;
   cameraNeutral?: string;
   cameraSuccess?: string;
   cameraBrightnessAlert?: string;
+  /** @platform ios Alias opcional; se omitido no iOS usa `cameraIconBackground`. */
+  cameraBrightnessBackground?: string;
   cameraLoading?: string;
   cameraLoadingStroke?: string;
+  /** Android: fundo do ícone da câmera. iOS: fundo do indicador de lighting. */
   cameraIconBackground?: string;
   modalOverlay?: string;
 }
@@ -622,7 +625,9 @@ export interface FortfaceTexts {
 export interface FortfaceAssets {
   cancelButtonIcon?: string;
   cameraLogo?: string;
+  /** @platform android — CertifaceFortface 3.0.0 iOS ainda não expõe setters de brightness icon */
   brightnessHighIcon?: string;
+  /** @platform android — CertifaceFortface 3.0.0 iOS ainda não expõe setters de brightness icon */
   brightnessLowIcon?: string;
 }
 
