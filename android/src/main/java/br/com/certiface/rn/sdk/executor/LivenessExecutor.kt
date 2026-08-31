@@ -13,6 +13,7 @@ import br.com.certiface.rn.sdk.model.Features
 import br.com.certiface.rn.sdk.strategy.IProovStrategy
 import br.com.certiface.rn.sdk.strategy.LivenessProviderStrategy
 import br.com.certiface.rn.sdk.strategy.SaasStrategy
+import br.com.certiface.rn.sdk.telemetry.RnFacetecStartupTelemetry
 import com.facebook.react.bridge.ReadableMap
 import org.json.JSONObject
 
@@ -123,13 +124,15 @@ class LivenessExecutor(val appkey: String, val feature: Features) {
           else -> Environment.HML
         }
 
-        CertifaceSDK.initialize(
-          context,
-          SDKConfig(
-            environment = sdkEnvironment,
-            appKey = SAAS_PLACEHOLDER_APP_KEY
+        RnFacetecStartupTelemetry.measure("rn_certiface_sdk_initialize") {
+          CertifaceSDK.initialize(
+            context,
+            SDKConfig(
+              environment = sdkEnvironment,
+              appKey = SAAS_PLACEHOLDER_APP_KEY
+            )
           )
-        )
+        }
 
         val callback = object : ResultCallback<LivenessResult> {
           override fun onSuccess(result: LivenessResponse) {
@@ -141,10 +144,14 @@ class LivenessExecutor(val appkey: String, val feature: Features) {
           }
         }
 
-        saasStrategy.start(context, token, isCustomEnabled, theme, callback)
+        RnFacetecStartupTelemetry.measure("rn_saas_strategy_start") {
+          saasStrategy.start(context, token, isCustomEnabled, theme, callback)
+        }
       } catch (e: CustomThemeException) {
+        RnFacetecStartupTelemetry.abort("rn_theme_invalid:${e.invalidParam}")
         execOnError(e.toErrorPayloadJson())
       } catch (e: Exception) {
+        RnFacetecStartupTelemetry.abort("rn_saas_executor_error:${e.javaClass.simpleName}")
         execOnError(
           JSONObject()
             .put("code", "SDK_INIT_ERROR")

@@ -16,7 +16,9 @@ import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
 import br.com.certiface.rn.sdk.executor.LivenessExecutor
 import br.com.certiface.rn.sdk.model.Features
+import br.com.certiface.rn.sdk.telemetry.RnFacetecStartupTelemetry
 import br.com.certiface.rn.sdk.utils.AssetProcessor
+import com.facebook.react.bridge.ReadableType
 import org.json.JSONObject
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -211,12 +213,20 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
       return
     }
 
+    RnFacetecStartupTelemetry.ensureSession("rn_saas")
+    RnFacetecStartupTelemetry.mark(
+      "rn_bridge_startSaasJourney",
+      extra = "custom=$customEnabled,${describeThemeForTelemetry(theme)}"
+    )
+
     if (token.isNullOrEmpty()) {
+      RnFacetecStartupTelemetry.abort("rn_bridge_token_null")
       releaseJourneyAndInvoke(delivered, onError, serializeBridgeError("TOKEN_NULO", "TOKEN_NULO"))
       return
     }
 
     if (environment.isNullOrEmpty()) {
+      RnFacetecStartupTelemetry.abort("rn_bridge_environment_null")
       releaseJourneyAndInvoke(
         delivered,
         onError,
@@ -227,28 +237,32 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
 
     val activity = currentActivity
     if (activity == null) {
+      RnFacetecStartupTelemetry.abort("rn_bridge_no_activity")
       releaseJourneyAndInvoke(delivered, onError, serializeBridgeError("NO_ACTIVITY", "NO_ACTIVITY"))
       return
     }
 
     armJourneyTimeout(delivered, onError)
 
-    LivenessExecutor.executeSaasLiveness(
-      context = activity,
-      token = token,
-      environment = environment,
-      execOnSuccess = { livenessResult ->
-        cleanupThemeCache(activity)
-        val jsonResult = convertLivenessResultToJson(livenessResult)
-        releaseJourneyAndInvoke(delivered, onSuccess, jsonResult)
-      },
-      execOnError = { error ->
-        cleanupThemeCache(activity)
-        releaseJourneyAndInvoke(delivered, onError, error)
-      },
-      isCustomEnabled = customEnabled,
-      theme = theme
-    )
+    RnFacetecStartupTelemetry.measure("rn_bridge_executeSaasLiveness") {
+      LivenessExecutor.executeSaasLiveness(
+        context = activity,
+        token = token,
+        environment = environment,
+        execOnSuccess = { livenessResult ->
+          cleanupThemeCache(activity)
+          val jsonResult = convertLivenessResultToJson(livenessResult)
+          releaseJourneyAndInvoke(delivered, onSuccess, jsonResult)
+        },
+        execOnError = { error ->
+          cleanupThemeCache(activity)
+          RnFacetecStartupTelemetry.abort("rn_bridge_journey_error")
+          releaseJourneyAndInvoke(delivered, onError, error)
+        },
+        isCustomEnabled = customEnabled,
+        theme = theme
+      )
+    }
   }
 
   private fun armJourneyTimeout(delivered: AtomicBoolean, onError: Callback?) {
@@ -333,6 +347,22 @@ class RnSdkModule(reactContext: ReactApplicationContext) :
       .put("code", code)
       .put("message", message)
       .toString()
+  }
+
+  private fun describeThemeForTelemetry(theme: ReadableMap?): String {
+    if (theme == null) {
+      return "hasTheme=false"
+    }
+
+    val sections = mutableListOf<String>()
+    val iterator = theme.keySetIterator()
+    while (iterator.hasNextKey()) {
+      val key = iterator.nextKey()
+      if (theme.getType(key) == ReadableType.Map) {
+        sections.add(key)
+      }
+    }
+    return "hasTheme=true,sections=${sections.joinToString("|")}"
   }
 
   companion object {
