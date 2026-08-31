@@ -13,14 +13,17 @@ const betaOverrides = JSON.parse(fs.readFileSync(betaPath, 'utf8'));
 
 const publishPkg = { ...pkg, ...betaOverrides };
 
-fs.writeFileSync(backupPath, `${JSON.stringify(pkg, null, 2)}\n`);
-fs.writeFileSync(pkgPath, `${JSON.stringify(publishPkg, null, 2)}\n`);
-
 try {
   execSync('yarn prepare', { cwd: root, stdio: 'inherit' });
+
+  fs.writeFileSync(backupPath, `${JSON.stringify(pkg, null, 2)}\n`);
+  fs.writeFileSync(pkgPath, `${JSON.stringify(publishPkg, null, 2)}\n`);
+
   execSync('npm publish --access public', { cwd: root, stdio: 'inherit' });
   console.log(`Published ${publishPkg.name}@${publishPkg.version}`);
 } finally {
-  fs.writeFileSync(pkgPath, fs.readFileSync(backupPath, 'utf8'));
-  fs.unlinkSync(backupPath);
+  if (fs.existsSync(backupPath)) {
+    fs.writeFileSync(pkgPath, fs.readFileSync(backupPath, 'utf8'));
+    fs.unlinkSync(backupPath);
+  }
 }
