@@ -19,7 +19,10 @@ try {
   fs.writeFileSync(backupPath, `${JSON.stringify(pkg, null, 2)}\n`);
   fs.writeFileSync(pkgPath, `${JSON.stringify(publishPkg, null, 2)}\n`);
 
-  execSync('npm publish --access public', { cwd: root, stdio: 'inherit' });
+  execSync('npm publish --access public --tag beta --ignore-scripts', {
+    cwd: root,
+    stdio: 'inherit',
+  });
   console.log(`Published ${publishPkg.name}@${publishPkg.version}`);
 } finally {
   if (fs.existsSync(backupPath)) {
