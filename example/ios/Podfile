@@ -39,13 +39,10 @@ target 'RnSdkExample' do
       config[:reactNativePath],
       :mac_catalyst_enabled => false,
     )
-    rn_abs = File.expand_path(config[:reactNativePath], Pod::Config.instance.installation_root)
-    app_abs = File.expand_path('..', Pod::Config.instance.installation_root)
-    with_env = File.join(rn_abs, 'scripts/xcode/with-environment.sh')
-    script_phases = File.join(rn_abs, 'scripts/react_native_pods_utils/script_phases.sh')
+    rn_path = '${PODS_ROOT}/../../node_modules/react-native'
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |build_config|
-        build_config.build_settings['REACT_NATIVE_PATH'] = rn_abs
+        build_config.build_settings['REACT_NATIVE_PATH'] = rn_path
         current = build_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']
         if current.nil? || current.to_f < 15.1
           build_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
@@ -55,16 +52,6 @@ target 'RnSdkExample' do
         next unless phase.respond_to?(:shell_script)
         next if phase.shell_script.nil?
         script = phase.shell_script
-        script = script.gsub(/export RCT_SCRIPT_RN_DIR=.*\n/, "export RCT_SCRIPT_RN_DIR=\"#{rn_abs}\"\n")
-        script = script.gsub(/export RCT_SCRIPT_APP_PATH=.*\n/, "export RCT_SCRIPT_APP_PATH=\"#{app_abs}\"\n")
-        script = script.gsub(
-          'WITH_ENVIRONMENT="$RCT_SCRIPT_RN_DIR/scripts/xcode/with-environment.sh"',
-          "WITH_ENVIRONMENT=\"#{with_env}\""
-        )
-        script = script.gsub(
-          'SCRIPT_PHASES_SCRIPT="$RCT_SCRIPT_RN_DIR/scripts/react_native_pods_utils/script_phases.sh"',
-          "SCRIPT_PHASES_SCRIPT=\"#{script_phases}\""
-        )
         script = script.gsub(
           '/bin/sh -c "$WITH_ENVIRONMENT $SCRIPT_PHASES_SCRIPT"',
           '"$WITH_ENVIRONMENT" "$SCRIPT_PHASES_SCRIPT"'
@@ -75,7 +62,7 @@ target 'RnSdkExample' do
     installer.aggregate_targets.each do |aggregate_target|
       aggregate_target.user_project.native_targets.each do |native_target|
         native_target.build_configurations.each do |build_config|
-          build_config.build_settings['REACT_NATIVE_PATH'] = rn_abs
+          build_config.build_settings['REACT_NATIVE_PATH'] = rn_path
         end
       end
     end
