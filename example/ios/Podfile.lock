@@ -1861,7 +1861,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RnSdk (2.0.3):
+  - RnSdk (2.0.4):
     - CertifaceSDK (= 3.0.2)
     - DoubleConversion
     - glog

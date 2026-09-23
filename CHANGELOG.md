@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.0.4] - 23/09/2026
+
+### Alterado
+
+- Example: marketing version / versionCode `2.0.4`
+- Android nativo `certifacesdk` `2.0.4` (repositório production)
+- iOS nativo `CertifaceSDK` `3.0.2`
+- Canal beta: `package.beta.json` / `publish-beta.mjs` (`2.0.4-beta`)
+
 ## [2.0.3] - 26/08/2026
 
 ### Adicionado
