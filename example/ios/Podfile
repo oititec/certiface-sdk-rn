@@ -30,7 +30,7 @@ target 'RnSdkExample' do
 
   # pod 'CFFortfaceSDK', git: 'https://github.com/oititec/ios-certiface-fortface.git', branch: 'main'
   # pod 'CertifaceModules', git: 'https://github.com/oititec/ios-oiti-sdk.git', branch: 'feature/30418-fortface'
-  pod 'CertifaceSDK', '3.0.0'
+  pod 'CertifaceSDK', '3.0.2'
   # pod 'CertifaceSDK', git: 'https://github.com/oititec/ios-oiti-sdk.git', branch: 'feature/31817-fortaface-update'
 
   post_install do |installer|
@@ -46,6 +46,10 @@ target 'RnSdkExample' do
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |build_config|
         build_config.build_settings['REACT_NATIVE_PATH'] = rn_abs
+        current = build_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']
+        if current.nil? || current.to_f < 15.1
+          build_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
+        end
       end
       target.build_phases.each do |phase|
         next unless phase.respond_to?(:shell_script)

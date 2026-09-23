@@ -1,8 +1,8 @@
 PODS:
   - boost (1.84.0)
-  - CertifaceModules (2.0.1)
-  - CertifaceSDK (3.0.0):
-    - CertifaceModules (= 2.0.1)
+  - CertifaceModules (2.0.2)
+  - CertifaceSDK (3.0.2):
+    - CertifaceModules (= 2.0.2)
     - CFFortfaceSDK (= 1.9.0)
     - iProov (= 12.5.0)
     - OILiveness3D_FT (= 9.7.130)
@@ -1862,7 +1862,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - RnSdk (2.0.3):
-    - CertifaceSDK (= 3.0.0)
+    - CertifaceSDK (= 3.0.2)
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1915,7 +1915,7 @@ PODS:
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
-  - CertifaceSDK (= 3.0.0)
+  - CertifaceSDK (= 3.0.2)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - fast_float (from `../node_modules/react-native/third-party-podspecs/fast_float.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
@@ -2164,8 +2164,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
-  CertifaceModules: 402336e45a37bd545231caae108c0feced8a7c3c
-  CertifaceSDK: 4f32ec353832e3d9bd90fa9203d8cceada52bce9
+  CertifaceModules: 43baba839bb3f3b9420a6d153c480ccd6c650aa0
+  CertifaceSDK: 3bd0f1103f6fd5465de765dcc72be8eb223266c4
   CFFortfaceSDK: eadd8a4a9c664c1d4e01a70dcea18dc0996263bf
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
@@ -2236,17 +2236,17 @@ SPEC CHECKSUMS:
   React-timing: a90f4654cbda9c628614f9bee68967f1768bd6a5
   React-utils: a612d50555b6f0f90c74b7d79954019ad47f5de6
   ReactAppDependencyProvider: 04d5eb15eb46be6720e17a4a7fa92940a776e584
-  ReactCodegen: c63eda03ba1d94353fb97b031fc84f75a0d125ba
+  ReactCodegen: d5d00f580b573d3a9e1b05019942612287f34010
   ReactCommon: 76d2dc87136d0a667678668b86f0fca0c16fdeb0
   RNCAsyncStorage: a1c8cc8a99c32de1244a9cf707bf9d83d0de0f71
   RNCClipboard: ea6045252d5c0753cf17f62290f647dc0096f6ac
   RNGestureHandler: 0397fea67f39d5a2d17fcf4a028e206f7ba098ba
   RNScreens: 7e56b051227a1a11c3068849d1a9a5dd457537df
-  RnSdk: de1b7b56306ade5b764cb40dff52b0a881a281b9
+  RnSdk: 66662933e45890e5c44d36b9140c9fbc17d648d7
   RNVectorIcons: 1fe59cfa2d3ac94ceb9d373a59c54609471b8d56
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: c758bfb934100bb4bf9cbaccb52557cee35e8bdf
 
-PODFILE CHECKSUM: f1a426a4658feb09df8fec9f2dc2a863927d9ac5
+PODFILE CHECKSUM: 82f2f7fdf92a08a7d8d6b14b54930690d68c0ab8
 
 COCOAPODS: 1.15.2
