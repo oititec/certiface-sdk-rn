@@ -10,7 +10,7 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
-platform :ios, min_ios_version_supported
+platform :ios, '15.1'
 prepare_react_native_project!
 
 linkage = ENV['USE_FRAMEWORKS']
@@ -30,8 +30,10 @@ target 'RnSdkExample' do
 
   # pod 'CFFortfaceSDK', git: 'https://github.com/oititec/ios-certiface-fortface.git', branch: 'main'
   # pod 'CertifaceModules', git: 'https://github.com/oititec/ios-oiti-sdk.git', branch: 'feature/30418-fortface'
-  pod 'CertifaceSDK', '3.0.2'
+  # pod 'CertifaceSDK', '3.0.3'
   # pod 'CertifaceSDK', git: 'https://github.com/oititec/ios-oiti-sdk.git', branch: 'feature/31817-fortaface-update'
+  pod 'OILiveness3D_FT', git: 'https://github.com/oititec/ios-liveness3d-ft.git', branch: 'chore/32857'
+  pod 'CertifaceSDK', git: 'https://github.com/oititec/ios-oiti-sdk.git', branch: 'chore/32857-facetec-update'
 
   post_install do |installer|
     react_native_post_install(
@@ -41,13 +43,9 @@ target 'RnSdkExample' do
     )
     rn_path = '${PODS_ROOT}/../../node_modules/react-native'
     installer.pods_project.targets.each do |target|
-      target.build_configurations.each do |build_config|
-        build_config.build_settings['REACT_NATIVE_PATH'] = rn_path
-        current = build_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']
-        if current.nil? || current.to_f < 15.1
-          build_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
-        end
-      end
+      target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1' 
+      end 
       target.build_phases.each do |phase|
         next unless phase.respond_to?(:shell_script)
         next if phase.shell_script.nil?

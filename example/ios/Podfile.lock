@@ -1,11 +1,11 @@
 PODS:
   - boost (1.84.0)
   - CertifaceModules (2.0.2)
-  - CertifaceSDK (3.0.2):
+  - CertifaceSDK (3.0.3):
     - CertifaceModules (= 2.0.2)
     - CFFortfaceSDK (= 1.9.0)
     - iProov (= 12.5.0)
-    - OILiveness3D_FT (= 9.7.130)
+    - OILiveness3D_FT (= 9.7.139)
   - CFFortfaceSDK (1.9.0)
   - DoubleConversion (1.1.6)
   - fast_float (6.1.4)
@@ -16,7 +16,7 @@ PODS:
     - hermes-engine/Pre-built (= 0.79.2)
   - hermes-engine/Pre-built (0.79.2)
   - iProov (12.5.0)
-  - OILiveness3D_FT (9.7.130)
+  - OILiveness3D_FT (9.7.139)
   - RCT-Folly (2024.11.18.00):
     - boost
     - DoubleConversion
@@ -1862,7 +1862,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - RnSdk (2.0.4):
-    - CertifaceSDK (= 3.0.2)
+    - CertifaceSDK (= 3.0.3)
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1915,13 +1915,14 @@ PODS:
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
-  - CertifaceSDK (= 3.0.2)
+  - CertifaceSDK (from `https://github.com/oititec/ios-oiti-sdk.git`, branch `chore/32857-facetec-update`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - fast_float (from `../node_modules/react-native/third-party-podspecs/fast_float.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - fmt (from `../node_modules/react-native/third-party-podspecs/fmt.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
+  - OILiveness3D_FT (from `https://github.com/oititec/ios-liveness3d-ft.git`, branch `chore/32857`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCT-Folly/Fabric (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
@@ -1998,9 +1999,7 @@ DEPENDENCIES:
 SPEC REPOS:
   https://github.com/oititec/ios-artifactory.git:
     - CertifaceModules
-    - CertifaceSDK
     - CFFortfaceSDK
-    - OILiveness3D_FT
   trunk:
     - iProov
     - SocketRocket
@@ -2008,6 +2007,9 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
+  CertifaceSDK:
+    :branch: chore/32857-facetec-update
+    :git: https://github.com/oititec/ios-oiti-sdk.git
   DoubleConversion:
     :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
   fast_float:
@@ -2021,6 +2023,9 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-2025-03-03-RNv0.79.0-bc17d964d03743424823d7dd1a9f37633459c5c5
+  OILiveness3D_FT:
+    :branch: chore/32857
+    :git: https://github.com/oititec/ios-liveness3d-ft.git
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTDeprecation:
@@ -2162,10 +2167,18 @@ EXTERNAL SOURCES:
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
+CHECKOUT OPTIONS:
+  CertifaceSDK:
+    :commit: 569374090acb8f8eb592a73432f2e91150992d76
+    :git: https://github.com/oititec/ios-oiti-sdk.git
+  OILiveness3D_FT:
+    :commit: c9e6a6b9006cdf908298a1787533a697efbf67d3
+    :git: https://github.com/oititec/ios-liveness3d-ft.git
+
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   CertifaceModules: 43baba839bb3f3b9420a6d153c480ccd6c650aa0
-  CertifaceSDK: 3bd0f1103f6fd5465de765dcc72be8eb223266c4
+  CertifaceSDK: ac776b76c5ae3ac19906b43788fd4142fc92c0cc
   CFFortfaceSDK: eadd8a4a9c664c1d4e01a70dcea18dc0996263bf
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
@@ -2174,7 +2187,7 @@ SPEC CHECKSUMS:
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   hermes-engine: 314be5250afa5692b57b4dd1705959e1973a8ebe
   iProov: 17b75b5b2ceb6615cf6f7e835f30a773f28b1644
-  OILiveness3D_FT: 9d2ed98ef288de2a8f08a32e52638c3f19d2f64a
+  OILiveness3D_FT: c80df4ba2ae118381b220e08071f26d7f1d9800f
   RCT-Folly: e78785aa9ba2ed998ea4151e314036f6c49e6d82
   RCTDeprecation: 83ffb90c23ee5cea353bd32008a7bca100908f8c
   RCTRequired: eb7c0aba998009f47a540bec9e9d69a54f68136e
@@ -2236,17 +2249,17 @@ SPEC CHECKSUMS:
   React-timing: a90f4654cbda9c628614f9bee68967f1768bd6a5
   React-utils: a612d50555b6f0f90c74b7d79954019ad47f5de6
   ReactAppDependencyProvider: 04d5eb15eb46be6720e17a4a7fa92940a776e584
-  ReactCodegen: d5d00f580b573d3a9e1b05019942612287f34010
+  ReactCodegen: c63eda03ba1d94353fb97b031fc84f75a0d125ba
   ReactCommon: 76d2dc87136d0a667678668b86f0fca0c16fdeb0
   RNCAsyncStorage: a1c8cc8a99c32de1244a9cf707bf9d83d0de0f71
   RNCClipboard: ea6045252d5c0753cf17f62290f647dc0096f6ac
   RNGestureHandler: 0397fea67f39d5a2d17fcf4a028e206f7ba098ba
   RNScreens: 7e56b051227a1a11c3068849d1a9a5dd457537df
-  RnSdk: 66662933e45890e5c44d36b9140c9fbc17d648d7
+  RnSdk: 682dab41718e04462be7118bca530b995617b7c1
   RNVectorIcons: 1fe59cfa2d3ac94ceb9d373a59c54609471b8d56
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: c758bfb934100bb4bf9cbaccb52557cee35e8bdf
 
-PODFILE CHECKSUM: 82f2f7fdf92a08a7d8d6b14b54930690d68c0ab8
+PODFILE CHECKSUM: 002017a2cf020f7a19a3ea112f9ad8a300bdac0f
 
 COCOAPODS: 1.15.2
