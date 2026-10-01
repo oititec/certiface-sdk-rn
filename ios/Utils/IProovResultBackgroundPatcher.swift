@@ -1,4 +1,4 @@
-import CertifaceIProov
+import CertifaceSDK
 import UIKit
 
 enum IProovResultBackgroundPatcher {

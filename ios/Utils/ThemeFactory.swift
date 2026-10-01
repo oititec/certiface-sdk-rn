@@ -6,9 +6,6 @@
 //
 
 import CertifaceSDK
-import CertifaceFacetec
-import CertifaceIProov
-import CertifaceFortface
 import UIKit
 
 final class ThemeFactory {
@@ -31,9 +28,6 @@ final class ThemeFactory {
       .setLivenessCustomization { livenessBuilder in
         customizeLivenessIProov(in: livenessBuilder, with: theme)
       }
-      .setLoadingCustomization { loadingBuilder in
-        customizeLoadingIProov(in: loadingBuilder, with: theme)
-      }
       .setResultCustomization { resultBuilder in
         customizeResultIProov(in: resultBuilder, with: theme)
       }
@@ -52,9 +46,6 @@ final class ThemeFactory {
       .setCameraPermissionCustomization { cameraPermissionBuilder in
         customizeCameraPermission(in: cameraPermissionBuilder, with: theme)
       }
-      .setLoadingCustomization { loadingBuilder in
-        customizeLoadingFacetec(in: loadingBuilder, with: theme)
-      }
       .setLivenessDefaultTheme { defaultThemeBuilder in
         customizeLivenessFacetec(in: defaultThemeBuilder, with: theme)
       }
@@ -62,24 +53,6 @@ final class ThemeFactory {
         customizeLivenessFacetec(in: defaultThemeBuilder, with: theme)
       }
       .setLivenessTexts(customizeLivenessTexts(from: theme))
-      .build()
-  }
-
-  static func createSaasCustomization(from theme: [String: Any]?) throws -> SaasCustomization {
-    try validate(theme, provider: .facetec)
-    let builder = SaasCustomization.builder()
-    guard let theme else { return builder.build() }
-
-    return builder
-      .setInstructionCustomization { instructionBuilder in
-        customizeInstruction(in: instructionBuilder, with: theme)
-      }
-      .setCameraPermissionCustomization { cameraPermissionBuilder in
-        customizeCameraPermission(in: cameraPermissionBuilder, with: theme)
-      }
-      .setLoadingCustomization { loadingBuilder in
-        customizeLoadingFacetec(in: loadingBuilder, with: theme)
-      }
       .build()
   }
 
@@ -94,9 +67,6 @@ final class ThemeFactory {
       }
       .setCameraPermissionCustomization { cameraPermissionBuilder in
         customizeCameraPermission(in: cameraPermissionBuilder, with: theme)
-      }
-      .setLoadingCustomization { loadingBuilder in
-        customizeLoadingFacetec(in: loadingBuilder, with: theme)
       }
       .setVendorCustomization { vendorBuilder in
         customizeFortfaceVendor(in: vendorBuilder, with: theme)
@@ -375,7 +345,7 @@ final class ThemeFactory {
     return builder
   }
 
-  private static func customizeLoadingIProov(
+  static func customizeLoadingIProov(
     in builder: LoadingCustomizationBuilder,
     with theme: [String: Any]
   ) -> LoadingCustomizationBuilder {
@@ -486,7 +456,7 @@ final class ThemeFactory {
 
   // MARK: Facetec
 
-  private static func customizeLoadingFacetec(
+  static func customizeLoadingFacetec(
     in builder: LoadingCustomizationBuilder,
     with theme: [String: Any]
   ) -> LoadingCustomizationBuilder {
@@ -690,9 +660,9 @@ final class ThemeFactory {
   // MARK: Fortface
 
   private static func customizeFortfaceVendor(
-    in builder: CertifaceFortface.FortfaceCustomizationBuilder,
+    in builder: FortfaceVendorCustomizationBuilder,
     with theme: [String: Any]
-  ) -> CertifaceFortface.FortfaceCustomizationBuilder {
+  ) -> FortfaceVendorCustomizationBuilder {
     guard let fortfaceTheme = theme["fortface"] as? [String: Any] else {
       return builder
     }
@@ -775,9 +745,9 @@ final class ThemeFactory {
 
   private static func fortfaceCameraMessages(
     from texts: [String: String]
-  ) -> [CertifaceFortface.FortfaceTextKey: String] {
-    var messages: [CertifaceFortface.FortfaceTextKey: String] = [:]
-    let mapping: [(String, CertifaceFortface.FortfaceTextKey)] = [
+  ) -> [FortfaceTextKey: String] {
+    var messages: [FortfaceTextKey: String] = [:]
+    let mapping: [(String, FortfaceTextKey)] = [
       ("cameraFacePositioned", .positioned),
       ("cameraNoFace", .noFace),
       ("cameraFaceNear", .faceNear),
@@ -1066,7 +1036,7 @@ final class ThemeFactory {
     if let imageName, let image = RnSdkBundle.getImage(named: imageName) {
       _ = builder.setResultScreenAnimationStyle(
         .image(
-          appearance: CertifaceFacetec.ImageAnimationAppearance(
+          appearance: ImageAnimationAppearance(
             image: image,
             rotationInterval: rotationInterval,
             checkmarkForegroundColor: checkmarkForeground,
@@ -1078,7 +1048,7 @@ final class ThemeFactory {
     }
     _ = builder.setResultScreenAnimationStyle(
       .spinner(
-        appearance: CertifaceFacetec.SpinnerAnimationAppearance(
+        appearance: SpinnerAnimationAppearance(
           spinnerColor: indicatorColor,
           checkmarkForegroundColor: checkmarkForeground,
           checkmarkBackgroundColor: checkmarkBackground
