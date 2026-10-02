@@ -28,11 +28,11 @@ target 'RnSdkExample' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  # pod 'CertifaceSDK', '3.0.3'
-  pod 'OILiveness3D_FT', git: 'https://github.com/oititec/ios-liveness3d-ft.git', branch: 'main'
-  pod 'CertifaceModules', git: 'https://github.com/oititec/ios-oiti-sdk.git', branch: 'temp'
-  pod 'CertifaceSDK', git: 'https://github.com/oititec/ios-oiti-sdk.git', branch: 'temp'
-
+  # pod 'CertifaceSDK', '4.0.1'
+  pod 'OILiveness3D_FT', git: 'https://github.com/oititec/ios-liveness3d-ft.git', branch: 'chore/32857'
+  pod 'CertifaceModules', git: 'https://github.com/oititec/ios-oiti-sdk.git', branch: 'chore/32857-facetec-update'
+  pod 'CertifaceSDK', git: 'https://github.com/oititec/ios-oiti-sdk.git', branch: 'chore/32857-facetec-update'
+ 
   post_install do |installer|
     react_native_post_install(
       installer,
