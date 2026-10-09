@@ -5,7 +5,7 @@ PODS:
     - CertifaceModules (= 3.0.0)
     - CFFortfaceSDK (= 1.9.0)
     - iProov (= 12.5.0)
-    - OILiveness3D_FT (= 9.7.139)
+    - OILiveness3D_FT (= 9.7.142)
   - CFFortfaceSDK (1.9.0)
   - DoubleConversion (1.1.6)
   - fast_float (6.1.4)
@@ -16,7 +16,7 @@ PODS:
     - hermes-engine/Pre-built (= 0.79.2)
   - hermes-engine/Pre-built (0.79.2)
   - iProov (12.5.0)
-  - OILiveness3D_FT (9.7.139)
+  - OILiveness3D_FT (9.7.142)
   - RCT-Folly (2024.11.18.00):
     - boost
     - DoubleConversion
@@ -2175,16 +2175,16 @@ CHECKOUT OPTIONS:
     :commit: d72fc749d42527b07a0d9db2d3097961db32941d
     :git: https://github.com/oititec/ios-oiti-sdk.git
   CertifaceSDK:
-    :commit: d72fc749d42527b07a0d9db2d3097961db32941d
+    :commit: 75b0a511c2819379b68f51c001bf48ac8b7e9786
     :git: https://github.com/oititec/ios-oiti-sdk.git
   OILiveness3D_FT:
-    :commit: c9e6a6b9006cdf908298a1787533a697efbf67d3
+    :commit: 9cb461f9ca011bad9c34aef398a8f385088d3416
     :git: https://github.com/oititec/ios-liveness3d-ft.git
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   CertifaceModules: 0f43fefb5ae72d2a7ebaf64c6d9428ee3e33a9ca
-  CertifaceSDK: a5cbd59c1732c5deb1dda31414d960d876a3b4a2
+  CertifaceSDK: 9467c6d014503b614dadeed3ce7d2fa8c5132381
   CFFortfaceSDK: eadd8a4a9c664c1d4e01a70dcea18dc0996263bf
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
@@ -2193,7 +2193,7 @@ SPEC CHECKSUMS:
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   hermes-engine: 314be5250afa5692b57b4dd1705959e1973a8ebe
   iProov: 17b75b5b2ceb6615cf6f7e835f30a773f28b1644
-  OILiveness3D_FT: c80df4ba2ae118381b220e08071f26d7f1d9800f
+  OILiveness3D_FT: d6ad5595c52310f5a201481ca4c37d91e77827ac
   RCT-Folly: e78785aa9ba2ed998ea4151e314036f6c49e6d82
   RCTDeprecation: 83ffb90c23ee5cea353bd32008a7bca100908f8c
   RCTRequired: eb7c0aba998009f47a540bec9e9d69a54f68136e
@@ -2268,4 +2268,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 51c8bfffdf5a585e4961a528d34e3b8993b23da5
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2
