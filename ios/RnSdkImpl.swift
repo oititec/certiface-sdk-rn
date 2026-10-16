@@ -53,10 +53,12 @@ import UIKit
     DispatchQueue.main.async { [self] in
       var iproovCustomization = IProovCustomization.builder().build()
       var showInstructionsScreen = true
+      var loadingTheme: [String: Any]?
 
       if isCustomEnabled {
         do {
           iproovCustomization = try ThemeFactory.createIProovCustomization(from: theme)
+          loadingTheme = theme
         } catch let error as ThemeCustomizationError {
           deliverError(NativeErrorPayload.fromThemeError(error))
           return
@@ -73,11 +75,16 @@ import UIKit
         showInstructionsScreen = resolveShowInstructionsScreen(from: theme)
       }
 
-      let options = LivenessManagerOptions
+      let optionsBuilder = LivenessManagerOptions
         .builder(appKey: appKey, environment: sdkEnvironment)
         .setShowInstructionsScreen(showInstructionsScreen)
         .setIProovCustomization(iproovCustomization)
-        .build()
+      if let loadingTheme {
+        optionsBuilder.setLoadingCustomization { loadingBuilder in
+          ThemeFactory.customizeLoadingIProov(in: loadingBuilder, with: loadingTheme)
+        }
+      }
+      let options = optionsBuilder.build()
       let manager = CertifaceSDKFactory.createLivenessManager(for: .iproov)
 
       start(manager: manager, options: options)
@@ -107,14 +114,14 @@ import UIKit
     DispatchQueue.main.async { [self] in
       var facetecCustomization = FacetecCustomization.builder().build()
       var fortfaceCustomization = FortfaceCustomization.builder().build()
-      var saasCustomization = SaasCustomization.builder().build()
       var showInstructionsScreen = true
+      var loadingTheme: [String: Any]?
 
       if isCustomEnabled {
         do {
           facetecCustomization = try ThemeFactory.createFacetecCustomization(from: theme)
           fortfaceCustomization = try ThemeFactory.createFortfaceCustomization(from: theme)
-          saasCustomization = try ThemeFactory.createSaasCustomization(from: theme)
+          loadingTheme = theme
         } catch let error as ThemeCustomizationError {
           deliverError(NativeErrorPayload.fromThemeError(error))
           return
@@ -131,13 +138,17 @@ import UIKit
         showInstructionsScreen = resolveShowInstructionsScreen(from: theme)
       }
 
-      let options = LivenessManagerOptions
+      let optionsBuilder = LivenessManagerOptions
         .builder(token: token, environment: sdkEnvironment)
         .setShowInstructionsScreen(showInstructionsScreen)
         .setFacetecCustomization(facetecCustomization)
         .setFortfaceCustomization(fortfaceCustomization)
-        .setSaasCustomization(saasCustomization)
-        .build()
+      if let loadingTheme {
+        optionsBuilder.setLoadingCustomization { loadingBuilder in
+          ThemeFactory.customizeLoadingFacetec(in: loadingBuilder, with: loadingTheme)
+        }
+      }
+      let options = optionsBuilder.build()
       let manager = CertifaceSDKFactory.createLivenessManager(for: .saas)
 
       start(manager: manager, options: options)

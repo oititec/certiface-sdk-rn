@@ -1,7 +1,4 @@
-import {
-  Environment,
-  type SaasProvider,
-} from '@certiface/sdk';
+import { Environment, type SaasProvider } from '@certiface/sdk';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -98,7 +95,8 @@ export const useUserStore = create<UserStore>()(
             `${new Date().toLocaleTimeString()}: ${result}`,
           ];
           return {
-            results: next.length > MAX_RESULTS ? next.slice(-MAX_RESULTS) : next,
+            results:
+              next.length > MAX_RESULTS ? next.slice(-MAX_RESULTS) : next,
           };
         }),
       clearResults: () => set({ results: [] }),
@@ -201,14 +199,16 @@ export const useUserStore = create<UserStore>()(
         if (!persisted || typeof persisted !== 'object') {
           return persisted;
         }
-        const { livenessProvider: _removed, ...rest } = persisted;
+        const rest = { ...persisted };
+        delete rest.livenessProvider;
         const legacyFeature = rest.selectedFeature;
         const next =
           legacyFeature === 'FACETEC' || legacyFeature === 'FORTFACE'
             ? {
                 ...rest,
                 selectedFeature: 'SAAS',
-                saasProvider: legacyFeature === 'FACETEC' ? 'FACETEC' : 'FORTFACE',
+                saasProvider:
+                  legacyFeature === 'FACETEC' ? 'FACETEC' : 'FORTFACE',
                 journeyToken: rest.journeyToken ?? '',
                 saasOperator: rest.saasOperator ?? { login: '', password: '' },
               }

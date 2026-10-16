@@ -6,9 +6,6 @@
 //
 
 import CertifaceSDK
-import CertifaceFacetec
-import CertifaceIProov
-import CertifaceFortface
 import UIKit
 
 final class ThemeFactory {
@@ -31,9 +28,6 @@ final class ThemeFactory {
       .setLivenessCustomization { livenessBuilder in
         customizeLivenessIProov(in: livenessBuilder, with: theme)
       }
-      .setLoadingCustomization { loadingBuilder in
-        customizeLoadingIProov(in: loadingBuilder, with: theme)
-      }
       .setResultCustomization { resultBuilder in
         customizeResultIProov(in: resultBuilder, with: theme)
       }
@@ -52,9 +46,6 @@ final class ThemeFactory {
       .setCameraPermissionCustomization { cameraPermissionBuilder in
         customizeCameraPermission(in: cameraPermissionBuilder, with: theme)
       }
-      .setLoadingCustomization { loadingBuilder in
-        customizeLoadingFacetec(in: loadingBuilder, with: theme)
-      }
       .setLivenessDefaultTheme { defaultThemeBuilder in
         customizeLivenessFacetec(in: defaultThemeBuilder, with: theme)
       }
@@ -62,24 +53,6 @@ final class ThemeFactory {
         customizeLivenessFacetec(in: defaultThemeBuilder, with: theme)
       }
       .setLivenessTexts(customizeLivenessTexts(from: theme))
-      .build()
-  }
-
-  static func createSaasCustomization(from theme: [String: Any]?) throws -> SaasCustomization {
-    try validate(theme, provider: .facetec)
-    let builder = SaasCustomization.builder()
-    guard let theme else { return builder.build() }
-
-    return builder
-      .setInstructionCustomization { instructionBuilder in
-        customizeInstruction(in: instructionBuilder, with: theme)
-      }
-      .setCameraPermissionCustomization { cameraPermissionBuilder in
-        customizeCameraPermission(in: cameraPermissionBuilder, with: theme)
-      }
-      .setLoadingCustomization { loadingBuilder in
-        customizeLoadingFacetec(in: loadingBuilder, with: theme)
-      }
       .build()
   }
 
@@ -95,10 +68,7 @@ final class ThemeFactory {
       .setCameraPermissionCustomization { cameraPermissionBuilder in
         customizeCameraPermission(in: cameraPermissionBuilder, with: theme)
       }
-      .setLoadingCustomization { loadingBuilder in
-        customizeLoadingFacetec(in: loadingBuilder, with: theme)
-      }
-      .setVendorCustomization { vendorBuilder in
+      .setLivenessCustomization { vendorBuilder in
         customizeFortfaceVendor(in: vendorBuilder, with: theme)
       }
       .build()
@@ -375,7 +345,7 @@ final class ThemeFactory {
     return builder
   }
 
-  private static func customizeLoadingIProov(
+  static func customizeLoadingIProov(
     in builder: LoadingCustomizationBuilder,
     with theme: [String: Any]
   ) -> LoadingCustomizationBuilder {
@@ -486,7 +456,7 @@ final class ThemeFactory {
 
   // MARK: Facetec
 
-  private static func customizeLoadingFacetec(
+  static func customizeLoadingFacetec(
     in builder: LoadingCustomizationBuilder,
     with theme: [String: Any]
   ) -> LoadingCustomizationBuilder {
@@ -508,9 +478,9 @@ final class ThemeFactory {
   }
 
   private static func customizeLivenessFacetec(
-    in builder: Liveness3DThemeBuilder,
+    in builder: FacetecThemeBuilder,
     with theme: [String: Any]
-  ) -> Liveness3DThemeBuilder {
+  ) -> FacetecThemeBuilder {
     guard let livenessTheme = theme["facetec"] as? [String: Any] else {
        return builder
     }
@@ -632,14 +602,14 @@ final class ThemeFactory {
 
   private static func customizeLivenessTexts(
     from theme: [String: Any]
-  ) -> [CertifaceSDK.Liveness3DTextKey: String] {
+  ) -> [CertifaceSDK.FacetecTextKey: String] {
     guard let livenessTheme = theme["facetec"] as? [String: Any] else {
       return [:]
     }
     guard let texts = livenessTheme["texts"] as? [String: String] else {
       return [:]
     }
-    let keys: [String: CertifaceSDK.Liveness3DTextKey] = [
+    let keys: [String: CertifaceSDK.FacetecTextKey] = [
       "readyHeader1": .readyHeader1,
       "readyHeader2": .readyHeader2,
       "readyMessage1": .readyMessage1,
@@ -674,7 +644,7 @@ final class ThemeFactory {
       "retryIdealPicture": .retryIdealPicture,
       "retryButton": .retryButton,
     ]
-    var livenessTexts: [CertifaceSDK.Liveness3DTextKey: String] = [:]
+    var livenessTexts: [CertifaceSDK.FacetecTextKey: String] = [:]
 
     for (themeKey, textKey) in keys {
       guard let value = texts[themeKey]?.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -690,9 +660,9 @@ final class ThemeFactory {
   // MARK: Fortface
 
   private static func customizeFortfaceVendor(
-    in builder: CertifaceFortface.FortfaceCustomizationBuilder,
+    in builder: FortfaceLivenessCustomizationBuilder,
     with theme: [String: Any]
-  ) -> CertifaceFortface.FortfaceCustomizationBuilder {
+  ) -> FortfaceLivenessCustomizationBuilder {
     guard let fortfaceTheme = theme["fortface"] as? [String: Any] else {
       return builder
     }
@@ -775,9 +745,9 @@ final class ThemeFactory {
 
   private static func fortfaceCameraMessages(
     from texts: [String: String]
-  ) -> [CertifaceFortface.FortfaceTextKey: String] {
-    var messages: [CertifaceFortface.FortfaceTextKey: String] = [:]
-    let mapping: [(String, CertifaceFortface.FortfaceTextKey)] = [
+  ) -> [FortfaceTextKey: String] {
+    var messages: [FortfaceTextKey: String] = [:]
+    let mapping: [(String, FortfaceTextKey)] = [
       ("cameraFacePositioned", .positioned),
       ("cameraNoFace", .noFace),
       ("cameraFaceNear", .faceNear),
@@ -904,10 +874,10 @@ final class ThemeFactory {
     }
   }
 
-  private static func shadowFromElevation(_ elevation: Int) -> Liveness3DShadow {
+  private static func shadowFromElevation(_ elevation: Int) -> FacetecShadow {
     let opacity = min(Swift.max(Float(elevation) / 24.0, 0.08), 0.4)
     let radius = CGFloat(min(Swift.max(elevation, 1), 24))
-    return Liveness3DShadow(
+    return FacetecShadow(
       color: .black,
       opacity: opacity,
       radius: Float(radius),
@@ -966,7 +936,7 @@ final class ThemeFactory {
   private static func resolveIProovFilterStyle(
     configuration: [String: Any],
     useLineDrawing: Bool
-  ) -> FilterStyle {
+  ) -> IProovFilterStyle {
     if useLineDrawing {
       switch normalizeIProovStyleKey(firstValue(in: configuration, keys: "lineDrawingStyle")) {
       case "shaded":
@@ -1047,7 +1017,7 @@ final class ThemeFactory {
   }
 
   private static func applyResultScreenAnimationStyle(
-    in builder: Liveness3DThemeBuilder,
+    in builder: FacetecThemeBuilder,
     colors: [String: String],
     assets: [String: String],
     sizes: [String: Any]
@@ -1066,7 +1036,7 @@ final class ThemeFactory {
     if let imageName, let image = RnSdkBundle.getImage(named: imageName) {
       _ = builder.setResultScreenAnimationStyle(
         .image(
-          appearance: CertifaceFacetec.ImageAnimationAppearance(
+          appearance: FacetecAnimationImageAppearance(
             image: image,
             rotationInterval: rotationInterval,
             checkmarkForegroundColor: checkmarkForeground,
@@ -1078,7 +1048,7 @@ final class ThemeFactory {
     }
     _ = builder.setResultScreenAnimationStyle(
       .spinner(
-        appearance: CertifaceFacetec.SpinnerAnimationAppearance(
+        appearance: FacetecAnimationSpinnerAppearance(
           spinnerColor: indicatorColor,
           checkmarkForegroundColor: checkmarkForeground,
           checkmarkBackgroundColor: checkmarkBackground

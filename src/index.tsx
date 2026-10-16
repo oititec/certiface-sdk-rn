@@ -31,7 +31,7 @@ async function startJourney(
     return Promise.reject(
       new CertifaceError(
         'UNSUPPORTED_OPERATION',
-        "Apenas LivenessProvider.IPROOV é suportado em startJourney. Use CertifaceSDK.startSaasJourney(token, environment, ...) para o fluxo SaaS."
+        'Apenas LivenessProvider.IPROOV é suportado em startJourney. Use CertifaceSDK.startSaasJourney(token, environment, ...) para o fluxo SaaS.'
       )
     );
   }

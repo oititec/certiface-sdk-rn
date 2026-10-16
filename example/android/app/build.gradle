@@ -181,10 +181,10 @@ android {
             } else {
                 def requestedTasks = gradle.startParameter.taskNames*.toLowerCase()
                 def requiresReleaseSigning = requestedTasks.any { taskName ->
-                    taskName.contains("release") ||
-                    taskName.contains("bundle") ||
-                    taskName.contains("publish") ||
-                    taskName.contains("distribute")
+                    taskName.contains("bundlerelease") ||
+                    taskName.contains("assemblerelease") ||
+                    taskName.contains("appdistributionuploadrelease") ||
+                    taskName.contains("publish")
                 }
                 if (requiresReleaseSigning) {
                     throw new GradleException(
