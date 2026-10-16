@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.0.5] - 16/10/2026
+
+### Alterado
+
+- Example: marketing version / versionCode `2.0.5`
+- Android nativo `certifacesdk` `2.0.5`
+- iOS nativo `CertifaceSDK` `4.0.1`
+- Bridge iOS: customização alinhada à API `4.0.1` (Facetec/Fortface/iProov; loading via `LivenessManagerOptions`)
+
+### Corrigido
+
+- CI: Xcode `latest-stable` no runner macOS; assinatura Android exigida só em tasks de release
+- Example: lint/prettier e migração do store (remoção de `livenessProvider` legado)
+
 ## [2.0.4] - 23/09/2026
 
 ### Alterado
