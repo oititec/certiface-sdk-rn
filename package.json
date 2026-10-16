@@ -1,6 +1,6 @@
 {
   "name": "@certiface/sdk",
-  "version": "2.0.5-beta",
+  "version": "2.0.5",
   "description": "Certiface SDK",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
